@@ -10,6 +10,7 @@ import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import CourseForm from "./pages/admin/CourseForm";
 import CourseList from "./pages/admin/CourseList";
+import StudentDashboard from "./pages/student/StudentDashboard";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -29,6 +30,14 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <Dashboard />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/student/dashboard" 
+              element={
+                <ProtectedRoute>
+                  <StudentDashboard />
                 </ProtectedRoute>
               } 
             />

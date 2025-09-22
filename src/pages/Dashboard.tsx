@@ -1,4 +1,6 @@
 import { useAuth } from "@/hooks/useAuth";
+import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 import AdminNavbar from "@/components/AdminNavbar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -6,17 +8,18 @@ import { BookOpen, Users, TrendingUp, DollarSign, Plus, Eye } from "lucide-react
 import { Link } from "react-router-dom";
 
 const Dashboard = () => {
-  const { profile, isAdmin } = useAuth();
+  const { isAdmin, profile } = useAuth();
+  const navigate = useNavigate();
+
+  // If not admin, redirect to student dashboard
+  useEffect(() => {
+    if (profile && !isAdmin) {
+      navigate('/student/dashboard');
+    }
+  }, [isAdmin, profile, navigate]);
 
   if (!isAdmin) {
-    return (
-      <div className="min-h-screen bg-background">
-        <div className="container mx-auto px-4 py-8">
-          <h1 className="text-3xl font-bold mb-6">Student Dashboard</h1>
-          <p>Student dashboard coming soon...</p>
-        </div>
-      </div>
-    );
+    return null; // Will redirect via useEffect
   }
 
   return (
