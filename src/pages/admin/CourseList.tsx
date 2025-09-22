@@ -31,7 +31,8 @@ import {
   Eye, 
   Trash2, 
   MoreHorizontal,
-  BookOpen 
+  BookOpen,
+  Percent
 } from "lucide-react";
 
 interface Course {
