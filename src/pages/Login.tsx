@@ -2,37 +2,68 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { GraduationCap, Eye, EyeOff } from "lucide-react";
-import { useState } from "react";
-import { Link } from "react-router-dom";
-import { useToast } from "@/hooks/use-toast";
+import { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
-  const [role, setRole] = useState("");
+  const [showSignUpPassword, setShowSignUpPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const { toast } = useToast();
+  const [signUpEmail, setSignUpEmail] = useState("");
+  const [signUpPassword, setSignUpPassword] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [loading, setLoading] = useState(false);
+  
+  const { signIn, signUp, user, loading: authLoading } = useAuth();
+  const navigate = useNavigate();
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!role || !email || !password) {
-      toast({
-        title: "Missing Information",
-        description: "Please fill in all fields including your role selection.",
-        variant: "destructive",
-      });
-      return;
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (user && !authLoading) {
+      navigate('/dashboard');
     }
+  }, [user, authLoading, navigate]);
 
-    // This is a placeholder - actual authentication will be implemented with Supabase
-    toast({
-      title: "Authentication Required",
-      description: "Please connect Supabase to enable user authentication and role-based access.",
-    });
+  const handleSignIn = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email || !password) return;
+    
+    setLoading(true);
+    const { error } = await signIn(email, password);
+    if (!error) {
+      navigate('/dashboard');
+    }
+    setLoading(false);
   };
+
+  const handleSignUp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!signUpEmail || !signUpPassword) return;
+    
+    setLoading(true);
+    const { error } = await signUp(signUpEmail, signUpPassword, firstName, lastName);
+    if (!error) {
+      // Reset form
+      setSignUpEmail('');
+      setSignUpPassword('');
+      setFirstName('');
+      setLastName('');
+    }
+    setLoading(false);
+  };
+
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-hero flex items-center justify-center">
+        <div className="text-white">Loading...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-hero flex items-center justify-center p-4">
@@ -48,86 +79,152 @@ const Login = () => {
           <p className="text-white/80">World-class learning management system</p>
         </div>
 
-        {/* Login Card */}
+        {/* Login/Signup Card */}
         <Card className="bg-white/95 backdrop-blur-sm border-white/20 animate-scale-in">
           <CardHeader className="text-center pb-4">
-            <CardTitle className="text-2xl font-semibold text-foreground">Welcome Back</CardTitle>
+            <CardTitle className="text-2xl font-semibold text-foreground">Welcome</CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
-            <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Role Selection */}
-              <div className="space-y-2">
-                <Label htmlFor="role" className="text-sm font-medium">Select Your Role</Label>
-                <Select value={role} onValueChange={setRole}>
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Choose your role..." />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="superadmin">SuperAdmin</SelectItem>
-                    <SelectItem value="admin">Admin</SelectItem>
-                    <SelectItem value="student">Student</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+            <Tabs defaultValue="signin" className="w-full">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="signin">Sign In</TabsTrigger>
+                <TabsTrigger value="signup">Sign Up</TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="signin" className="space-y-6">
+                <form onSubmit={handleSignIn} className="space-y-6">
+                  {/* Email */}
+                  <div className="space-y-2">
+                    <Label htmlFor="email" className="text-sm font-medium">Email Address</Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      placeholder="Enter your email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="w-full"
+                      required
+                    />
+                  </div>
 
-              {/* Email */}
-              <div className="space-y-2">
-                <Label htmlFor="email" className="text-sm font-medium">Email Address</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="Enter your email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full"
-                />
-              </div>
+                  {/* Password */}
+                  <div className="space-y-2">
+                    <Label htmlFor="password" className="text-sm font-medium">Password</Label>
+                    <div className="relative">
+                      <Input
+                        id="password"
+                        type={showPassword ? "text" : "password"}
+                        placeholder="Enter your password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        className="w-full pr-10"
+                        required
+                      />
+                      <button
+                        type="button"
+                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                        onClick={() => setShowPassword(!showPassword)}
+                      >
+                        {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      </button>
+                    </div>
+                  </div>
 
-              {/* Password */}
-              <div className="space-y-2">
-                <Label htmlFor="password" className="text-sm font-medium">Password</Label>
-                <div className="relative">
-                  <Input
-                    id="password"
-                    type={showPassword ? "text" : "password"}
-                    placeholder="Enter your password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="w-full pr-10"
-                  />
-                  <button
-                    type="button"
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                    onClick={() => setShowPassword(!showPassword)}
+                  {/* Submit Button */}
+                  <Button 
+                    type="submit" 
+                    className="w-full btn-hero text-white font-medium py-3"
+                    disabled={loading}
                   >
-                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                  </button>
-                </div>
-              </div>
+                    {loading ? "Signing In..." : "Sign In"}
+                  </Button>
+                </form>
+              </TabsContent>
 
-              {/* Forgot Password */}
-              <div className="text-right">
-                <a href="#" className="text-sm text-primary hover:underline">
-                  Forgot your password?
-                </a>
-              </div>
+              <TabsContent value="signup" className="space-y-6">
+                <form onSubmit={handleSignUp} className="space-y-6">
+                  {/* First Name & Last Name */}
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="firstName" className="text-sm font-medium">First Name</Label>
+                      <Input
+                        id="firstName"
+                        type="text"
+                        placeholder="First name"
+                        value={firstName}
+                        onChange={(e) => setFirstName(e.target.value)}
+                        className="w-full"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="lastName" className="text-sm font-medium">Last Name</Label>
+                      <Input
+                        id="lastName"
+                        type="text"
+                        placeholder="Last name"
+                        value={lastName}
+                        onChange={(e) => setLastName(e.target.value)}
+                        className="w-full"
+                      />
+                    </div>
+                  </div>
 
-              {/* Submit Button */}
-              <Button 
-                type="submit" 
-                className="w-full btn-hero text-white font-medium py-3"
-              >
-                Sign In to Dashboard
-              </Button>
-            </form>
+                  {/* Email */}
+                  <div className="space-y-2">
+                    <Label htmlFor="signUpEmail" className="text-sm font-medium">Email Address</Label>
+                    <Input
+                      id="signUpEmail"
+                      type="email"
+                      placeholder="Enter your email"
+                      value={signUpEmail}
+                      onChange={(e) => setSignUpEmail(e.target.value)}
+                      className="w-full"
+                      required
+                    />
+                  </div>
 
-            {/* Demo Credentials */}
+                  {/* Password */}
+                  <div className="space-y-2">
+                    <Label htmlFor="signUpPassword" className="text-sm font-medium">Password</Label>
+                    <div className="relative">
+                      <Input
+                        id="signUpPassword"
+                        type={showSignUpPassword ? "text" : "password"}
+                        placeholder="Create a password"
+                        value={signUpPassword}
+                        onChange={(e) => setSignUpPassword(e.target.value)}
+                        className="w-full pr-10"
+                        required
+                      />
+                      <button
+                        type="button"
+                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                        onClick={() => setShowSignUpPassword(!showSignUpPassword)}
+                      >
+                        {showSignUpPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Submit Button */}
+                  <Button 
+                    type="submit" 
+                    className="w-full btn-hero text-white font-medium py-3"
+                    disabled={loading}
+                  >
+                    {loading ? "Creating Account..." : "Create Account"}
+                  </Button>
+                </form>
+              </TabsContent>
+            </Tabs>
+
+            {/* Demo Notice */}
             <div className="mt-6 p-4 bg-muted/50 rounded-lg">
-              <p className="text-sm font-medium text-muted-foreground mb-2">Demo Credentials:</p>
+              <p className="text-sm font-medium text-muted-foreground mb-2">Note:</p>
               <div className="space-y-1 text-xs text-muted-foreground">
-                <p><strong>SuperAdmin:</strong> admin@resonance.com / admin123</p>
-                <p><strong>Admin:</strong> teacher@resonance.com / teacher123</p>
-                <p><strong>Student:</strong> student@resonance.com / student123</p>
+                <p>• mashcatg@gmail.com gets automatic SuperAdmin access</p>
+                <p>• All other users start as Students</p>
+                <p>• Check your email after signing up for verification</p>
               </div>
             </div>
           </CardContent>
