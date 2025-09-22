@@ -1,11 +1,32 @@
-import React, { useState } from 'react';
-import { Plus, Trash2, ChevronUp, ChevronDown, Video, FileText, HelpCircle } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Plus, Trash2, ChevronUp, ChevronDown, Video, FileText, HelpCircle, Edit, GripVertical } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+  useSortable,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+import LessonModal from './modals/LessonModal';
+import QuizModal from './modals/QuizModal';
+import QuestionModal from './modals/QuestionModal';
 
 interface Lesson {
   id: string;
@@ -24,8 +45,28 @@ interface Quiz {
   description: string;
   time_limit_minutes?: number;
   attempts_allowed: number;
-  passing_score: number;
+  points_per_question: number;
+  points_deducted_per_error: number;
+  total_questions: number;
   order_index: number;
+  questions?: Question[];
+}
+
+interface Question {
+  id: string;
+  question_text: string;
+  question_type: 'multiple_choice' | 'true_false' | 'fill_blank';
+  options?: string[];
+  correct_answer: string;
+  explanation?: string;
+  points: number;
+  order_index: number;
+}
+
+interface ContentItem {
+  id: string;
+  type: 'lesson' | 'quiz';
+  data: Lesson | Quiz;
 }
 
 interface Module {
@@ -33,17 +74,128 @@ interface Module {
   title: string;
   description: string;
   order_index: number;
-  lessons: Lesson[];
-  quizzes: Quiz[];
+  content: ContentItem[];
 }
 
 interface ModuleBuilderProps {
   modules: Module[];
   onChange: (modules: Module[]) => void;
+  onAutoSave?: () => void;
 }
 
-const ModuleBuilder: React.FC<ModuleBuilderProps> = ({ modules, onChange }) => {
+// Sortable Content Item Component
+const SortableContentItem: React.FC<{
+  item: ContentItem;
+  onEdit: () => void;
+  onDelete: () => void;
+  onManageQuestions?: () => void;
+}> = ({ item, onEdit, onDelete, onManageQuestions }) => {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: item.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
+  const isQuiz = item.type === 'quiz';
+  const quizData = item.data as Quiz;
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className="bg-accent/20 rounded-lg p-3 flex items-center justify-between group hover:bg-accent/30 transition-colors"
+    >
+      <div className="flex items-center space-x-3">
+        <div
+          {...attributes}
+          {...listeners}
+          className="cursor-grab active:cursor-grabbing p-1 hover:bg-accent/50 rounded"
+        >
+          <GripVertical className="h-4 w-4 text-muted-foreground" />
+        </div>
+        
+        <div className="flex items-center space-x-2">
+          {isQuiz ? (
+            <HelpCircle className="h-4 w-4 text-primary" />
+          ) : (
+            <Video className="h-4 w-4 text-primary" />
+          )}
+          <span className="font-medium">{item.data.title}</span>
+        </div>
+        
+        {isQuiz && (
+          <Badge variant="secondary" className="text-xs">
+            {quizData.questions?.length || 0} questions
+          </Badge>
+        )}
+      </div>
+
+      <div className="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
+        {isQuiz && (
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={onManageQuestions}
+            title="Manage Questions"
+          >
+            <FileText className="h-3 w-3" />
+          </Button>
+        )}
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          onClick={onEdit}
+          title="Edit"
+        >
+          <Edit className="h-3 w-3" />
+        </Button>
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          onClick={onDelete}
+          title="Delete"
+        >
+          <Trash2 className="h-3 w-3" />
+        </Button>
+      </div>
+    </div>
+  );
+};
+
+const ModuleBuilder: React.FC<ModuleBuilderProps> = ({ modules, onChange, onAutoSave }) => {
   const [openModules, setOpenModules] = useState<Set<string>>(new Set());
+  const [lessonModal, setLessonModal] = useState<{ open: boolean; moduleId?: string; lesson?: Lesson }>({ open: false });
+  const [quizModal, setQuizModal] = useState<{ open: boolean; moduleId?: string; quiz?: Quiz }>({ open: false });
+  const [questionModal, setQuestionModal] = useState<{ open: boolean; quizId?: string; question?: Question }>({ open: false });
+  const [currentQuizQuestions, setCurrentQuizQuestions] = useState<Question[]>([]);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
+  // Auto-save functionality
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      onAutoSave?.();
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  }, [modules, onAutoSave]);
 
   const toggleModule = (moduleId: string) => {
     const newOpen = new Set(openModules);
@@ -61,8 +213,7 @@ const ModuleBuilder: React.FC<ModuleBuilderProps> = ({ modules, onChange }) => {
       title: `Module ${modules.length + 1}`,
       description: '',
       order_index: modules.length,
-      lessons: [],
-      quizzes: []
+      content: []
     };
     onChange([...modules, newModule]);
     setOpenModules(new Set([...openModules, newModule.id]));
@@ -99,7 +250,6 @@ const ModuleBuilder: React.FC<ModuleBuilderProps> = ({ modules, onChange }) => {
     [newModules[currentIndex], newModules[targetIndex]] = 
     [newModules[targetIndex], newModules[currentIndex]];
     
-    // Update order_index
     newModules.forEach((module, index) => {
       module.order_index = index;
     });
@@ -107,86 +257,145 @@ const ModuleBuilder: React.FC<ModuleBuilderProps> = ({ modules, onChange }) => {
     onChange(newModules);
   };
 
-  const addLesson = (moduleId: string) => {
+  const handleDragEnd = (event: DragEndEvent, moduleId: string) => {
+    const { active, over } = event;
+
+    if (!over || active.id === over.id) return;
+
     const module = modules.find(m => m.id === moduleId);
     if (!module) return;
 
-    const newLesson: Lesson = {
-      id: `temp-lesson-${Date.now()}`,
-      title: `Lesson ${module.lessons.length + 1}`,
-      description: '',
-      video_url: '',
-      duration_minutes: 0,
-      is_free: false,
-      order_index: module.lessons.length
-    };
+    const oldIndex = module.content.findIndex(item => item.id === active.id);
+    const newIndex = module.content.findIndex(item => item.id === over.id);
 
-    updateModule(moduleId, {
-      lessons: [...module.lessons, newLesson]
-    });
+    if (oldIndex !== -1 && newIndex !== -1) {
+      const newContent = arrayMove(module.content, oldIndex, newIndex);
+      // Update order_index for all items
+      newContent.forEach((item, index) => {
+        item.data.order_index = index;
+      });
+      
+      updateModule(moduleId, { content: newContent });
+    }
   };
 
-  const updateLesson = (moduleId: string, lessonId: string, updates: Partial<Lesson>) => {
-    const module = modules.find(m => m.id === moduleId);
-    if (!module) return;
-
-    const updatedLessons = module.lessons.map(lesson =>
-      lesson.id === lessonId ? { ...lesson, ...updates } : lesson
-    );
-
-    updateModule(moduleId, { lessons: updatedLessons });
+  const addContentItem = (moduleId: string, type: 'lesson' | 'quiz') => {
+    if (type === 'lesson') {
+      setLessonModal({ open: true, moduleId });
+    } else {
+      setQuizModal({ open: true, moduleId });
+    }
   };
 
-  const deleteLesson = (moduleId: string, lessonId: string) => {
-    const module = modules.find(m => m.id === moduleId);
+  const saveLesson = (lesson: Lesson) => {
+    if (!lessonModal.moduleId) return;
+
+    const module = modules.find(m => m.id === lessonModal.moduleId);
     if (!module) return;
 
-    const updatedLessons = module.lessons
-      .filter(lesson => lesson.id !== lessonId)
-      .map((lesson, index) => ({ ...lesson, order_index: index }));
+    let newContent;
+    if (lessonModal.lesson) {
+      // Update existing lesson
+      newContent = module.content.map(item =>
+        item.type === 'lesson' && item.data.id === lesson.id
+          ? { ...item, data: lesson }
+          : item
+      );
+    } else {
+      // Add new lesson
+      const newItem: ContentItem = {
+        id: lesson.id,
+        type: 'lesson',
+        data: { ...lesson, order_index: module.content.length }
+      };
+      newContent = [...module.content, newItem];
+    }
 
-    updateModule(moduleId, { lessons: updatedLessons });
+    updateModule(lessonModal.moduleId, { content: newContent });
+    setLessonModal({ open: false });
   };
 
-  const addQuiz = (moduleId: string) => {
-    const module = modules.find(m => m.id === moduleId);
+  const saveQuiz = (quiz: Quiz) => {
+    if (!quizModal.moduleId) return;
+
+    const module = modules.find(m => m.id === quizModal.moduleId);
     if (!module) return;
 
-    const newQuiz: Quiz = {
-      id: `temp-quiz-${Date.now()}`,
-      title: `Quiz ${module.quizzes.length + 1}`,
-      description: '',
-      time_limit_minutes: 30,
-      attempts_allowed: 3,
-      passing_score: 70,
-      order_index: module.quizzes.length
-    };
+    let newContent;
+    if (quizModal.quiz) {
+      // Update existing quiz
+      newContent = module.content.map(item =>
+        item.type === 'quiz' && item.data.id === quiz.id
+          ? { ...item, data: { ...quiz, questions: currentQuizQuestions } }
+          : item
+      );
+    } else {
+      // Add new quiz
+      const newItem: ContentItem = {
+        id: quiz.id,
+        type: 'quiz',
+        data: { ...quiz, order_index: module.content.length, questions: [] }
+      };
+      newContent = [...module.content, newItem];
+    }
 
-    updateModule(moduleId, {
-      quizzes: [...module.quizzes, newQuiz]
-    });
+    updateModule(quizModal.moduleId, { content: newContent });
+    setQuizModal({ open: false });
+    setCurrentQuizQuestions([]);
   };
 
-  const updateQuiz = (moduleId: string, quizId: string, updates: Partial<Quiz>) => {
+  const deleteContentItem = (moduleId: string, itemId: string) => {
     const module = modules.find(m => m.id === moduleId);
     if (!module) return;
 
-    const updatedQuizzes = module.quizzes.map(quiz =>
-      quiz.id === quizId ? { ...quiz, ...updates } : quiz
-    );
+    const newContent = module.content.filter(item => item.id !== itemId)
+      .map((item, index) => ({
+        ...item,
+        data: { ...item.data, order_index: index }
+      }));
 
-    updateModule(moduleId, { quizzes: updatedQuizzes });
+    updateModule(moduleId, { content: newContent });
   };
 
-  const deleteQuiz = (moduleId: string, quizId: string) => {
-    const module = modules.find(m => m.id === moduleId);
-    if (!module) return;
+  const editContentItem = (moduleId: string, item: ContentItem) => {
+    if (item.type === 'lesson') {
+      setLessonModal({ open: true, moduleId, lesson: item.data as Lesson });
+    } else {
+      const quiz = item.data as Quiz;
+      setQuizModal({ open: true, moduleId, quiz });
+      setCurrentQuizQuestions(quiz.questions || []);
+    }
+  };
 
-    const updatedQuizzes = module.quizzes
-      .filter(quiz => quiz.id !== quizId)
-      .map((quiz, index) => ({ ...quiz, order_index: index }));
+  const manageQuizQuestions = (quiz: Quiz) => {
+    setCurrentQuizQuestions(quiz.questions || []);
+    setQuestionModal({ open: true, quizId: quiz.id });
+  };
 
-    updateModule(moduleId, { quizzes: updatedQuizzes });
+  const saveQuestion = (question: Question) => {
+    let newQuestions;
+    if (questionModal.question) {
+      // Update existing question
+      newQuestions = currentQuizQuestions.map(q =>
+        q.id === question.id ? question : q
+      );
+    } else {
+      // Add new question
+      newQuestions = [...currentQuizQuestions, { ...question, order_index: currentQuizQuestions.length }];
+    }
+
+    setCurrentQuizQuestions(newQuestions);
+    setQuestionModal({ open: false });
+  };
+
+  const deleteQuestion = (questionId: string) => {
+    const newQuestions = currentQuizQuestions.filter(q => q.id !== questionId)
+      .map((q, index) => ({ ...q, order_index: index }));
+    setCurrentQuizQuestions(newQuestions);
+  };
+
+  const editQuestion = (question: Question) => {
+    setQuestionModal({ open: true, quizId: questionModal.quizId, question });
   };
 
   return (
@@ -207,8 +416,7 @@ const ModuleBuilder: React.FC<ModuleBuilderProps> = ({ modules, onChange }) => {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-2">
                     <CardTitle className="text-base">{module.title}</CardTitle>
-                    <Badge variant="secondary">{module.lessons.length} lessons</Badge>
-                    <Badge variant="secondary">{module.quizzes.length} quizzes</Badge>
+                    <Badge variant="secondary">{module.content.length} items</Badge>
                   </div>
                   <div className="flex items-center space-x-1">
                     <Button
@@ -274,166 +482,61 @@ const ModuleBuilder: React.FC<ModuleBuilderProps> = ({ modules, onChange }) => {
                   />
                 </div>
 
-                {/* Lessons Section */}
+                {/* Content Section */}
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <h4 className="font-medium flex items-center">
-                      <Video className="h-4 w-4 mr-2" />
-                      Lessons
-                    </h4>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => addLesson(module.id)}
-                    >
-                      <Plus className="h-4 w-4 mr-1" />
-                      Add Lesson
-                    </Button>
+                    <h4 className="font-medium">Module Content</h4>
+                    <div className="flex space-x-2">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => addContentItem(module.id, 'lesson')}
+                      >
+                        <Video className="h-4 w-4 mr-1" />
+                        Add Lesson
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => addContentItem(module.id, 'quiz')}
+                      >
+                        <HelpCircle className="h-4 w-4 mr-1" />
+                        Add Quiz
+                      </Button>
+                    </div>
                   </div>
 
-                  {module.lessons.map((lesson) => (
-                    <Card key={lesson.id} className="p-4 bg-accent/20">
-                      <div className="space-y-3">
-                        <div className="flex items-center justify-between">
-                          <Input
-                            value={lesson.title}
-                            onChange={(e) => updateLesson(module.id, lesson.id, { title: e.target.value })}
-                            placeholder="Lesson title"
-                            className="font-medium"
-                          />
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => deleteLesson(module.id, lesson.id)}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                          <div>
-                            <label className="text-xs font-medium">YouTube Video URL</label>
-                            <Input
-                              value={lesson.video_url}
-                              onChange={(e) => updateLesson(module.id, lesson.id, { video_url: e.target.value })}
-                              placeholder="https://youtube.com/watch?v=..."
-                            />
-                          </div>
-                          <div>
-                            <label className="text-xs font-medium">Duration (minutes)</label>
-                            <Input
-                              type="number"
-                              value={lesson.duration_minutes}
-                              onChange={(e) => updateLesson(module.id, lesson.id, { duration_minutes: parseInt(e.target.value) || 0 })}
-                              placeholder="0"
-                            />
-                          </div>
-                        </div>
-
-                        <Textarea
-                          value={lesson.description}
-                          onChange={(e) => updateLesson(module.id, lesson.id, { description: e.target.value })}
-                          placeholder="Lesson description"
-                          rows={2}
-                        />
-
-                        <div className="flex items-center space-x-2">
-                          <input
-                            type="checkbox"
-                            id={`lesson-free-${lesson.id}`}
-                            checked={lesson.is_free}
-                            onChange={(e) => updateLesson(module.id, lesson.id, { is_free: e.target.checked })}
-                            className="rounded border-border"
-                          />
-                          <label htmlFor={`lesson-free-${lesson.id}`} className="text-sm">
-                            Free lesson (available to all users)
-                          </label>
-                        </div>
-                      </div>
-                    </Card>
-                  ))}
-                </div>
-
-                {/* Quizzes Section */}
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <h4 className="font-medium flex items-center">
-                      <HelpCircle className="h-4 w-4 mr-2" />
-                      Quizzes
-                    </h4>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => addQuiz(module.id)}
+                  {module.content.length > 0 ? (
+                    <DndContext
+                      sensors={sensors}
+                      collisionDetection={closestCenter}
+                      onDragEnd={(event) => handleDragEnd(event, module.id)}
                     >
-                      <Plus className="h-4 w-4 mr-1" />
-                      Add Quiz
-                    </Button>
-                  </div>
-
-                  {module.quizzes.map((quiz) => (
-                    <Card key={quiz.id} className="p-4 bg-accent/20">
-                      <div className="space-y-3">
-                        <div className="flex items-center justify-between">
-                          <Input
-                            value={quiz.title}
-                            onChange={(e) => updateQuiz(module.id, quiz.id, { title: e.target.value })}
-                            placeholder="Quiz title"
-                            className="font-medium"
-                          />
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => deleteQuiz(module.id, quiz.id)}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
+                      <SortableContext
+                        items={module.content.map(item => item.id)}
+                        strategy={verticalListSortingStrategy}
+                      >
+                        <div className="space-y-2">
+                          {module.content.map((item) => (
+                            <SortableContentItem
+                              key={item.id}
+                              item={item}
+                              onEdit={() => editContentItem(module.id, item)}
+                              onDelete={() => deleteContentItem(module.id, item.id)}
+                              onManageQuestions={item.type === 'quiz' ? () => manageQuizQuestions(item.data as Quiz) : undefined}
+                            />
+                          ))}
                         </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                          <div>
-                            <label className="text-xs font-medium">Time Limit (minutes)</label>
-                            <Input
-                              type="number"
-                              value={quiz.time_limit_minutes || ''}
-                              onChange={(e) => updateQuiz(module.id, quiz.id, { time_limit_minutes: parseInt(e.target.value) || undefined })}
-                              placeholder="No limit"
-                            />
-                          </div>
-                          <div>
-                            <label className="text-xs font-medium">Attempts Allowed</label>
-                            <Input
-                              type="number"
-                              value={quiz.attempts_allowed}
-                              onChange={(e) => updateQuiz(module.id, quiz.id, { attempts_allowed: parseInt(e.target.value) || 1 })}
-                              min="1"
-                            />
-                          </div>
-                          <div>
-                            <label className="text-xs font-medium">Passing Score (%)</label>
-                            <Input
-                              type="number"
-                              value={quiz.passing_score}
-                              onChange={(e) => updateQuiz(module.id, quiz.id, { passing_score: parseInt(e.target.value) || 70 })}
-                              min="0"
-                              max="100"
-                            />
-                          </div>
-                        </div>
-
-                        <Textarea
-                          value={quiz.description}
-                          onChange={(e) => updateQuiz(module.id, quiz.id, { description: e.target.value })}
-                          placeholder="Quiz description"
-                          rows={2}
-                        />
-                      </div>
-                    </Card>
-                  ))}
+                      </SortableContext>
+                    </DndContext>
+                  ) : (
+                    <div className="text-center py-8 text-muted-foreground">
+                      <p>No content added yet</p>
+                      <p className="text-sm">Add lessons and quizzes to build your module</p>
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </CollapsibleContent>
@@ -450,6 +553,101 @@ const ModuleBuilder: React.FC<ModuleBuilderProps> = ({ modules, onChange }) => {
           </Button>
         </Card>
       )}
+
+      {/* Modals */}
+      <LessonModal
+        open={lessonModal.open}
+        onOpenChange={(open) => setLessonModal({ open })}
+        onSave={saveLesson}
+        initialData={lessonModal.lesson}
+      />
+
+      <QuizModal
+        open={quizModal.open}
+        onOpenChange={(open) => setQuizModal({ open })}
+        onSave={saveQuiz}
+        initialData={quizModal.quiz}
+      />
+
+      {/* Question Management Modal */}
+      {questionModal.open && (
+        <Dialog open={true} onOpenChange={() => setQuestionModal({ open: false })}>
+          <DialogContent className="sm:max-w-[800px] max-h-[80vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Manage Quiz Questions</DialogTitle>
+            </DialogHeader>
+            
+            <div className="space-y-4">
+              <div className="flex justify-between items-center">
+                <p className="text-sm text-muted-foreground">
+                  {currentQuizQuestions.length} questions
+                </p>
+                <Button
+                  onClick={() => setQuestionModal({ open: true, quizId: questionModal.quizId })}
+                  size="sm"
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add Question
+                </Button>
+              </div>
+
+              {currentQuizQuestions.map((question, index) => (
+                <Card key={question.id} className="p-4">
+                  <div className="flex justify-between items-start">
+                    <div className="flex-1">
+                      <h4 className="font-medium mb-2">Question {index + 1}</h4>
+                      <p className="text-sm text-muted-foreground mb-2">{question.question_text}</p>
+                      <div className="flex items-center space-x-2">
+                        <Badge variant="outline">{question.question_type.replace('_', ' ')}</Badge>
+                        <Badge variant="secondary">{question.points} points</Badge>
+                      </div>
+                    </div>
+                    <div className="flex space-x-1">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => editQuestion(question)}
+                      >
+                        <Edit className="h-3 w-3" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => deleteQuestion(question.id)}
+                      >
+                        <Trash2 className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  </div>
+                </Card>
+              ))}
+
+              {currentQuizQuestions.length === 0 && (
+                <div className="text-center py-8 text-muted-foreground">
+                  <p>No questions added yet</p>
+                  <p className="text-sm">Add questions to create your quiz</p>
+                </div>
+              )}
+
+              <div className="flex justify-end space-x-2 pt-4">
+                <Button
+                  variant="outline"
+                  onClick={() => setQuestionModal({ open: false })}
+                >
+                  Done
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
+
+      <QuestionModal
+        open={questionModal.open}
+        onOpenChange={(open) => setQuestionModal(prev => ({ ...prev, open }))}
+        onSave={saveQuestion}
+        initialData={questionModal.question}
+      />
     </div>
   );
 };

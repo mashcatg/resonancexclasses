@@ -14,6 +14,44 @@ export type Database = {
   }
   public: {
     Tables: {
+      content_items: {
+        Row: {
+          created_at: string | null
+          id: string
+          item_id: string
+          item_type: string
+          module_id: string
+          order_index: number
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          item_id: string
+          item_type: string
+          module_id: string
+          order_index?: number
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          item_id?: string
+          item_type?: string
+          module_id?: string
+          order_index?: number
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "content_items_module_id_fkey"
+            columns: ["module_id"]
+            isOneToOne: false
+            referencedRelation: "course_modules"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       coupons: {
         Row: {
           code: string
@@ -442,9 +480,11 @@ export type Database = {
           is_active: boolean
           module_id: string | null
           order_index: number
-          passing_score: number | null
+          points_deducted_per_error: number | null
+          points_per_question: number | null
           time_limit_minutes: number | null
           title: string
+          total_questions: number | null
           updated_at: string
         }
         Insert: {
@@ -456,9 +496,11 @@ export type Database = {
           is_active?: boolean
           module_id?: string | null
           order_index?: number
-          passing_score?: number | null
+          points_deducted_per_error?: number | null
+          points_per_question?: number | null
           time_limit_minutes?: number | null
           title: string
+          total_questions?: number | null
           updated_at?: string
         }
         Update: {
@@ -470,9 +512,11 @@ export type Database = {
           is_active?: boolean
           module_id?: string | null
           order_index?: number
-          passing_score?: number | null
+          points_deducted_per_error?: number | null
+          points_per_question?: number | null
           time_limit_minutes?: number | null
           title?: string
+          total_questions?: number | null
           updated_at?: string
         }
         Relationships: [
