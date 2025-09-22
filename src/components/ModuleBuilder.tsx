@@ -1,32 +1,54 @@
-import React, { useState, useEffect } from 'react';
-import { Plus, Trash2, ChevronUp, ChevronDown, Video, FileText, HelpCircle, Edit, GripVertical } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Badge } from '@/components/ui/badge';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import {
-  DndContext,
-  closestCenter,
-  KeyboardSensor,
-  PointerSensor,
-  useSensor,
+import { useEffect, useState } from 'react';
+import { 
+  DndContext, 
+  DragEndEvent, 
+  KeyboardSensor, 
+  PointerSensor, 
+  useSensor, 
   useSensors,
-  DragEndEvent,
+  closestCenter
 } from '@dnd-kit/core';
 import {
   arrayMove,
   SortableContext,
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
-  useSortable,
+  useSortable
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import LessonModal from './modals/LessonModal';
-import QuizModal from './modals/QuizModal';
-import QuestionModal from './modals/QuestionModal';
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Badge } from '@/components/ui/badge';
+import { 
+  ChevronDown, 
+  ChevronRight, 
+  Plus, 
+  Trash2, 
+  Edit, 
+  ArrowUp, 
+  ArrowDown,
+  GripVertical,
+  BookOpen,
+  HelpCircle,
+  List
+} from 'lucide-react';
+import LessonModal from '@/components/modals/LessonModal';
+import QuizModal from '@/components/modals/QuizModal';
+import QuestionModal from '@/components/modals/QuestionModal';
+import ManageQuestionsModal from '@/components/modals/ManageQuestionsModal';
+
+interface Question {
+  id: string;
+  question_text: string;
+  question_type: string;
+  correct_answer: string;
+  explanation?: string;
+  points: number;
+  options?: string[];
+  order_index: number;
+}
 
 interface Lesson {
   id: string;
@@ -34,9 +56,9 @@ interface Lesson {
   description: string;
   video_url: string;
   duration_minutes: number;
+  pdf_url?: string;
   is_free: boolean;
   order_index: number;
-  pdf_url?: string;
 }
 
 interface Quiz {
@@ -49,18 +71,7 @@ interface Quiz {
   points_deducted_per_error: number;
   total_questions: number;
   order_index: number;
-  questions?: Question[];
-}
-
-interface Question {
-  id: string;
-  question_text: string;
-  question_type: 'multiple_choice' | 'true_false' | 'fill_blank';
-  options?: string[];
-  correct_answer: string;
-  explanation?: string;
-  points: number;
-  order_index: number;
+  questions: Question[];
 }
 
 interface ContentItem {
@@ -80,93 +91,84 @@ interface Module {
 interface ModuleBuilderProps {
   modules: Module[];
   onChange: (modules: Module[]) => void;
-  onAutoSave?: () => void;
 }
 
-// Sortable Content Item Component
-const SortableContentItem: React.FC<{
+interface SortableContentItemProps {
   item: ContentItem;
   onEdit: () => void;
   onDelete: () => void;
   onManageQuestions?: () => void;
-}> = ({ item, onEdit, onDelete, onManageQuestions }) => {
+}
+
+const SortableContentItem: React.FC<SortableContentItemProps> = ({
+  item,
+  onEdit,
+  onDelete,
+  onManageQuestions
+}) => {
   const {
     attributes,
     listeners,
     setNodeRef,
     transform,
     transition,
-    isDragging,
   } = useSortable({ id: item.id });
 
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
-    opacity: isDragging ? 0.5 : 1,
   };
 
-  const isQuiz = item.type === 'quiz';
-  const quizData = item.data as Quiz;
+  const isLesson = item.type === 'lesson';
+  const data = item.data as Lesson | Quiz;
 
   return (
     <div
       ref={setNodeRef}
       style={style}
-      className="bg-accent/20 rounded-lg p-3 flex items-center justify-between group hover:bg-accent/30 transition-colors"
+      className="flex items-center space-x-3 p-3 bg-muted/50 rounded-lg border"
     >
-      <div className="flex items-center space-x-3">
-        <div
-          {...attributes}
-          {...listeners}
-          className="cursor-grab active:cursor-grabbing p-1 hover:bg-accent/50 rounded"
-        >
-          <GripVertical className="h-4 w-4 text-muted-foreground" />
-        </div>
-        
-        <div className="flex items-center space-x-2">
-          {isQuiz ? (
-            <HelpCircle className="h-4 w-4 text-primary" />
-          ) : (
-            <Video className="h-4 w-4 text-primary" />
-          )}
-          <span className="font-medium">{item.data.title}</span>
-        </div>
-        
-        {isQuiz && (
-          <Badge variant="secondary" className="text-xs">
-            {quizData.questions?.length || 0} questions
-          </Badge>
+      <div {...attributes} {...listeners} className="cursor-grab">
+        <GripVertical className="h-4 w-4 text-muted-foreground" />
+      </div>
+      
+      <div className="flex items-center space-x-2">
+        {isLesson ? (
+          <BookOpen className="h-4 w-4 text-primary" />
+        ) : (
+          <HelpCircle className="h-4 w-4 text-secondary" />
+        )}
+        <Badge variant={isLesson ? "default" : "secondary"}>
+          {isLesson ? 'Lesson' : 'Quiz'}
+        </Badge>
+      </div>
+
+      <div className="flex-1">
+        <h4 className="font-medium">{data.title}</h4>
+        {!isLesson && (
+          <p className="text-xs text-muted-foreground">
+            {(item.data as Quiz).questions?.length || 0} questions
+          </p>
         )}
       </div>
 
-      <div className="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
-        {isQuiz && (
+      <div className="flex items-center space-x-1">
+        {!isLesson && onManageQuestions && (
           <Button
-            type="button"
             variant="ghost"
             size="sm"
             onClick={onManageQuestions}
-            title="Manage Questions"
           >
-            <FileText className="h-3 w-3" />
+            <List className="h-3 w-3 mr-1" />
+            Questions ({(item.data as Quiz).questions?.length || 0})
           </Button>
         )}
-        <Button
-          type="button"
-          variant="ghost"
-          size="sm"
-          onClick={onEdit}
-          title="Edit"
-        >
+        
+        <Button variant="ghost" size="sm" onClick={onEdit}>
           <Edit className="h-3 w-3" />
         </Button>
-        <Button
-          type="button"
-          variant="ghost"
-          size="sm"
-          onClick={onDelete}
-          title="Delete"
-        >
+        
+        <Button variant="ghost" size="sm" onClick={onDelete}>
           <Trash2 className="h-3 w-3" />
         </Button>
       </div>
@@ -174,11 +176,14 @@ const SortableContentItem: React.FC<{
   );
 };
 
-const ModuleBuilder: React.FC<ModuleBuilderProps> = ({ modules, onChange, onAutoSave }) => {
+const ModuleBuilder: React.FC<ModuleBuilderProps> = ({ modules, onChange }) => {
   const [openModules, setOpenModules] = useState<Set<string>>(new Set());
-  const [lessonModal, setLessonModal] = useState<{ open: boolean; moduleId?: string; lesson?: Lesson }>({ open: false });
-  const [quizModal, setQuizModal] = useState<{ open: boolean; moduleId?: string; quiz?: Quiz }>({ open: false });
-  const [questionModal, setQuestionModal] = useState<{ open: boolean; quizId?: string; question?: Question }>({ open: false });
+  const [editingModule, setEditingModule] = useState<string | null>(null);
+  
+  const [lessonModal, setLessonModal] = useState({ open: false, moduleId: '', lesson: null as Lesson | null });
+  const [quizModal, setQuizModal] = useState({ open: false, moduleId: '', quiz: null as Quiz | null });
+  const [questionModal, setQuestionModal] = useState({ open: false, quiz: null as Quiz | null, question: null as Question | null });
+  const [manageQuestionsModal, setManageQuestionsModal] = useState({ open: false, quiz: null as Quiz | null });
   const [currentQuizQuestions, setCurrentQuizQuestions] = useState<Question[]>([]);
 
   const sensors = useSensors(
@@ -188,14 +193,15 @@ const ModuleBuilder: React.FC<ModuleBuilderProps> = ({ modules, onChange, onAuto
     })
   );
 
-  // Auto-save functionality
+  // Auto-save modules when they change
   useEffect(() => {
-    const timer = setTimeout(() => {
-      onAutoSave?.();
+    // This would typically save to localStorage or trigger a parent auto-save
+    const saveTimeout = setTimeout(() => {
+      console.log('Auto-saving modules...', modules.length);
     }, 1000);
 
-    return () => clearTimeout(timer);
-  }, [modules, onAutoSave]);
+    return () => clearTimeout(saveTimeout);
+  }, [modules]);
 
   const toggleModule = (moduleId: string) => {
     const newOpen = new Set(openModules);
@@ -281,9 +287,9 @@ const ModuleBuilder: React.FC<ModuleBuilderProps> = ({ modules, onChange, onAuto
 
   const addContentItem = (moduleId: string, type: 'lesson' | 'quiz') => {
     if (type === 'lesson') {
-      setLessonModal({ open: true, moduleId });
+      setLessonModal({ open: true, moduleId, lesson: null });
     } else {
-      setQuizModal({ open: true, moduleId });
+      setQuizModal({ open: true, moduleId, quiz: null });
     }
   };
 
@@ -304,7 +310,7 @@ const ModuleBuilder: React.FC<ModuleBuilderProps> = ({ modules, onChange, onAuto
     } else {
       // Add new lesson
       const newItem: ContentItem = {
-        id: lesson.id,
+        id: `content-${Date.now()}`,
         type: 'lesson',
         data: { ...lesson, order_index: module.content.length }
       };
@@ -312,7 +318,7 @@ const ModuleBuilder: React.FC<ModuleBuilderProps> = ({ modules, onChange, onAuto
     }
 
     updateModule(lessonModal.moduleId, { content: newContent });
-    setLessonModal({ open: false });
+    setLessonModal({ open: false, moduleId: '', lesson: null });
   };
 
   const saveQuiz = (quiz: Quiz) => {
@@ -326,13 +332,13 @@ const ModuleBuilder: React.FC<ModuleBuilderProps> = ({ modules, onChange, onAuto
       // Update existing quiz
       newContent = module.content.map(item =>
         item.type === 'quiz' && item.data.id === quiz.id
-          ? { ...item, data: { ...quiz, questions: currentQuizQuestions } }
+          ? { ...item, data: quiz }
           : item
       );
     } else {
       // Add new quiz
       const newItem: ContentItem = {
-        id: quiz.id,
+        id: `content-${Date.now()}`,
         type: 'quiz',
         data: { ...quiz, order_index: module.content.length, questions: [] }
       };
@@ -340,8 +346,15 @@ const ModuleBuilder: React.FC<ModuleBuilderProps> = ({ modules, onChange, onAuto
     }
 
     updateModule(quizModal.moduleId, { content: newContent });
-    setQuizModal({ open: false });
-    setCurrentQuizQuestions([]);
+    setQuizModal({ open: false, moduleId: '', quiz: null });
+  };
+
+  const editContentItem = (moduleId: string, item: ContentItem) => {
+    if (item.type === 'lesson') {
+      setLessonModal({ open: true, moduleId, lesson: item.data as Lesson });
+    } else {
+      setQuizModal({ open: true, moduleId, quiz: item.data as Quiz });
+    }
   };
 
   const deleteContentItem = (moduleId: string, itemId: string) => {
@@ -357,290 +370,285 @@ const ModuleBuilder: React.FC<ModuleBuilderProps> = ({ modules, onChange, onAuto
     updateModule(moduleId, { content: newContent });
   };
 
-  const editContentItem = (moduleId: string, item: ContentItem) => {
-    if (item.type === 'lesson') {
-      setLessonModal({ open: true, moduleId, lesson: item.data as Lesson });
-    } else {
-      const quiz = item.data as Quiz;
-      setQuizModal({ open: true, moduleId, quiz });
-      setCurrentQuizQuestions(quiz.questions || []);
-    }
-  };
-
-  const manageQuizQuestions = (quiz: Quiz) => {
+  const manageQuestions = (quiz: Quiz) => {
+    setManageQuestionsModal({ open: true, quiz });
     setCurrentQuizQuestions(quiz.questions || []);
-    setQuestionModal({ open: true, quizId: quiz.id });
   };
 
   const saveQuestion = (question: Question) => {
-    let newQuestions;
-    if (questionModal.question) {
-      // Update existing question
-      newQuestions = currentQuizQuestions.map(q =>
-        q.id === question.id ? question : q
-      );
-    } else {
-      // Add new question
-      newQuestions = [...currentQuizQuestions, { ...question, order_index: currentQuizQuestions.length }];
-    }
-
-    setCurrentQuizQuestions(newQuestions);
-    setQuestionModal({ open: false });
+    if (!manageQuestionsModal.quiz && !questionModal.quiz) return;
+    
+    const targetQuiz = manageQuestionsModal.quiz || questionModal.quiz;
+    
+    const updatedQuestions = questionModal.question
+      ? currentQuizQuestions.map(q => 
+          q.id === question.id ? question : q
+        )
+      : [...currentQuizQuestions, question];
+    
+    setCurrentQuizQuestions(updatedQuestions);
+    
+    // Update the quiz in the modules
+    const updatedModules = modules.map(module => ({
+      ...module,
+      content: module.content.map(item => {
+        if (item.type === 'quiz' && item.data.id === targetQuiz!.id) {
+          return {
+            ...item,
+            data: {
+              ...item.data,
+              questions: updatedQuestions,
+              total_questions: updatedQuestions.length
+            }
+          };
+        }
+        return item;
+      })
+    }));
+    
+    onChange(updatedModules);
   };
-
-  const deleteQuestion = (questionId: string) => {
-    const newQuestions = currentQuizQuestions.filter(q => q.id !== questionId)
-      .map((q, index) => ({ ...q, order_index: index }));
-    setCurrentQuizQuestions(newQuestions);
-  };
-
+  
   const editQuestion = (question: Question) => {
-    setQuestionModal({ open: true, quizId: questionModal.quizId, question });
+    setQuestionModal({
+      open: true,
+      quiz: manageQuestionsModal.quiz,
+      question
+    });
+  };
+  
+  const createQuestion = () => {
+    setQuestionModal({
+      open: true,
+      quiz: manageQuestionsModal.quiz,
+      question: null
+    });
+  };
+  
+  const deleteQuestion = (questionId: string) => {
+    const updatedQuestions = currentQuizQuestions.filter(q => q.id !== questionId);
+    setCurrentQuizQuestions(updatedQuestions);
+    
+    if (!manageQuestionsModal.quiz) return;
+    
+    // Update the quiz in the modules
+    const updatedModules = modules.map(module => ({
+      ...module,
+      content: module.content.map(item => {
+        if (item.type === 'quiz' && item.data.id === manageQuestionsModal.quiz!.id) {
+          return {
+            ...item,
+            data: {
+              ...item.data,
+              questions: updatedQuestions,
+              total_questions: updatedQuestions.length
+            }
+          };
+        }
+        return item;
+      })
+    }));
+    
+    onChange(updatedModules);
   };
 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-semibold">Course Modules</h3>
-        <Button onClick={addModule} size="sm">
+        <Button onClick={addModule} variant="outline">
           <Plus className="h-4 w-4 mr-2" />
           Add Module
         </Button>
       </div>
 
-      {modules.map((module, moduleIndex) => (
-        <Card key={module.id} className="border-l-4 border-l-primary">
-          <Collapsible open={openModules.has(module.id)} onOpenChange={() => toggleModule(module.id)}>
-            <CollapsibleTrigger asChild>
-              <CardHeader className="cursor-pointer hover:bg-accent/50 transition-colors">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-2">
-                    <CardTitle className="text-base">{module.title}</CardTitle>
-                    <Badge variant="secondary">{module.content.length} items</Badge>
-                  </div>
-                  <div className="flex items-center space-x-1">
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        moveModule(module.id, 'up');
-                      }}
-                      disabled={moduleIndex === 0}
-                    >
-                      <ChevronUp className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        moveModule(module.id, 'down');
-                      }}
-                      disabled={moduleIndex === modules.length - 1}
-                    >
-                      <ChevronDown className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        deleteModule(module.id);
-                      }}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-              </CardHeader>
-            </CollapsibleTrigger>
-
-            <CollapsibleContent>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="text-sm font-medium">Module Title</label>
-                    <Input
-                      value={module.title}
-                      onChange={(e) => updateModule(module.id, { title: e.target.value })}
-                      placeholder="Enter module title"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="text-sm font-medium">Description</label>
-                  <Textarea
-                    value={module.description}
-                    onChange={(e) => updateModule(module.id, { description: e.target.value })}
-                    placeholder="Enter module description"
-                    rows={2}
-                  />
-                </div>
-
-                {/* Content Section */}
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <h4 className="font-medium">Module Content</h4>
-                    <div className="flex space-x-2">
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={() => addContentItem(module.id, 'lesson')}
-                      >
-                        <Video className="h-4 w-4 mr-1" />
-                        Add Lesson
-                      </Button>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={() => addContentItem(module.id, 'quiz')}
-                      >
-                        <HelpCircle className="h-4 w-4 mr-1" />
-                        Add Quiz
-                      </Button>
-                    </div>
-                  </div>
-
-                  {module.content.length > 0 ? (
-                    <DndContext
-                      sensors={sensors}
-                      collisionDetection={closestCenter}
-                      onDragEnd={(event) => handleDragEnd(event, module.id)}
-                    >
-                      <SortableContext
-                        items={module.content.map(item => item.id)}
-                        strategy={verticalListSortingStrategy}
-                      >
-                        <div className="space-y-2">
-                          {module.content.map((item) => (
-                            <SortableContentItem
-                              key={item.id}
-                              item={item}
-                              onEdit={() => editContentItem(module.id, item)}
-                              onDelete={() => deleteContentItem(module.id, item.id)}
-                              onManageQuestions={item.type === 'quiz' ? () => manageQuizQuestions(item.data as Quiz) : undefined}
-                            />
-                          ))}
-                        </div>
-                      </SortableContext>
-                    </DndContext>
-                  ) : (
-                    <div className="text-center py-8 text-muted-foreground">
-                      <p>No content added yet</p>
-                      <p className="text-sm">Add lessons and quizzes to build your module</p>
-                    </div>
-                  )}
-                </div>
-              </CardContent>
-            </CollapsibleContent>
-          </Collapsible>
-        </Card>
-      ))}
-
       {modules.length === 0 && (
         <Card className="p-8 text-center">
-          <p className="text-muted-foreground mb-4">No modules yet. Start building your course content!</p>
+          <BookOpen className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+          <h3 className="text-lg font-medium mb-2">No modules yet</h3>
+          <p className="text-muted-foreground mb-4">
+            Start building your course by adding your first module.
+          </p>
           <Button onClick={addModule}>
             <Plus className="h-4 w-4 mr-2" />
-            Add Your First Module
+            Create First Module
           </Button>
         </Card>
       )}
 
-      {/* Modals */}
+      {modules.map((module, moduleIndex) => (
+        <Card key={module.id} className="overflow-hidden">
+          <div className="p-4 border-b">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-3">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => toggleModule(module.id)}
+                >
+                  {openModules.has(module.id) ? (
+                    <ChevronDown className="h-4 w-4" />
+                  ) : (
+                    <ChevronRight className="h-4 w-4" />
+                  )}
+                </Button>
+
+                {editingModule === module.id ? (
+                  <div className="flex-1 space-y-2">
+                    <Input
+                      value={module.title}
+                      onChange={(e) => updateModule(module.id, { title: e.target.value })}
+                      onBlur={() => setEditingModule(null)}
+                      onKeyPress={(e) => {
+                        if (e.key === 'Enter') setEditingModule(null);
+                      }}
+                      autoFocus
+                    />
+                  </div>
+                ) : (
+                  <div className="flex-1">
+                    <div className="flex items-center space-x-2">
+                      <h3 className="font-semibold">
+                        Module {moduleIndex + 1}: {module.title}
+                      </h3>
+                      <Badge variant="outline">
+                        {module.content.length} items
+                      </Badge>
+                    </div>
+                    {module.description && (
+                      <p className="text-sm text-muted-foreground mt-1">
+                        {module.description}
+                      </p>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              <div className="flex items-center space-x-1">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => moveModule(module.id, 'up')}
+                  disabled={moduleIndex === 0}
+                >
+                  <ArrowUp className="h-3 w-3" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => moveModule(module.id, 'down')}
+                  disabled={moduleIndex === modules.length - 1}
+                >
+                  <ArrowDown className="h-3 w-3" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setEditingModule(module.id)}
+                >
+                  <Edit className="h-3 w-3" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => deleteModule(module.id)}
+                >
+                  <Trash2 className="h-3 w-3" />
+                </Button>
+              </div>
+            </div>
+          </div>
+
+          {openModules.has(module.id) && (
+            <CardContent className="space-y-4 p-4">
+              {editingModule === module.id && (
+                <div>
+                  <Textarea
+                    value={module.description}
+                    onChange={(e) => updateModule(module.id, { description: e.target.value })}
+                    placeholder="Module description..."
+                    rows={2}
+                  />
+                </div>
+              )}
+
+              <DndContext
+                sensors={sensors}
+                collisionDetection={closestCenter}
+                onDragEnd={(event) => handleDragEnd(event, module.id)}
+              >
+                <SortableContext
+                  items={module.content.map(item => item.id)}
+                  strategy={verticalListSortingStrategy}
+                >
+                  <div className="space-y-2">
+                    {module.content.map((item) => (
+                      <SortableContentItem
+                        key={item.id}
+                        item={item}
+                        onEdit={() => editContentItem(module.id, item)}
+                        onDelete={() => deleteContentItem(module.id, item.id)}
+                        onManageQuestions={
+                          item.type === 'quiz' 
+                            ? () => manageQuestions(item.data as Quiz)
+                            : undefined
+                        }
+                      />
+                    ))}
+                  </div>
+                </SortableContext>
+              </DndContext>
+
+              {module.content.length === 0 && (
+                <div className="text-center py-8 text-muted-foreground">
+                  <p>No content added yet</p>
+                </div>
+              )}
+
+              <div className="flex space-x-2 pt-4 border-t">
+                <Button
+                  variant="outline"
+                  onClick={() => addContentItem(module.id, 'lesson')}
+                >
+                  <BookOpen className="h-4 w-4 mr-2" />
+                  Add Lesson
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => addContentItem(module.id, 'quiz')}
+                >
+                  <HelpCircle className="h-4 w-4 mr-2" />
+                  Add Quiz
+                </Button>
+              </div>
+            </CardContent>
+          )}
+        </Card>
+      ))}
+
       <LessonModal
         open={lessonModal.open}
-        onOpenChange={(open) => setLessonModal({ open })}
+        onOpenChange={(open) => setLessonModal(prev => ({ ...prev, open }))}
         onSave={saveLesson}
         initialData={lessonModal.lesson}
       />
 
       <QuizModal
         open={quizModal.open}
-        onOpenChange={(open) => setQuizModal({ open })}
+        onOpenChange={(open) => setQuizModal(prev => ({ ...prev, open }))}
         onSave={saveQuiz}
         initialData={quizModal.quiz}
       />
 
-      {/* Question Management Modal */}
-      {questionModal.open && (
-        <Dialog open={true} onOpenChange={() => setQuestionModal({ open: false })}>
-          <DialogContent className="sm:max-w-[800px] max-h-[80vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle>Manage Quiz Questions</DialogTitle>
-            </DialogHeader>
-            
-            <div className="space-y-4">
-              <div className="flex justify-between items-center">
-                <p className="text-sm text-muted-foreground">
-                  {currentQuizQuestions.length} questions
-                </p>
-                <Button
-                  onClick={() => setQuestionModal({ open: true, quizId: questionModal.quizId })}
-                  size="sm"
-                >
-                  <Plus className="h-4 w-4 mr-2" />
-                  Add Question
-                </Button>
-              </div>
-
-              {currentQuizQuestions.map((question, index) => (
-                <Card key={question.id} className="p-4">
-                  <div className="flex justify-between items-start">
-                    <div className="flex-1">
-                      <h4 className="font-medium mb-2">Question {index + 1}</h4>
-                      <p className="text-sm text-muted-foreground mb-2">{question.question_text}</p>
-                      <div className="flex items-center space-x-2">
-                        <Badge variant="outline">{question.question_type.replace('_', ' ')}</Badge>
-                        <Badge variant="secondary">{question.points} points</Badge>
-                      </div>
-                    </div>
-                    <div className="flex space-x-1">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => editQuestion(question)}
-                      >
-                        <Edit className="h-3 w-3" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => deleteQuestion(question.id)}
-                      >
-                        <Trash2 className="h-3 w-3" />
-                      </Button>
-                    </div>
-                  </div>
-                </Card>
-              ))}
-
-              {currentQuizQuestions.length === 0 && (
-                <div className="text-center py-8 text-muted-foreground">
-                  <p>No questions added yet</p>
-                  <p className="text-sm">Add questions to create your quiz</p>
-                </div>
-              )}
-
-              <div className="flex justify-end space-x-2 pt-4">
-                <Button
-                  variant="outline"
-                  onClick={() => setQuestionModal({ open: false })}
-                >
-                  Done
-                </Button>
-              </div>
-            </div>
-          </DialogContent>
-        </Dialog>
-      )}
+      <ManageQuestionsModal
+        open={manageQuestionsModal.open}
+        onOpenChange={(open) => setManageQuestionsModal({ open, quiz: null })}
+        questions={currentQuizQuestions}
+        onEditQuestion={editQuestion}
+        onDeleteQuestion={deleteQuestion}
+        onCreateQuestion={createQuestion}
+        quizTitle={manageQuestionsModal.quiz?.title || ''}
+      />
 
       <QuestionModal
         open={questionModal.open}

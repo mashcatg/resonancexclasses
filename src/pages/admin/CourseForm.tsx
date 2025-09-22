@@ -142,7 +142,23 @@ const CourseForm = () => {
           {
             title: formData.title,
             description: formData.description,
-            category: formData.category,
+            category: categories.join(', '),
+            target_audience: formData.targetAudience,
+            price: finalPrice,
+            original_price: parseFloat(formData.originalPrice) || null,
+            discount_percentage: parseInt(formData.discountPercentage) || 0,
+            duration_minutes: parseInt(formData.duration) || 0,
+            featured_video_url: formData.featuredVideoUrl,
+            thumbnail_url: formData.thumbnailUrl,
+            banner_url: formData.bannerUrl,
+            what_you_learn: filteredWhatYouLearn,
+            requirements: filteredRequirements,
+            instructor_id: profile.user_id,
+            is_published: false
+          }
+        ])
+        .select()
+        .single();
             difficulty_level: formData.difficulty,
             price: finalPrice,
             original_price: parseFloat(formData.original_price),

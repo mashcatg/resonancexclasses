@@ -4,7 +4,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Plus, Trash2 } from 'lucide-react';
+import { Plus, Trash2, Upload } from 'lucide-react';
+import FileUpload from '@/components/FileUpload';
 
 interface QuestionModalProps {
   open: boolean;
@@ -22,6 +23,8 @@ const QuestionModal: React.FC<QuestionModalProps> = ({ open, onOpenChange, onSav
     points: initialData?.points || 1,
     options: initialData?.options || ['', '', '', '']
   });
+  
+  const [showImageUpload, setShowImageUpload] = useState(false);
 
   const handleSave = () => {
     if (!formData.question_text.trim() || !formData.correct_answer.trim()) return;
@@ -102,6 +105,16 @@ const QuestionModal: React.FC<QuestionModalProps> = ({ open, onOpenChange, onSav
       const newOptions = formData.options.filter((_, i) => i !== index);
       setFormData(prev => ({ ...prev, options: newOptions }));
     }
+  };
+
+  const handleImageUpload = (url: string) => {
+    // Insert the image URL into the question text at cursor position
+    const imageMarkdown = `\n\n![Question Image](${url})\n\n`;
+    setFormData(prev => ({
+      ...prev,
+      question_text: prev.question_text + imageMarkdown
+    }));
+    setShowImageUpload(false);
   };
 
   const renderQuestionTypeSpecificFields = () => {
@@ -207,14 +220,36 @@ const QuestionModal: React.FC<QuestionModalProps> = ({ open, onOpenChange, onSav
         
         <div className="space-y-4">
           <div>
-            <label className="text-sm font-medium">Question Text*</label>
+            <div className="flex items-center justify-between mb-2">
+              <label className="text-sm font-medium">Question Text*</label>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => setShowImageUpload(!showImageUpload)}
+              >
+                <Upload className="h-3 w-3 mr-1" />
+                Add Image
+              </Button>
+            </div>
             <Textarea
               name="question_text"
               value={formData.question_text}
               onChange={handleInputChange}
               placeholder="Enter your question here..."
-              rows={3}
+              rows={4}
             />
+            
+            {showImageUpload && (
+              <div className="mt-2 p-3 border rounded-lg bg-muted/50">
+                <p className="text-sm text-muted-foreground mb-2">Upload an image for this question:</p>
+                <FileUpload
+                  onUpload={handleImageUpload}
+                  accept="image/*"
+                  maxSize={5}
+                />
+              </div>
+            )}
           </div>
 
           <div className="grid grid-cols-2 gap-4">

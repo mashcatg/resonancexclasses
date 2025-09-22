@@ -9,6 +9,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { truncateText } from "@/lib/htmlUtils";
+import DeleteConfirmDialog from "@/components/DeleteConfirmDialog";
 import { 
   Table, 
   TableBody, 
@@ -53,6 +55,7 @@ const CourseList = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [deleteDialog, setDeleteDialog] = useState({ open: false, course: null as Course | null });
 
   const { profile, isAdmin } = useAuth();
   const { toast } = useToast();
@@ -96,14 +99,14 @@ const CourseList = () => {
     }
   }, [profile, isAdmin]);
 
-  const handleDeleteCourse = async (courseId: string) => {
-    if (!confirm('Are you sure you want to delete this course?')) return;
+  const handleDeleteCourse = async () => {
+    if (!deleteDialog.course) return;
 
     try {
       const { error } = await supabase
         .from('courses')
         .delete()
-        .eq('id', courseId);
+        .eq('id', deleteDialog.course.id);
 
       if (error) {
         console.error('Error deleting course:', error);
@@ -117,7 +120,8 @@ const CourseList = () => {
           title: "Success!",
           description: "Course deleted successfully.",
         });
-        fetchCourses(); // Refresh the list
+        fetchCourses();
+        setDeleteDialog({ open: false, course: null });
       }
     } catch (error) {
       console.error('Error deleting course:', error);
@@ -264,7 +268,7 @@ const CourseList = () => {
                         <div>
                           <div className="font-semibold">{course.title}</div>
                           <div className="text-sm text-muted-foreground line-clamp-2">
-                            {course.description}
+                            {truncateText(course.description || '')}
                           </div>
                         </div>
                       </TableCell>
@@ -301,16 +305,20 @@ const CourseList = () => {
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
-                            <DropdownMenuItem>
-                              <Eye className="mr-2 h-4 w-4" />
-                              View Course
+                            <DropdownMenuItem asChild>
+                              <Link to={`/admin/courses/${course.id}/view`}>
+                                <Eye className="mr-2 h-4 w-4" />
+                                View Course
+                              </Link>
                             </DropdownMenuItem>
-                            <DropdownMenuItem>
-                              <Edit className="mr-2 h-4 w-4" />
-                              Edit Course
+                            <DropdownMenuItem asChild>
+                              <Link to={`/admin/courses/${course.id}/edit`}>
+                                <Edit className="mr-2 h-4 w-4" />
+                                Edit Course
+                              </Link>
                             </DropdownMenuItem>
                             <DropdownMenuItem 
-                              onClick={() => handleDeleteCourse(course.id)}
+                              onClick={() => setDeleteDialog({ open: true, course })}
                               className="text-destructive"
                             >
                               <Trash2 className="mr-2 h-4 w-4" />
@@ -326,6 +334,17 @@ const CourseList = () => {
             )}
           </CardContent>
         </Card>
+
+        {deleteDialog.course && (
+          <DeleteConfirmDialog
+            open={deleteDialog.open}
+            onOpenChange={(open) => setDeleteDialog({ open, course: null })}
+            onConfirm={handleDeleteCourse}
+            title={`Delete "${deleteDialog.course.title}"`}
+            description="This action cannot be undone. This will permanently delete the course and all its content."
+            loading={false}
+          />
+        )}
       </div>
     </div>
   );
