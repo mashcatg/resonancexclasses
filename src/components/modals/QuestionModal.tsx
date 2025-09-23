@@ -24,7 +24,6 @@ const QuestionModal: React.FC<QuestionModalProps> = ({ open, onOpenChange, onSav
     options: initialData?.options || ['', '', '', '']
   });
   
-  const [showImageUpload, setShowImageUpload] = useState(false);
 
   const handleSave = () => {
     if (!formData.question_text.trim() || !formData.correct_answer.trim()) return;
@@ -114,7 +113,6 @@ const QuestionModal: React.FC<QuestionModalProps> = ({ open, onOpenChange, onSav
       ...prev,
       question_text: prev.question_text + imageMarkdown
     }));
-    setShowImageUpload(false);
   };
 
   const renderQuestionTypeSpecificFields = () => {
@@ -222,15 +220,6 @@ const QuestionModal: React.FC<QuestionModalProps> = ({ open, onOpenChange, onSav
           <div>
             <div className="flex items-center justify-between mb-2">
               <label className="text-sm font-medium">Question Text*</label>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() => setShowImageUpload(!showImageUpload)}
-              >
-                <Upload className="h-3 w-3 mr-1" />
-                Add Image
-              </Button>
             </div>
             <Textarea
               name="question_text"
@@ -240,16 +229,17 @@ const QuestionModal: React.FC<QuestionModalProps> = ({ open, onOpenChange, onSav
               rows={4}
             />
             
-            {showImageUpload && (
-              <div className="mt-2 p-3 border rounded-lg bg-muted/50">
-                <p className="text-sm text-muted-foreground mb-2">Upload an image for this question:</p>
-                <FileUpload
-                  onUpload={handleImageUpload}
-                  accept="image/*"
-                  maxSize={5}
-                />
-              </div>
-            )}
+            <div className="mt-2 p-3 border rounded-lg bg-muted/50">
+              <p className="text-sm text-muted-foreground mb-2">Upload an image for this question (optional):</p>
+              <FileUpload
+                bucket="course-banners"
+                onUpload={handleImageUpload}
+                accept={{
+                  'image/*': ['.jpeg', '.jpg', '.png', '.webp', '.gif']
+                }}
+                maxSize={5 * 1024 * 1024} // 5MB
+              />
+            </div>
           </div>
 
           <div className="grid grid-cols-2 gap-4">

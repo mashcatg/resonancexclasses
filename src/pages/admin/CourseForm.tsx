@@ -4,7 +4,6 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
@@ -21,13 +20,13 @@ const CourseForm = () => {
   const { profile } = useAuth();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
+  const [draftId, setDraftId] = useState<string | null>(null);
 
   const [formData, setFormData] = useState({
     title: '',
     description: '',
     category: '',
     difficulty: '',
-    price: '',
     original_price: '',
     discount_percentage: 0,
     thumbnail_url: '',
@@ -44,25 +43,56 @@ const CourseForm = () => {
 
   // Auto-save functionality
   const autoSave = useCallback(async () => {
-    if (!profile?.user_id || !formData.title) return;
+    if (!profile?.user_id || !formData.title.trim()) return;
 
     try {
       const finalPrice = calculateFinalPrice();
       const filteredWhatYouLearn = whatYouLearn.filter(item => item.trim() !== '');
       const filteredRequirements = requirements.filter(item => item.trim() !== '');
 
-      // This will be expanded to save as draft
-      console.log('Auto-saving course...', {
+      const courseData = {
         title: formData.title,
-        modules: modules.length,
-        timestamp: new Date().toISOString()
-      });
+        description: formData.description,
+        category: formData.category,
+        difficulty_level: formData.difficulty,
+        price: finalPrice,
+        original_price: parseFloat(formData.original_price) || null,
+        discount_percentage: formData.discount_percentage,
+        thumbnail_url: formData.thumbnail_url,
+        banner_url: formData.banner_url,
+        featured_video_url: formData.featured_video_url,
+        target_audience: formData.target_audience,
+        what_you_learn: filteredWhatYouLearn,
+        requirements: filteredRequirements,
+        is_published: false, // Always save as draft
+        instructor_id: profile.user_id
+      };
+
+      if (draftId) {
+        // Update existing draft
+        const { error } = await supabase
+          .from('courses')
+          .update(courseData)
+          .eq('id', draftId);
+
+        if (error) throw error;
+      } else {
+        // Create new draft
+        const { data, error } = await supabase
+          .from('courses')
+          .insert([courseData])
+          .select()
+          .single();
+
+        if (error) throw error;
+        setDraftId(data.id);
+      }
       
       setLastSaved(new Date());
     } catch (error) {
       console.error('Auto-save failed:', error);
     }
-  }, [formData, whatYouLearn, requirements, modules, profile]);
+  }, [formData, whatYouLearn, requirements, modules, profile, draftId]);
 
   // Auto-save every 30 seconds
   useEffect(() => {
@@ -136,10 +166,13 @@ const CourseForm = () => {
       const filteredWhatYouLearn = whatYouLearn.filter(item => item.trim() !== '');
       const filteredRequirements = requirements.filter(item => item.trim() !== '');
 
-      const { data: courseData, error: courseError } = await supabase
-        .from('courses')
-        .insert([
-          {
+      let courseId = draftId;
+
+      if (draftId) {
+        // Update existing draft
+        const { error: courseError } = await supabase
+          .from('courses')
+          .update({
             title: formData.title,
             description: formData.description,
             category: formData.category,
@@ -153,14 +186,40 @@ const CourseForm = () => {
             target_audience: formData.target_audience,
             what_you_learn: filteredWhatYouLearn,
             requirements: filteredRequirements,
-            is_published: formData.is_published,
-            instructor_id: profile.user_id
-          }
-        ])
-        .select()
-        .single();
+            is_published: formData.is_published
+          })
+          .eq('id', draftId);
 
-      if (courseError) throw courseError;
+        if (courseError) throw courseError;
+      } else {
+        // Create new course
+        const { data: courseData, error: courseError } = await supabase
+          .from('courses')
+          .insert([
+            {
+              title: formData.title,
+              description: formData.description,
+              category: formData.category,
+              difficulty_level: formData.difficulty,
+              price: finalPrice,
+              original_price: parseFloat(formData.original_price),
+              discount_percentage: formData.discount_percentage,
+              thumbnail_url: formData.thumbnail_url,
+              banner_url: formData.banner_url,
+              featured_video_url: formData.featured_video_url,
+              target_audience: formData.target_audience,
+              what_you_learn: filteredWhatYouLearn,
+              requirements: filteredRequirements,
+              is_published: formData.is_published,
+              instructor_id: profile.user_id
+            }
+          ])
+          .select()
+          .single();
+
+        if (courseError) throw courseError;
+        courseId = courseData.id;
+      }
 
       // Create modules and their content
       for (const module of modules) {
@@ -168,7 +227,7 @@ const CourseForm = () => {
           .from('course_modules')
           .insert([
             {
-              course_id: courseData.id,
+              course_id: courseId,
               title: module.title,
               description: module.description,
               order_index: module.order_index
@@ -217,7 +276,7 @@ const CourseForm = () => {
               .from('quizzes')
               .insert([
                 {
-                  course_id: courseData.id,
+                  course_id: courseId,
                   module_id: moduleData.id,
                   title: quiz.title,
                   description: quiz.description,
@@ -246,7 +305,7 @@ const CourseForm = () => {
 
             // Create quiz questions
             if (quiz.questions && quiz.questions.length > 0) {
-              const questionsToInsert = quiz.questions.map(question => ({
+              const questionsToInsert = quiz.questions.map((question: any) => ({
                 quiz_id: quizData.id,
                 question_text: question.question_text,
                 question_type: question.question_type,
@@ -381,9 +440,9 @@ const CourseForm = () => {
                         <SelectValue placeholder="Select difficulty" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="Beginner">Beginner</SelectItem>
-                        <SelectItem value="Intermediate">Intermediate</SelectItem>
-                        <SelectItem value="Advanced">Advanced</SelectItem>
+                        <SelectItem value="beginner">Beginner</SelectItem>
+                        <SelectItem value="intermediate">Intermediate</SelectItem>
+                        <SelectItem value="advanced">Advanced</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -557,8 +616,7 @@ const CourseForm = () => {
             <CardContent>
               <ModuleBuilder 
                 modules={modules} 
-                onChange={setModules} 
-                onAutoSave={autoSave}
+                onChange={setModules}
               />
             </CardContent>
           </Card>

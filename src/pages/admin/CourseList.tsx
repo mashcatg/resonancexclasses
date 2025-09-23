@@ -69,7 +69,8 @@ const CourseList = () => {
         query = query.eq('instructor_id', profile?.user_id);
       }
 
-      const { data, error } = await query.order('created_at', { ascending: false });
+      const { data, error } = await query
+        .order('created_at', { ascending: false });
 
       if (error) {
         console.error('Error fetching courses:', error);

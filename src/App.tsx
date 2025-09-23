@@ -10,6 +10,8 @@ import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import CourseForm from "./pages/admin/CourseForm";
 import CourseList from "./pages/admin/CourseList";
+import CourseEdit from "./pages/admin/CourseEdit";
+import CourseView from "./pages/admin/CourseView";
 import StudentDashboard from "./pages/student/StudentDashboard";
 import NotFound from "./pages/NotFound";
 
@@ -54,6 +56,22 @@ const App = () => (
               element={
                 <ProtectedRoute requireAdmin>
                   <CourseForm />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/admin/courses/:courseId/edit" 
+              element={
+                <ProtectedRoute requireAdmin>
+                  <CourseEdit />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/admin/courses/:courseId/view" 
+              element={
+                <ProtectedRoute requireAdmin>
+                  <CourseView />
                 </ProtectedRoute>
               } 
             />

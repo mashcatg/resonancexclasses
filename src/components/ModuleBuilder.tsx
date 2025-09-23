@@ -409,6 +409,32 @@ const ModuleBuilder: React.FC<ModuleBuilderProps> = ({ modules, onChange }) => {
     onChange(updatedModules);
   };
   
+  const reorderQuestions = (reorderedQuestions: Question[]) => {
+    setCurrentQuizQuestions(reorderedQuestions);
+    
+    if (!manageQuestionsModal.quiz) return;
+    
+    // Update the quiz in the modules
+    const updatedModules = modules.map(module => ({
+      ...module,
+      content: module.content.map(item => {
+        if (item.type === 'quiz' && item.data.id === manageQuestionsModal.quiz!.id) {
+          return {
+            ...item,
+            data: {
+              ...item.data,
+              questions: reorderedQuestions,
+              total_questions: reorderedQuestions.length
+            }
+          };
+        }
+        return item;
+      })
+    }));
+    
+    onChange(updatedModules);
+  };
+  
   const editQuestion = (question: Question) => {
     setQuestionModal({
       open: true,
@@ -561,17 +587,6 @@ const ModuleBuilder: React.FC<ModuleBuilderProps> = ({ modules, onChange }) => {
 
           {openModules.has(module.id) && (
             <CardContent className="space-y-4 p-4">
-              {editingModule === module.id && (
-                <div>
-                  <Textarea
-                    value={module.description}
-                    onChange={(e) => updateModule(module.id, { description: e.target.value })}
-                    placeholder="Module description..."
-                    rows={2}
-                  />
-                </div>
-              )}
-
               <DndContext
                 sensors={sensors}
                 collisionDetection={closestCenter}
@@ -647,6 +662,7 @@ const ModuleBuilder: React.FC<ModuleBuilderProps> = ({ modules, onChange }) => {
         onEditQuestion={editQuestion}
         onDeleteQuestion={deleteQuestion}
         onCreateQuestion={createQuestion}
+        onReorderQuestions={reorderQuestions}
         quizTitle={manageQuestionsModal.quiz?.title || ''}
       />
 

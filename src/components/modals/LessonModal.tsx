@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
+import FileUpload from '@/components/FileUpload';
 
 interface LessonModalProps {
   open: boolean;
@@ -106,12 +107,15 @@ const LessonModal: React.FC<LessonModalProps> = ({ open, onOpenChange, onSave, i
           </div>
 
           <div>
-            <label className="text-sm font-medium">PDF Resource URL (optional)</label>
-            <Input
-              name="pdf_url"
-              value={formData.pdf_url}
-              onChange={handleInputChange}
-              placeholder="https://example.com/resource.pdf"
+            <label className="text-sm font-medium mb-3 block">PDF Resource (optional)</label>
+            <FileUpload
+              bucket="course-banners"
+              currentFile={formData.pdf_url}
+              onUpload={(url) => setFormData(prev => ({ ...prev, pdf_url: url }))}
+              accept={{
+                'application/pdf': ['.pdf']
+              }}
+              maxSize={10 * 1024 * 1024} // 10MB
             />
           </div>
 
