@@ -13,8 +13,9 @@ import CourseList from "./pages/admin/CourseList";
 import CourseEdit from "./pages/admin/CourseEdit";
 import CourseView from "./pages/admin/CourseView";
 import StudentDashboard from "./pages/student/StudentDashboard";
-import CourseView as StudentCourseView from "./pages/CourseView";
+import { default as StudentCourseView } from "./pages/CourseView";
 import NotFound from "./pages/NotFound";
+
 
 const queryClient = new QueryClient();
 
