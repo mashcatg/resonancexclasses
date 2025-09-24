@@ -197,7 +197,7 @@ const CourseView = () => {
                 {course.description && typeof course.description === 'string' ? (
                   <div 
                     className="prose prose-sm max-w-none"
-                    dangerouslySetInnerHTML={{ __html: course.description }}
+                    dangerouslySetInnerHTML={{ __html: course.description || '' }}
                   />
                 ) : (
                   <p className="text-muted-foreground">No description available.</p>
