@@ -31,9 +31,9 @@ interface Course {
   original_price: number;
   discount_percentage: number;
   duration_minutes: number;
-  featured_video_url: string;
-  thumbnail_url: string;
-  banner_url: string;
+  featured_video_url: string | null;
+  thumbnail_url: string | null;
+  banner_url: string | null;
   is_published: boolean;
   created_at: string;
   what_you_learn: Json | null;
