@@ -8,35 +8,25 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, Edit, Eye, Users, Clock, DollarSign, BookOpen, HelpCircle } from 'lucide-react';
-import { Json } from '@/integrations/supabase/types';
-
-// Helper function to extract YouTube video ID from URL
-const getYouTubeVideoId = (url: string): string | null => {
-  if (!url) return null;
-  
-  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
-  const match = url.match(regExp);
-  
-  return (match && match[2].length === 11) ? match[2] : null;
-};
+import { stripHtml } from '@/lib/htmlUtils';
 
 interface Course {
   id: string;
   title: string;
-  description: string | null;
+  description: string;
   category: string;
   target_audience: string;
   price: number;
   original_price: number;
   discount_percentage: number;
   duration_minutes: number;
-  featured_video_url: string | null;
-  thumbnail_url: string | null;
-  banner_url: string | null;
+  featured_video_url: string;
+  thumbnail_url: string;
+  banner_url: string;
   is_published: boolean;
   created_at: string;
-  what_you_learn: Json | null;
-  requirements: Json | null;
+  what_you_learn: string[];
+  requirements: string[];
 }
 
 const CourseView = () => {
@@ -149,12 +139,11 @@ const CourseView = () => {
             </div>
             <div className="flex space-x-2">
               <Button asChild={true}>
-  <Link to={`/student/course/${course.id}`}>
-    <Edit className="h-4 w-4 mr-2" />
-    Edit Course
-  </Link>
-</Button>
-
+                <Link to={`/admin/courses/${course.id}/edit`}>
+                  <Edit className="h-4 w-4 mr-2" />
+                  Edit Course
+                </Link>
+              </Button>
               {course.is_published && (
                 <Button variant="outline" asChild>
                   <Link to={`/courses/${course.id}`}>
@@ -170,20 +159,15 @@ const CourseView = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-6">
-            {/* YouTube Video Embed */}
-            {course.featured_video_url && getYouTubeVideoId(course.featured_video_url) ? (
+            {/* Course Banner */}
+            {course.banner_url && (
               <Card>
                 <CardContent className="p-0">
-                  <div className="aspect-video">
-                    <iframe
-                      src={`https://www.youtube.com/embed/${getYouTubeVideoId(course.featured_video_url)}`}
-                      title={course.title}
-                      className="w-full h-full rounded-lg"
-                      frameBorder="0"
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                      allowFullScreen
-                    />
-                  </div>
+                  <img
+                    src={course.banner_url}
+                    alt={course.title}
+                    className="w-full h-64 object-cover rounded-t-lg"
+                  />
                 </CardContent>
               </Card>
             )}
@@ -194,10 +178,10 @@ const CourseView = () => {
                 <CardTitle>Course Description</CardTitle>
               </CardHeader>
               <CardContent>
-                {course.description && typeof course.description === 'string' ? (
+                {course.description ? (
                   <div 
                     className="prose prose-sm max-w-none"
-                    dangerouslySetInnerHTML={{ __html: course.description || '' }}
+                    dangerouslySetInnerHTML={{ __html: course.description }}
                   />
                 ) : (
                   <p className="text-muted-foreground">No description available.</p>
@@ -205,15 +189,34 @@ const CourseView = () => {
               </CardContent>
             </Card>
 
+            {/* What You'll Learn */}
+            {course.what_you_learn && course.what_you_learn.length > 0 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>What You'll Learn</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ul className="space-y-2">
+                    {course.what_you_learn.map((item, index) => (
+                      <li key={index} className="flex items-start space-x-2">
+                        <div className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0" />
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </CardContent>
+              </Card>
+            )}
+
             {/* Requirements */}
-            {course.requirements && Array.isArray(course.requirements) && course.requirements.filter((item): item is string => typeof item === 'string').length > 0 && (
+            {course.requirements && course.requirements.length > 0 && (
               <Card>
                 <CardHeader>
                   <CardTitle>Requirements</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <ul className="space-y-2">
-                    {course.requirements.filter((item): item is string => typeof item === 'string').map((item, index) => (
+                    {course.requirements.map((item, index) => (
                       <li key={index} className="flex items-start space-x-2">
                         <div className="w-2 h-2 bg-muted-foreground rounded-full mt-2 flex-shrink-0" />
                         <span>{item}</span>
@@ -239,6 +242,19 @@ const CourseView = () => {
 
           {/* Sidebar */}
           <div className="space-y-6">
+            {/* Course Thumbnail */}
+            {course.thumbnail_url && (
+              <Card>
+                <CardContent className="p-0">
+                  <img
+                    src={course.thumbnail_url}
+                    alt={course.title}
+                    className="w-full h-48 object-cover rounded-lg"
+                  />
+                </CardContent>
+              </Card>
+            )}
+
             {/* Course Stats */}
             <Card>
               <CardHeader>
@@ -292,21 +308,22 @@ const CourseView = () => {
               </CardContent>
             </Card>
 
-            {/* What You'll Learn */}
-            {course.what_you_learn && Array.isArray(course.what_you_learn) && course.what_you_learn.filter((item): item is string => typeof item === 'string').length > 0 && (
+            {/* Featured Video */}
+            {course.featured_video_url && (
               <Card>
                 <CardHeader>
-                  <CardTitle>What You'll Learn</CardTitle>
+                  <CardTitle>Featured Video</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <ul className="space-y-2">
-                    {course.what_you_learn.filter((item): item is string => typeof item === 'string').map((item, index) => (
-                      <li key={index} className="flex items-start space-x-2">
-                        <div className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0" />
-                        <span className="text-sm">{item}</span>
-                      </li>
-                    ))}
-                  </ul>
+                  <div className="aspect-video">
+                    <video
+                      src={course.featured_video_url}
+                      controls
+                      className="w-full h-full rounded-lg"
+                    >
+                      Your browser does not support the video tag.
+                    </video>
+                  </div>
                 </CardContent>
               </Card>
             )}
