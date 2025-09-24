@@ -44,6 +44,14 @@ const App = () => (
               } 
             />
             <Route 
+              path="/student/course/:courseId" 
+              element={
+                <ProtectedRoute>
+                  <div>Course Player Page - Coming Soon</div>
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
               path="/admin/courses" 
               element={
                 <ProtectedRoute requireAdmin>

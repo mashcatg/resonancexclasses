@@ -10,6 +10,16 @@ import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, Edit, Eye, Users, Clock, DollarSign, BookOpen, HelpCircle } from 'lucide-react';
 import { stripHtml } from '@/lib/htmlUtils';
 
+// Helper function to extract YouTube video ID from URL
+const getYouTubeVideoId = (url: string): string | null => {
+  if (!url) return null;
+  
+  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+  const match = url.match(regExp);
+  
+  return (match && match[2].length === 11) ? match[2] : null;
+};
+
 interface Course {
   id: string;
   title: string;
@@ -139,7 +149,7 @@ const CourseView = () => {
             </div>
             <div className="flex space-x-2">
               <Button asChild>
-                <Link to={`/admin/courses/${course.id}/edit`}>
+                <Link to={`/student/course/${course.id}`}>
                   <Edit className="h-4 w-4 mr-2" />
                   Edit Course
                 </Link>
@@ -159,33 +169,23 @@ const CourseView = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-6">
-            {/* Featured Video or Thumbnail */}
-            {course.featured_video_url ? (
+            {/* YouTube Video Embed */}
+            {course.featured_video_url && getYouTubeVideoId(course.featured_video_url) ? (
               <Card>
                 <CardContent className="p-0">
                   <div className="aspect-video">
-                    <video
-                      src={course.featured_video_url}
-                      controls
-                      className="w-full h-full rounded-lg object-cover"
-                      poster={course.thumbnail_url || undefined}
-                    >
-                      Your browser does not support the video tag.
-                    </video>
+                    <iframe
+                      src={`https://www.youtube.com/embed/${getYouTubeVideoId(course.featured_video_url)}`}
+                      title={course.title}
+                      className="w-full h-full rounded-lg"
+                      frameBorder="0"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                    />
                   </div>
                 </CardContent>
               </Card>
-            ) : course.thumbnail_url ? (
-              <Card>
-                <CardContent className="p-0">
-                  <img
-                    src={course.thumbnail_url}
-                    alt={course.title}
-                    className="w-full h-64 object-cover rounded-lg"
-                  />
-                </CardContent>
-              </Card>
-            ) : null}
+            )}
 
             {/* Description */}
             <Card>
@@ -238,19 +238,6 @@ const CourseView = () => {
 
           {/* Sidebar */}
           <div className="space-y-6">
-            {/* Course Thumbnail */}
-            {course.thumbnail_url && (
-              <Card>
-                <CardContent className="p-0">
-                  <img
-                    src={course.thumbnail_url}
-                    alt={course.title}
-                    className="w-full h-48 object-cover rounded-lg"
-                  />
-                </CardContent>
-              </Card>
-            )}
-
             {/* Course Stats */}
             <Card>
               <CardHeader>
@@ -304,6 +291,24 @@ const CourseView = () => {
               </CardContent>
             </Card>
 
+            {/* What You'll Learn */}
+            {course.what_you_learn && course.what_you_learn.length > 0 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>What You'll Learn</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ul className="space-y-2">
+                    {course.what_you_learn.map((item, index) => (
+                      <li key={index} className="flex items-start space-x-2">
+                        <div className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0" />
+                        <span className="text-sm">{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </CardContent>
+              </Card>
+            )}
           </div>
         </div>
       </div>
