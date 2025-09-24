@@ -13,9 +13,7 @@ import CourseList from "./pages/admin/CourseList";
 import CourseEdit from "./pages/admin/CourseEdit";
 import CourseView from "./pages/admin/CourseView";
 import StudentDashboard from "./pages/student/StudentDashboard";
-import { default as StudentCourseView } from "./pages/CourseView";
 import NotFound from "./pages/NotFound";
-
 
 const queryClient = new QueryClient();
 
@@ -49,7 +47,7 @@ const App = () => (
               path="/student/course/:courseId" 
               element={
                 <ProtectedRoute>
-                  <StudentCourseView />
+                  <div>Course Player Page - Coming Soon</div>
                 </ProtectedRoute>
               } 
             />

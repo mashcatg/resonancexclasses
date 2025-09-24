@@ -139,7 +139,7 @@ const CourseView = () => {
             </div>
             <div className="flex space-x-2">
               <Button asChild={true}>
-                <Link to={`/student/course/${course.id}`}>
+                <Link to={`/admin/courses/${course.id}/edit`}>
                   <Edit className="h-4 w-4 mr-2" />
                   Edit Course
                 </Link>
@@ -159,20 +159,15 @@ const CourseView = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-6">
-            {/* YouTube Video Embed */}
-            {course.featured_video_url && (
+            {/* Course Banner */}
+            {course.banner_url && (
               <Card>
                 <CardContent className="p-0">
-                  <div className="aspect-video">
-                    <iframe
-                      src={`https://www.youtube.com/embed/${getYouTubeVideoId(course.featured_video_url)}`}
-                      title={course.title}
-                      className="w-full h-full rounded-lg"
-                      frameBorder="0"
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                      allowFullScreen
-                    />
-                  </div>
+                  <img
+                    src={course.banner_url}
+                    alt={course.title}
+                    className="w-full h-64 object-cover rounded-t-lg"
+                  />
                 </CardContent>
               </Card>
             )}
@@ -313,7 +308,6 @@ const CourseView = () => {
               </CardContent>
             </Card>
 
-            {/* What You'll Learn */}
             {/* Featured Video */}
             {course.featured_video_url && (
               <Card>
