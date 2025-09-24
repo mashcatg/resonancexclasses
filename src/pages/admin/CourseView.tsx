@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, Edit, Eye, Users, Clock, DollarSign, BookOpen, HelpCircle } from 'lucide-react';
 import { stripHtml } from '@/lib/htmlUtils';
+import { Json } from '@/integrations/supabase/types';
 
 // Helper function to extract YouTube video ID from URL
 const getYouTubeVideoId = (url: string): string | null => {
@@ -35,8 +36,8 @@ interface Course {
   banner_url: string;
   is_published: boolean;
   created_at: string;
-  what_you_learn: string[] | null;
-  requirements: string[] | null;
+  what_you_learn: Json | null;
+  requirements: Json | null;
 }
 
 const CourseView = () => {
@@ -205,14 +206,14 @@ const CourseView = () => {
             </Card>
 
             {/* Requirements */}
-            {course.requirements && Array.isArray(course.requirements) && course.requirements.length > 0 && (
+            {course.requirements && Array.isArray(course.requirements) && course.requirements.filter((item): item is string => typeof item === 'string').length > 0 && (
               <Card>
                 <CardHeader>
                   <CardTitle>Requirements</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <ul className="space-y-2">
-                    {course.requirements.map((item, index) => (
+                    {course.requirements.filter((item): item is string => typeof item === 'string').map((item, index) => (
                       <li key={index} className="flex items-start space-x-2">
                         <div className="w-2 h-2 bg-muted-foreground rounded-full mt-2 flex-shrink-0" />
                         <span>{item}</span>
@@ -292,14 +293,14 @@ const CourseView = () => {
             </Card>
 
             {/* What You'll Learn */}
-            {course.what_you_learn && Array.isArray(course.what_you_learn) && course.what_you_learn.length > 0 && (
+            {course.what_you_learn && Array.isArray(course.what_you_learn) && course.what_you_learn.filter((item): item is string => typeof item === 'string').length > 0 && (
               <Card>
                 <CardHeader>
                   <CardTitle>What You'll Learn</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <ul className="space-y-2">
-                    {course.what_you_learn.map((item, index) => (
+                    {course.what_you_learn.filter((item): item is string => typeof item === 'string').map((item, index) => (
                       <li key={index} className="flex items-start space-x-2">
                         <div className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0" />
                         <span className="text-sm">{item}</span>
