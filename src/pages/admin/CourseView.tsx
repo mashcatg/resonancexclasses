@@ -159,18 +159,33 @@ const CourseView = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-6">
-            {/* Course Banner */}
-            {course.banner_url && (
+            {/* Featured Video or Thumbnail */}
+            {course.featured_video_url ? (
+              <Card>
+                <CardContent className="p-0">
+                  <div className="aspect-video">
+                    <video
+                      src={course.featured_video_url}
+                      controls
+                      className="w-full h-full rounded-lg object-cover"
+                      poster={course.thumbnail_url || undefined}
+                    >
+                      Your browser does not support the video tag.
+                    </video>
+                  </div>
+                </CardContent>
+              </Card>
+            ) : course.thumbnail_url ? (
               <Card>
                 <CardContent className="p-0">
                   <img
-                    src={course.banner_url}
+                    src={course.thumbnail_url}
                     alt={course.title}
-                    className="w-full h-64 object-cover rounded-t-lg"
+                    className="w-full h-64 object-cover rounded-lg"
                   />
                 </CardContent>
               </Card>
-            )}
+            ) : null}
 
             {/* Description */}
             <Card>
@@ -188,25 +203,6 @@ const CourseView = () => {
                 )}
               </CardContent>
             </Card>
-
-            {/* What You'll Learn */}
-            {course.what_you_learn && course.what_you_learn.length > 0 && (
-              <Card>
-                <CardHeader>
-                  <CardTitle>What You'll Learn</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <ul className="space-y-2">
-                    {course.what_you_learn.map((item, index) => (
-                      <li key={index} className="flex items-start space-x-2">
-                        <div className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0" />
-                        <span>{item}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </CardContent>
-              </Card>
-            )}
 
             {/* Requirements */}
             {course.requirements && course.requirements.length > 0 && (
