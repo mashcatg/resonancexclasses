@@ -43,7 +43,10 @@ const CourseForm = () => {
 
   // Auto-save functionality
   const autoSave = useCallback(async () => {
-    if (!profile?.user_id || !formData.title.trim()) return;
+    if (!profile?.user_id || !formData.title.trim()) {
+      console.log('Auto-save skipped: missing user or title');
+      return;
+    }
 
     try {
       const finalPrice = calculateFinalPrice();
@@ -75,7 +78,11 @@ const CourseForm = () => {
           .update(courseData)
           .eq('id', draftId);
 
-        if (error) throw error;
+        if (error) {
+          console.error('Auto-save update error:', error);
+          return;
+        }
+        console.log('Draft updated successfully');
       } else {
         // Create new draft
         const { data, error } = await supabase
@@ -84,7 +91,11 @@ const CourseForm = () => {
           .select()
           .single();
 
-        if (error) throw error;
+        if (error) {
+          console.error('Auto-save create error:', error);
+          return;
+        }
+        console.log('New draft created:', data.id);
         setDraftId(data.id);
       }
       

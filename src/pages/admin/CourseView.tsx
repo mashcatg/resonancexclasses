@@ -304,25 +304,6 @@ const CourseView = () => {
               </CardContent>
             </Card>
 
-            {/* Featured Video */}
-            {course.featured_video_url && (
-              <Card>
-                <CardHeader>
-                  <CardTitle>Featured Video</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="aspect-video">
-                    <video
-                      src={course.featured_video_url}
-                      controls
-                      className="w-full h-full rounded-lg"
-                    >
-                      Your browser does not support the video tag.
-                    </video>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
           </div>
         </div>
       </div>

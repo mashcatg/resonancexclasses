@@ -107,7 +107,7 @@ const QuestionModal: React.FC<QuestionModalProps> = ({ open, onOpenChange, onSav
   };
 
   const handleImageUpload = (url: string) => {
-    // Insert the image URL into the question text at cursor position
+    // Insert the image URL into the question text
     const imageMarkdown = `\n\n![Question Image](${url})\n\n`;
     setFormData(prev => ({
       ...prev,

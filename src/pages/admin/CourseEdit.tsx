@@ -200,10 +200,16 @@ const CourseEdit = () => {
 
               <div>
                 <Label htmlFor="category">Categories*</Label>
-                <CategoryInput
-                  value={categories}
-                  onChange={setCategories}
-                  placeholder="Add categories (e.g., Web Development, JavaScript, React)"
+                <Input
+                  id="category"
+                  name="category"
+                  value={categories.join(', ')}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    const categoryArray = value.split(',').map(cat => cat.trim()).filter(cat => cat);
+                    setCategories(categoryArray);
+                  }}
+                  placeholder="Web Development, JavaScript, React (comma-separated)"
                 />
               </div>
 

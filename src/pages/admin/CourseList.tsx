@@ -69,6 +69,7 @@ const CourseList = () => {
         query = query.eq('instructor_id', profile?.user_id);
       }
 
+      // Show all courses including drafts
       const { data, error } = await query
         .order('created_at', { ascending: false });
 
