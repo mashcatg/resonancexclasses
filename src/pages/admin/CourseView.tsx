@@ -8,7 +8,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, Edit, Eye, Users, Clock, DollarSign, BookOpen, HelpCircle } from 'lucide-react';
-import { stripHtml } from '@/lib/htmlUtils';
 import { Json } from '@/integrations/supabase/types';
 
 // Helper function to extract YouTube video ID from URL
