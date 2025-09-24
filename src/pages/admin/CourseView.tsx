@@ -23,7 +23,7 @@ const getYouTubeVideoId = (url: string): string | null => {
 interface Course {
   id: string;
   title: string;
-  description: string;
+  description: string | null;
   category: string;
   target_audience: string;
   price: number;
@@ -35,8 +35,8 @@ interface Course {
   banner_url: string;
   is_published: boolean;
   created_at: string;
-  what_you_learn: string[];
-  requirements: string[];
+  what_you_learn: string[] | null;
+  requirements: string[] | null;
 }
 
 const CourseView = () => {
@@ -193,7 +193,7 @@ const CourseView = () => {
                 <CardTitle>Course Description</CardTitle>
               </CardHeader>
               <CardContent>
-                {course.description ? (
+                {course.description && typeof course.description === 'string' ? (
                   <div 
                     className="prose prose-sm max-w-none"
                     dangerouslySetInnerHTML={{ __html: course.description }}
@@ -205,7 +205,7 @@ const CourseView = () => {
             </Card>
 
             {/* Requirements */}
-            {course.requirements && course.requirements.length > 0 && (
+            {course.requirements && Array.isArray(course.requirements) && course.requirements.length > 0 && (
               <Card>
                 <CardHeader>
                   <CardTitle>Requirements</CardTitle>
@@ -292,7 +292,7 @@ const CourseView = () => {
             </Card>
 
             {/* What You'll Learn */}
-            {course.what_you_learn && course.what_you_learn.length > 0 && (
+            {course.what_you_learn && Array.isArray(course.what_you_learn) && course.what_you_learn.length > 0 && (
               <Card>
                 <CardHeader>
                   <CardTitle>What You'll Learn</CardTitle>
