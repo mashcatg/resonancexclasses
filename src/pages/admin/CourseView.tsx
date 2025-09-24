@@ -149,12 +149,13 @@ const CourseView = () => {
               </div>
             </div>
             <div className="flex space-x-2">
-              <Button asChild>
-                <Link to={`/student/course/${course.id}`}>
-                  <Edit className="h-4 w-4 mr-2" />
-                  Edit Course
-                </Link>
-              </Button>
+              <Button asChild={true}>
+  <Link to={`/student/course/${course.id}`}>
+    <Edit className="h-4 w-4 mr-2" />
+    Edit Course
+  </Link>
+</Button>
+
               {course.is_published && (
                 <Button variant="outline" asChild>
                   <Link to={`/courses/${course.id}`}>
