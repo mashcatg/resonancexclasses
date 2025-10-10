@@ -155,6 +155,7 @@ const SortableContentItem: React.FC<SortableContentItemProps> = ({
       <div className="flex items-center space-x-1">
         {!isLesson && onManageQuestions && (
           <Button
+            type="button"
             variant="ghost"
             size="sm"
             onClick={onManageQuestions}
@@ -164,11 +165,11 @@ const SortableContentItem: React.FC<SortableContentItemProps> = ({
           </Button>
         )}
         
-        <Button variant="ghost" size="sm" onClick={onEdit}>
+        <Button type="button" variant="ghost" size="sm" onClick={onEdit}>
           <Edit className="h-3 w-3" />
         </Button>
         
-        <Button variant="ghost" size="sm" onClick={onDelete}>
+        <Button type="button" variant="ghost" size="sm" onClick={onDelete}>
           <Trash2 className="h-3 w-3" />
         </Button>
       </div>
@@ -482,7 +483,7 @@ const ModuleBuilder: React.FC<ModuleBuilderProps> = ({ modules, onChange }) => {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-semibold">Course Modules</h3>
-        <Button onClick={addModule} variant="outline">
+        <Button type="button" onClick={addModule} variant="outline">
           <Plus className="h-4 w-4 mr-2" />
           Add Module
         </Button>
@@ -495,7 +496,7 @@ const ModuleBuilder: React.FC<ModuleBuilderProps> = ({ modules, onChange }) => {
           <p className="text-muted-foreground mb-4">
             Start building your course by adding your first module.
           </p>
-          <Button onClick={addModule}>
+          <Button type="button" onClick={addModule}>
             <Plus className="h-4 w-4 mr-2" />
             Create First Module
           </Button>
@@ -508,6 +509,7 @@ const ModuleBuilder: React.FC<ModuleBuilderProps> = ({ modules, onChange }) => {
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
                 <Button
+                  type="button"
                   variant="ghost"
                   size="sm"
                   onClick={() => toggleModule(module.id)}
@@ -552,6 +554,7 @@ const ModuleBuilder: React.FC<ModuleBuilderProps> = ({ modules, onChange }) => {
 
               <div className="flex items-center space-x-1">
                 <Button
+                  type="button"
                   variant="ghost"
                   size="sm"
                   onClick={() => moveModule(module.id, 'up')}
@@ -560,6 +563,7 @@ const ModuleBuilder: React.FC<ModuleBuilderProps> = ({ modules, onChange }) => {
                   <ArrowUp className="h-3 w-3" />
                 </Button>
                 <Button
+                  type="button"
                   variant="ghost"
                   size="sm"
                   onClick={() => moveModule(module.id, 'down')}
@@ -568,6 +572,7 @@ const ModuleBuilder: React.FC<ModuleBuilderProps> = ({ modules, onChange }) => {
                   <ArrowDown className="h-3 w-3" />
                 </Button>
                 <Button
+                  type="button"
                   variant="ghost"
                   size="sm"
                   onClick={() => setEditingModule(module.id)}
@@ -575,6 +580,7 @@ const ModuleBuilder: React.FC<ModuleBuilderProps> = ({ modules, onChange }) => {
                   <Edit className="h-3 w-3" />
                 </Button>
                 <Button
+                  type="button"
                   variant="ghost"
                   size="sm"
                   onClick={() => deleteModule(module.id)}
@@ -622,6 +628,7 @@ const ModuleBuilder: React.FC<ModuleBuilderProps> = ({ modules, onChange }) => {
 
               <div className="flex space-x-2 pt-4 border-t">
                 <Button
+                  type="button"
                   variant="outline"
                   onClick={() => addContentItem(module.id, 'lesson')}
                 >
@@ -629,6 +636,7 @@ const ModuleBuilder: React.FC<ModuleBuilderProps> = ({ modules, onChange }) => {
                   Add Lesson
                 </Button>
                 <Button
+                  type="button"
                   variant="outline"
                   onClick={() => addContentItem(module.id, 'quiz')}
                 >

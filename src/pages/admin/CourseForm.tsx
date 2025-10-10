@@ -663,7 +663,7 @@ const CourseForm = () => {
             >
               Cancel
             </Button>
-            <Button onClick={handleSubmit} disabled={loading}>
+            <Button type="submit" onClick={handleSubmit} disabled={loading}>
               {loading ? 'Creating Course...' : 'Create Course'}
             </Button>
           </div>
