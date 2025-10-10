@@ -13,7 +13,6 @@ const AdminNavbar = () => {
   const quickLinks = [
     { name: "Courses", href: "/admin/courses", icon: BookOpen },
     { name: "Students", href: "/admin/students", icon: Users },
-    { name: "Analytics", href: "/admin/analytics", icon: BarChart3 },
     { name: "Settings", href: "/admin/settings", icon: Settings },
   ];
 

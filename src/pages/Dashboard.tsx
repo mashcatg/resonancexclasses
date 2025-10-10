@@ -1,15 +1,23 @@
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import AdminNavbar from "@/components/AdminNavbar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { BookOpen, Users, TrendingUp, DollarSign, Plus, Eye } from "lucide-react";
 import { Link } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
 
 const Dashboard = () => {
   const { isAdmin, profile } = useAuth();
   const navigate = useNavigate();
+  const [stats, setStats] = useState({
+    totalCourses: 0,
+    totalStudents: 0,
+    totalEnrollments: 0,
+    revenue: 0,
+  });
+  const [loading, setLoading] = useState(true);
 
   // If not admin, redirect to student dashboard
   useEffect(() => {
@@ -17,6 +25,57 @@ const Dashboard = () => {
       navigate('/student/dashboard');
     }
   }, [isAdmin, profile, navigate]);
+
+  // Fetch live stats
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        setLoading(true);
+        
+        // Get total courses
+        const { count: coursesCount } = await supabase
+          .from('courses')
+          .select('*', { count: 'exact', head: true });
+        
+        // Get unique students (from enrollments)
+        const { data: enrollmentsData } = await supabase
+          .from('enrollments')
+          .select('student_id');
+        
+        const uniqueStudents = new Set(enrollmentsData?.map(e => e.student_id) || []).size;
+        
+        // Get total enrollments
+        const { count: enrollmentsCount } = await supabase
+          .from('enrollments')
+          .select('*', { count: 'exact', head: true });
+        
+        // Get total revenue from enrollments (course prices)
+        const { data: enrollmentsWithCourses } = await supabase
+          .from('enrollments')
+          .select('course_id, courses(price)')
+          .not('courses', 'is', null);
+        
+        const totalRevenue = enrollmentsWithCourses?.reduce((sum, enrollment: any) => {
+          return sum + (parseFloat(enrollment.courses?.price) || 0);
+        }, 0) || 0;
+        
+        setStats({
+          totalCourses: coursesCount || 0,
+          totalStudents: uniqueStudents,
+          totalEnrollments: enrollmentsCount || 0,
+          revenue: totalRevenue,
+        });
+      } catch (error) {
+        console.error('Error fetching stats:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (isAdmin) {
+      fetchStats();
+    }
+  }, [isAdmin]);
 
   if (!isAdmin) {
     return null; // Will redirect via useEffect
@@ -44,8 +103,10 @@ const Dashboard = () => {
               <BookOpen className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">0</div>
-              <p className="text-xs text-muted-foreground">No courses yet</p>
+              <div className="text-2xl font-bold">{loading ? '...' : stats.totalCourses}</div>
+              <p className="text-xs text-muted-foreground">
+                {stats.totalCourses === 0 ? 'No courses yet' : `${stats.totalCourses} course${stats.totalCourses > 1 ? 's' : ''}`}
+              </p>
             </CardContent>
           </Card>
 
@@ -55,8 +116,10 @@ const Dashboard = () => {
               <Users className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">0</div>
-              <p className="text-xs text-muted-foreground">No enrollments yet</p>
+              <div className="text-2xl font-bold">{loading ? '...' : stats.totalStudents}</div>
+              <p className="text-xs text-muted-foreground">
+                {stats.totalEnrollments} total enrollment{stats.totalEnrollments !== 1 ? 's' : ''}
+              </p>
             </CardContent>
           </Card>
 
@@ -66,19 +129,25 @@ const Dashboard = () => {
               <DollarSign className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">$0</div>
-              <p className="text-xs text-muted-foreground">No sales yet</p>
+              <div className="text-2xl font-bold">
+                {loading ? '...' : `৳${stats.revenue.toLocaleString('en-BD')}`}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                {stats.revenue === 0 ? 'No sales yet' : 'Total revenue'}
+              </p>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Growth</CardTitle>
+              <CardTitle className="text-sm font-medium">Enrollments</CardTitle>
               <TrendingUp className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">0%</div>
-              <p className="text-xs text-muted-foreground">vs last month</p>
+              <div className="text-2xl font-bold">{loading ? '...' : stats.totalEnrollments}</div>
+              <p className="text-xs text-muted-foreground">
+                {stats.totalEnrollments === 0 ? 'No enrollments yet' : 'Active enrollments'}
+              </p>
             </CardContent>
           </Card>
         </div>
@@ -133,25 +202,6 @@ const Dashboard = () => {
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center space-x-2">
-                <TrendingUp className="h-5 w-5" />
-                <span>Analytics</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <p className="text-sm text-muted-foreground">
-                Track course performance, revenue, and student engagement.
-              </p>
-              <Button variant="outline" asChild>
-                <Link to="/admin/analytics">
-                  <Eye className="h-4 w-4 mr-2" />
-                  View Analytics
-                </Link>
-              </Button>
-            </CardContent>
-          </Card>
         </div>
       </div>
     </div>

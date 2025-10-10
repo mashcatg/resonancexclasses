@@ -12,6 +12,7 @@ import CourseForm from "./pages/admin/CourseForm";
 import CourseList from "./pages/admin/CourseList";
 import CourseEdit from "./pages/admin/CourseEdit";
 import CourseView from "./pages/admin/CourseView";
+import Students from "./pages/admin/Students";
 import StudentDashboard from "./pages/student/StudentDashboard";
 import NotFound from "./pages/NotFound";
 
@@ -80,6 +81,14 @@ const App = () => (
               element={
                 <ProtectedRoute requireAdmin>
                   <CourseView />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/admin/students" 
+              element={
+                <ProtectedRoute requireAdmin>
+                  <Students />
                 </ProtectedRoute>
               } 
             />
