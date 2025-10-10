@@ -290,7 +290,7 @@ const CourseList = () => {
                           <span className="text-muted-foreground">-</span>
                         )}
                       </TableCell>
-                      <TableCell>${course.price.toFixed(2)}</TableCell>
+                      <TableCell>৳{course.price.toLocaleString('en-BD')}</TableCell>
                       <TableCell>
                         <Badge variant={course.is_published ? "default" : "secondary"}>
                           {course.is_published ? "Published" : "Draft"}

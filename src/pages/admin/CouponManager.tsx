@@ -244,7 +244,7 @@ const CouponManager = () => {
   const formatDiscount = (coupon: Coupon) => {
     return coupon.discount_type === 'percentage' 
       ? `${coupon.discount_value}%` 
-      : `$${coupon.discount_value}`;
+      : `৳${coupon.discount_value.toLocaleString('en-BD')}`;
   };
 
   const isExpired = (coupon: Coupon) => {
@@ -428,14 +428,14 @@ const CouponManager = () => {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="percentage">Percentage (%)</SelectItem>
-                      <SelectItem value="fixed">Fixed Amount ($)</SelectItem>
+                      <SelectItem value="fixed">Fixed Amount (৳)</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
 
                 <div>
                   <label className="text-sm font-medium">
-                    Discount Value* {formData.discount_type === 'percentage' ? '(%)' : '($)'}
+                    Discount Value* {formData.discount_type === 'percentage' ? '(%)' : '(৳)'}
                   </label>
                   <Input
                     type="number"

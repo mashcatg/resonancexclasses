@@ -535,7 +535,7 @@ const CourseEdit = () => {
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="originalPrice">Original Price ($)*</Label>
+                  <Label htmlFor="originalPrice">Original Price (৳)*</Label>
                   <Input
                     id="originalPrice"
                     name="originalPrice"
@@ -563,7 +563,7 @@ const CourseEdit = () => {
               </div>
               {formData.originalPrice && (
                 <p className="text-sm text-muted-foreground">
-                  Final Price: ${calculateFinalPrice().toFixed(2)}
+                  Final Price: ৳{calculateFinalPrice().toLocaleString('en-BD', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </p>
               )}
             </CardContent>

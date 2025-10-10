@@ -8,12 +8,14 @@ import ProtectedRoute from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
+import Courses from "./pages/Courses";
 import CourseForm from "./pages/admin/CourseForm";
 import CourseList from "./pages/admin/CourseList";
 import CourseEdit from "./pages/admin/CourseEdit";
 import CourseView from "./pages/admin/CourseView";
 import Students from "./pages/admin/Students";
 import StudentDashboard from "./pages/student/StudentDashboard";
+import CoursePage from "./pages/student/CoursePage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -28,6 +30,7 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/courses" element={<Courses />} />
             <Route 
               path="/dashboard" 
               element={
@@ -48,7 +51,7 @@ const App = () => (
               path="/student/course/:courseId" 
               element={
                 <ProtectedRoute>
-                  <div>Course Player Page - Coming Soon</div>
+                  <CoursePage />
                 </ProtectedRoute>
               } 
             />

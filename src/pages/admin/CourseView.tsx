@@ -291,10 +291,10 @@ const CourseView = () => {
                     <span className="text-sm">Price</span>
                   </div>
                   <div className="text-right">
-                    <div className="font-medium">${course.price.toFixed(2)}</div>
+                    <div className="font-medium">৳{course.price.toLocaleString('en-BD')}</div>
                     {course.original_price && course.original_price > course.price && (
                       <div className="text-sm text-muted-foreground line-through">
-                        ${course.original_price.toFixed(2)}
+                        ৳{course.original_price.toLocaleString('en-BD')}
                       </div>
                     )}
                   </div>

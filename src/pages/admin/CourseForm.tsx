@@ -574,7 +574,7 @@ const CourseForm = () => {
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
-                  <label className="text-sm font-medium">Original Price*</label>
+                  <label className="text-sm font-medium">Original Price (৳)*</label>
                   <Input
                     name="original_price"
                     type="number"
@@ -606,7 +606,7 @@ const CourseForm = () => {
                   <label className="text-sm font-medium">Final Price</label>
                   <div className="h-10 px-3 py-2 border border-input bg-muted rounded-md flex items-center">
                     <span className="font-medium">
-                      ${calculateFinalPrice().toFixed(2)}
+                      ৳{calculateFinalPrice().toLocaleString('en-BD', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                     </span>
                     {formData.discount_percentage > 0 && (
                       <Badge variant="secondary" className="ml-2">
