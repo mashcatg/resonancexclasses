@@ -8,8 +8,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { PlayCircle, FileText, CheckCircle, Lock, Loader2, ArrowLeft } from "lucide-react";
-import { VideoPlayer } from "@/components/VideoPlayer";
+import { PlayCircle, FileText, CheckCircle, Lock, Loader2, ArrowLeft, HelpCircle } from "lucide-react";
+import { YouTubePlayer } from "@/components/YouTubePlayer";
 
 interface Course {
   id: string;
@@ -38,6 +38,16 @@ interface Lesson {
   is_free: boolean;
 }
 
+interface Quiz {
+  id: string;
+  title: string;
+  description: string | null;
+  attempts_allowed: number;
+  time_limit_minutes: number | null;
+  module_id: string | null;
+  order_index: number;
+}
+
 interface Enrollment {
   id: string;
   progress_percentage: number;
@@ -49,6 +59,7 @@ const CoursePage = () => {
   const [course, setCourse] = useState<Course | null>(null);
   const [modules, setModules] = useState<Module[]>([]);
   const [lessons, setLessons] = useState<Record<string, Lesson[]>>({});
+  const [quizzes, setQuizzes] = useState<Record<string, Quiz[]>>({});
   const [enrollment, setEnrollment] = useState<Enrollment | null>(null);
   const [currentLesson, setCurrentLesson] = useState<Lesson | null>(null);
   const [loading, setLoading] = useState(true);
@@ -95,9 +106,10 @@ const CoursePage = () => {
       if (modulesError) throw modulesError;
       setModules(modulesData || []);
 
-      // Fetch lessons for each module
+      // Fetch lessons and quizzes for each module
       if (modulesData && modulesData.length > 0) {
         const lessonsMap: Record<string, Lesson[]> = {};
+        const quizzesMap: Record<string, Quiz[]> = {};
         
         for (const module of modulesData) {
           const { data: lessonsData } = await supabase
@@ -109,9 +121,21 @@ const CoursePage = () => {
           if (lessonsData) {
             lessonsMap[module.id] = lessonsData;
           }
+
+          const { data: quizzesData } = await supabase
+            .from('quizzes')
+            .select('*')
+            .eq('module_id', module.id)
+            .eq('is_active', true)
+            .order('order_index', { ascending: true });
+
+          if (quizzesData) {
+            quizzesMap[module.id] = quizzesData;
+          }
         }
 
         setLessons(lessonsMap);
+        setQuizzes(quizzesMap);
 
         // Set first lesson as current
         const firstModuleLessons = lessonsMap[modulesData[0].id];
@@ -197,8 +221,8 @@ const CoursePage = () => {
             {currentLesson?.video_url && (
               <Card>
                 <CardContent className="p-0">
-                  <VideoPlayer 
-                    src={currentLesson.video_url} 
+                  <YouTubePlayer 
+                    url={currentLesson.video_url} 
                     title={currentLesson.title}
                   />
                 </CardContent>
@@ -288,6 +312,23 @@ const CoursePage = () => {
                                 )}
                               </div>
                             </button>
+                          ))}
+                          {quizzes[module.id]?.map((quiz) => (
+                            <Link
+                              key={quiz.id}
+                              to={`/student/quiz/${quiz.id}`}
+                              className="block w-full text-left p-2 rounded-md transition-colors hover:bg-accent"
+                            >
+                              <div className="flex items-center space-x-2">
+                                <HelpCircle className="h-4 w-4 flex-shrink-0 text-primary" />
+                                <span className="text-sm flex-1">{quiz.title}</span>
+                                {quiz.time_limit_minutes && (
+                                  <span className="text-xs opacity-70">
+                                    {quiz.time_limit_minutes}min
+                                  </span>
+                                )}
+                              </div>
+                            </Link>
                           ))}
                         </div>
                       </AccordionContent>

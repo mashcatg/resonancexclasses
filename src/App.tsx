@@ -16,6 +16,7 @@ import CourseView from "./pages/admin/CourseView";
 import Students from "./pages/admin/Students";
 import StudentDashboard from "./pages/student/StudentDashboard";
 import CoursePage from "./pages/student/CoursePage";
+import QuizAttempt from "./pages/student/QuizAttempt";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -52,6 +53,14 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <CoursePage />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/student/quiz/:quizId" 
+              element={
+                <ProtectedRoute>
+                  <QuizAttempt />
                 </ProtectedRoute>
               } 
             />
