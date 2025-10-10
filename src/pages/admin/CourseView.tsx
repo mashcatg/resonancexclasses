@@ -55,7 +55,11 @@ const CourseView = () => {
 
       if (error) throw error;
 
-      setCourse(data);
+      setCourse({
+        ...data,
+        what_you_learn: (Array.isArray(data.what_you_learn) ? data.what_you_learn : []) as string[],
+        requirements: (Array.isArray(data.requirements) ? data.requirements : []) as string[]
+      });
     } catch (error) {
       console.error('Error fetching course:', error);
       toast({

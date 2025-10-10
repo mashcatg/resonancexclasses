@@ -384,7 +384,7 @@ const ModuleBuilder: React.FC<ModuleBuilderProps> = ({ modules, onChange }) => {
       ? currentQuizQuestions.map(q => 
           q.id === question.id ? question : q
         )
-      : [...currentQuizQuestions, question];
+      : [...currentQuizQuestions, { ...question, order_index: currentQuizQuestions.length }];
     
     setCurrentQuizQuestions(updatedQuestions);
     

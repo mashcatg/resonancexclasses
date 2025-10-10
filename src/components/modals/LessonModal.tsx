@@ -109,7 +109,7 @@ const LessonModal: React.FC<LessonModalProps> = ({ open, onOpenChange, onSave, i
           <div>
             <label className="text-sm font-medium mb-3 block">PDF Resource (optional)</label>
             <FileUpload
-              bucket="course-resources"
+              bucket="course-banners"
               currentFile={formData.pdf_url}
               onUpload={(url) => setFormData(prev => ({ ...prev, pdf_url: url }))}
               accept={{
@@ -117,6 +117,11 @@ const LessonModal: React.FC<LessonModalProps> = ({ open, onOpenChange, onSave, i
               }}
               maxSize={10 * 1024 * 1024} // 10MB
             />
+            {formData.pdf_url && (
+              <p className="text-xs text-muted-foreground mt-2">
+                Current PDF: {formData.pdf_url.split('/').pop()}
+              </p>
+            )}
           </div>
 
           <div className="flex items-center space-x-2">

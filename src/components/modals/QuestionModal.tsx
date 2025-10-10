@@ -39,6 +39,7 @@ const QuestionModal: React.FC<QuestionModalProps> = ({ open, onOpenChange, onSav
       ...initialData,
       ...formData,
       options: processedOptions,
+      order_index: initialData?.order_index ?? 0,
       id: initialData?.id || `temp-question-${Date.now()}`
     });
     
