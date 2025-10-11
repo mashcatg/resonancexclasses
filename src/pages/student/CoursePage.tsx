@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { PlayCircle, FileText, CheckCircle, Lock, Loader2, ArrowLeft, HelpCircle } from "lucide-react";
-import { YouTubePlayer } from "@/components/YouTubePlayer";
+import { CustomVideoPlayer } from "@/components/CustomVideoPlayer";
 
 interface Course {
   id: string;
@@ -63,6 +63,46 @@ const CoursePage = () => {
   const [enrollment, setEnrollment] = useState<Enrollment | null>(null);
   const [currentLesson, setCurrentLesson] = useState<Lesson | null>(null);
   const [loading, setLoading] = useState(true);
+
+  // Security: Disable right-click, F12, and DevTools shortcuts
+  useEffect(() => {
+    const handleContextMenu = (e: MouseEvent) => {
+      e.preventDefault();
+    };
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Disable F12, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+U, Ctrl+Shift+C
+      if (
+        e.key === 'F12' ||
+        (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C')) ||
+        (e.ctrlKey && e.key === 'U')
+      ) {
+        e.preventDefault();
+      }
+    };
+
+    const handleDragStart = (e: DragEvent) => {
+      e.preventDefault();
+    };
+
+    document.addEventListener('contextmenu', handleContextMenu);
+    document.addEventListener('keydown', handleKeyDown);
+    document.addEventListener('dragstart', handleDragStart);
+
+    // Warning message in console
+    console.clear();
+    console.log('%cStop!', 'color: red; font-size: 50px; font-weight: bold;');
+    console.log(
+      '%cThis is a browser feature intended for developers. If someone told you to copy-paste something here, it is a scam.',
+      'font-size: 18px;'
+    );
+
+    return () => {
+      document.removeEventListener('contextmenu', handleContextMenu);
+      document.removeEventListener('keydown', handleKeyDown);
+      document.removeEventListener('dragstart', handleDragStart);
+    };
+  }, []);
 
   useEffect(() => {
     if (courseId) {
@@ -219,9 +259,9 @@ const CoursePage = () => {
           <div className="lg:col-span-2 space-y-6">
             {/* Video Player */}
             {currentLesson?.video_url && (
-              <Card>
+              <Card className="select-none">
                 <CardContent className="p-0">
-                  <YouTubePlayer 
+                  <CustomVideoPlayer 
                     url={currentLesson.video_url} 
                     title={currentLesson.title}
                   />
