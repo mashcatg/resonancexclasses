@@ -536,6 +536,81 @@ export type Database = {
           },
         ]
       }
+      transactions: {
+        Row: {
+          amount: number
+          bkash_response: Json | null
+          completed_at: string | null
+          course_id: string
+          created_at: string | null
+          currency: string | null
+          enrollment_id: string | null
+          error_message: string | null
+          id: string
+          initiated_at: string | null
+          merchant_invoice_number: string
+          payment_id: string | null
+          payment_method: string | null
+          status: string
+          trx_id: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          bkash_response?: Json | null
+          completed_at?: string | null
+          course_id: string
+          created_at?: string | null
+          currency?: string | null
+          enrollment_id?: string | null
+          error_message?: string | null
+          id?: string
+          initiated_at?: string | null
+          merchant_invoice_number: string
+          payment_id?: string | null
+          payment_method?: string | null
+          status?: string
+          trx_id?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          bkash_response?: Json | null
+          completed_at?: string | null
+          course_id?: string
+          created_at?: string | null
+          currency?: string | null
+          enrollment_id?: string | null
+          error_message?: string | null
+          id?: string
+          initiated_at?: string | null
+          merchant_invoice_number?: string
+          payment_id?: string | null
+          payment_method?: string | null
+          status?: string
+          trx_id?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "transactions_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transactions_enrollment_id_fkey"
+            columns: ["enrollment_id"]
+            isOneToOne: false
+            referencedRelation: "enrollments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
