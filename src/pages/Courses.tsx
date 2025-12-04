@@ -1,16 +1,17 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import Header from "@/components/Header";
 import StudentNavbar from "@/components/StudentNavbar";
+import EnrollmentModal from "@/components/EnrollmentModal";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { BookOpen, Clock, BarChart3, Search, Loader2 } from "lucide-react";
+import { BookOpen, Clock, Search, Loader2 } from "lucide-react";
 
 interface Course {
   id: string;
@@ -27,18 +28,22 @@ interface Course {
 const Courses = () => {
   const { user } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [courses, setCourses] = useState<Course[]>([]);
   const [enrolledCourses, setEnrolledCourses] = useState<Set<string>>(new Set());
+  const [pendingCourses, setPendingCourses] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
-  const [enrolling, setEnrolling] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [difficultyFilter, setDifficultyFilter] = useState("all");
+  const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
+  const [enrollModalOpen, setEnrollModalOpen] = useState(false);
 
   useEffect(() => {
     fetchCourses();
     if (user) {
       fetchEnrollments();
+      fetchPendingTransactions();
     }
   }, [user]);
 
@@ -73,42 +78,39 @@ const Courses = () => {
     }
   };
 
-  const handleEnroll = async (courseId: string) => {
+  const fetchPendingTransactions = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('transactions')
+        .select('course_id')
+        .eq('user_id', user?.id)
+        .eq('status', 'pending');
+
+      if (error) throw error;
+      setPendingCourses(new Set(data?.map(t => t.course_id) || []));
+    } catch (error) {
+      console.error('Error fetching pending transactions:', error);
+    }
+  };
+
+  const handleEnrollClick = (course: Course) => {
     if (!user) {
       toast({
         title: "Login Required",
         description: "Please login to enroll in courses.",
         variant: "destructive",
       });
+      navigate('/login');
       return;
     }
 
-    setEnrolling(courseId);
-    try {
-      const { error } = await supabase
-        .from('enrollments')
-        .insert({
-          student_id: user.id,
-          course_id: courseId,
-          progress_percentage: 0,
-        });
+    setSelectedCourse(course);
+    setEnrollModalOpen(true);
+  };
 
-      if (error) throw error;
-
-      setEnrolledCourses(prev => new Set([...prev, courseId]));
-      toast({
-        title: "Success!",
-        description: "You've enrolled in this course.",
-      });
-    } catch (error: any) {
-      console.error('Error enrolling:', error);
-      toast({
-        title: "Error",
-        description: error.message || "Failed to enroll in course.",
-        variant: "destructive",
-      });
-    } finally {
-      setEnrolling(null);
+  const handleEnrollmentSuccess = () => {
+    if (selectedCourse) {
+      setPendingCourses(prev => new Set([...prev, selectedCourse.id]));
     }
   };
 
@@ -139,7 +141,7 @@ const Courses = () => {
       <div className="container mx-auto px-4 py-8">
         <div className="mb-8">
           <h1 className="text-4xl font-bold text-foreground mb-2">Browse Courses</h1>
-          <p className="text-muted-foreground">Discover and enroll in courses for free (Demo)</p>
+          <p className="text-muted-foreground">Discover and enroll in our courses</p>
         </div>
 
         {/* Filters */}
@@ -193,7 +195,7 @@ const Courses = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredCourses.map((course) => {
               const isEnrolled = enrolledCourses.has(course.id);
-              const isEnrollingThis = enrolling === course.id;
+              const isPending = pendingCourses.has(course.id);
 
               return (
                 <Card key={course.id} className="flex flex-col">
@@ -234,7 +236,6 @@ const Courses = () => {
                     </div>
                     <div className="text-2xl font-bold text-primary mb-2">
                       ৳{course.price.toLocaleString('en-BD')}
-                      <span className="text-sm text-muted-foreground ml-2 line-through">Demo: Free</span>
                     </div>
                   </CardContent>
                   <CardFooter>
@@ -244,20 +245,17 @@ const Courses = () => {
                           Go to Course
                         </Link>
                       </Button>
+                    ) : isPending ? (
+                      <Button variant="outline" className="w-full" disabled>
+                        <Clock className="mr-2 h-4 w-4" />
+                        Pending Verification
+                      </Button>
                     ) : (
                       <Button
-                        onClick={() => handleEnroll(course.id)}
-                        disabled={isEnrollingThis}
+                        onClick={() => handleEnrollClick(course)}
                         className="w-full"
                       >
-                        {isEnrollingThis ? (
-                          <>
-                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                            Enrolling...
-                          </>
-                        ) : (
-                          'Enroll for Free'
-                        )}
+                        Enroll Now
                       </Button>
                     )}
                   </CardFooter>
@@ -267,6 +265,13 @@ const Courses = () => {
           </div>
         )}
       </div>
+
+      <EnrollmentModal
+        course={selectedCourse}
+        open={enrollModalOpen}
+        onOpenChange={setEnrollModalOpen}
+        onSuccess={handleEnrollmentSuccess}
+      />
     </div>
   );
 };
