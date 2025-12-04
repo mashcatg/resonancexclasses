@@ -14,6 +14,7 @@ import CourseList from "./pages/admin/CourseList";
 import CourseEdit from "./pages/admin/CourseEdit";
 import CourseView from "./pages/admin/CourseView";
 import Students from "./pages/admin/Students";
+import EnrollmentRequests from "./pages/admin/EnrollmentRequests";
 import StudentDashboard from "./pages/student/StudentDashboard";
 import CoursePage from "./pages/student/CoursePage";
 import QuizAttempt from "./pages/student/QuizAttempt";
@@ -101,6 +102,14 @@ const App = () => (
               element={
                 <ProtectedRoute requireAdmin>
                   <Students />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/admin/enrollments" 
+              element={
+                <ProtectedRoute requireAdmin>
+                  <EnrollmentRequests />
                 </ProtectedRoute>
               } 
             />
