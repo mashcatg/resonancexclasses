@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -9,9 +8,10 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { GraduationCap, User, Settings, LogOut, BookOpen, Award, BarChart3, Bell } from "lucide-react";
+import { GraduationCap, User, LogOut, BookOpen } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { NotificationsDropdown } from "@/components/NotificationsDropdown";
 
 const StudentNavbar = () => {
   const { user, profile, signOut } = useAuth();
@@ -54,27 +54,17 @@ const StudentNavbar = () => {
               <span>My Courses</span>
             </Link>
             <Link
-              to="/student/progress"
+              to="/courses"
               className="text-muted-foreground hover:text-foreground transition-colors duration-200 flex items-center space-x-2"
             >
-              <BarChart3 className="h-4 w-4" />
-              <span>Progress</span>
-            </Link>
-            <Link
-              to="/student/achievements"
-              className="text-muted-foreground hover:text-foreground transition-colors duration-200 flex items-center space-x-2"
-            >
-              <Award className="h-4 w-4" />
-              <span>Achievements</span>
+              <GraduationCap className="h-4 w-4" />
+              <span>Browse Courses</span>
             </Link>
           </div>
 
           {/* User Menu */}
           <div className="flex items-center space-x-4">
-            <Button variant="ghost" size="sm" className="relative">
-              <Bell className="h-5 w-5" />
-              <span className="absolute -top-1 -right-1 h-3 w-3 bg-destructive rounded-full"></span>
-            </Button>
+            <NotificationsDropdown />
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -108,12 +98,6 @@ const StudentNavbar = () => {
                   <Link to="/student/profile" className="flex items-center">
                     <User className="mr-2 h-4 w-4" />
                     <span>Profile</span>
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link to="/student/settings" className="flex items-center">
-                    <Settings className="mr-2 h-4 w-4" />
-                    <span>Settings</span>
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />

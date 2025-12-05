@@ -145,6 +145,15 @@ const EnrollmentRequests = () => {
 
       if (txError) throw txError;
 
+      // Create notification for student
+      await supabase.from("notifications").insert({
+        user_id: transaction.user_id,
+        title: "Enrollment Approved!",
+        message: `Your enrollment for "${transaction.courses?.title}" has been approved. You can now access the course.`,
+        type: "success",
+        link: `/student/course/${transaction.course_id}`,
+      });
+
       toast({
         title: "Approved!",
         description: "Student has been enrolled in the course.",
@@ -168,6 +177,8 @@ const EnrollmentRequests = () => {
 
     setProcessing(rejectDialog.id);
     try {
+      const transaction = transactions.find(t => t.id === rejectDialog.id);
+      
       const { error } = await supabase
         .from("transactions")
         .update({
@@ -178,6 +189,16 @@ const EnrollmentRequests = () => {
         .eq("id", rejectDialog.id);
 
       if (error) throw error;
+
+      // Create notification for student
+      if (transaction) {
+        await supabase.from("notifications").insert({
+          user_id: transaction.user_id,
+          title: "Enrollment Not Approved",
+          message: `Your enrollment request for "${transaction.courses?.title}" was not approved. Please contact support if you believe this is an error.`,
+          type: "error",
+        });
+      }
 
       toast({
         title: "Rejected",

@@ -8,8 +8,9 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { PlayCircle, FileText, CheckCircle, Lock, Loader2, ArrowLeft, HelpCircle } from "lucide-react";
+import { PlayCircle, FileText, CheckCircle, Loader2, ArrowLeft, HelpCircle } from "lucide-react";
 import { CustomVideoPlayer } from "@/components/CustomVideoPlayer";
+import { useToast } from "@/hooks/use-toast";
 
 interface Course {
   id: string;
@@ -56,6 +57,7 @@ interface Enrollment {
 const CoursePage = () => {
   const { courseId } = useParams<{ courseId: string }>();
   const { user } = useAuth();
+  const { toast } = useToast();
   const [course, setCourse] = useState<Course | null>(null);
   const [modules, setModules] = useState<Module[]>([]);
   const [lessons, setLessons] = useState<Record<string, Lesson[]>>({});
@@ -63,6 +65,7 @@ const CoursePage = () => {
   const [enrollment, setEnrollment] = useState<Enrollment | null>(null);
   const [currentLesson, setCurrentLesson] = useState<Lesson | null>(null);
   const [loading, setLoading] = useState(true);
+  const [completedLessons, setCompletedLessons] = useState<Set<string>>(new Set());
 
   // Security: Disable right-click, F12, and DevTools shortcuts
   useEffect(() => {
@@ -105,7 +108,7 @@ const CoursePage = () => {
   }, []);
 
   useEffect(() => {
-    if (courseId) {
+    if (courseId && user) {
       fetchCourseData();
     }
   }, [courseId, user]);
@@ -134,6 +137,20 @@ const CoursePage = () => {
           .single();
 
         setEnrollment(enrollmentData);
+
+        // Fetch completed lessons
+        if (enrollmentData) {
+          const { data: progressData } = await supabase
+            .from('lesson_progress')
+            .select('lesson_id')
+            .eq('student_id', user.id)
+            .eq('course_id', courseId)
+            .eq('completed', true);
+
+          if (progressData) {
+            setCompletedLessons(new Set(progressData.map(p => p.lesson_id)));
+          }
+        }
       }
 
       // Fetch modules
@@ -190,24 +207,49 @@ const CoursePage = () => {
     }
   };
 
-  const handleLessonComplete = async (lessonId: string) => {
-    if (!enrollment) return;
-
-    // Calculate total lessons and completed lessons
-    const allLessons = Object.values(lessons).flat();
-    const totalLessons = allLessons.length;
-    const completedLessons = 1; // This is simplified; you'd track completed lessons
-    const newProgress = Math.round((completedLessons / totalLessons) * 100);
+  const markLessonComplete = async (lessonId: string) => {
+    if (!user || !courseId || !enrollment) return;
 
     try {
+      // Upsert lesson progress
+      const { error } = await supabase
+        .from('lesson_progress')
+        .upsert({
+          student_id: user.id,
+          lesson_id: lessonId,
+          course_id: courseId,
+          completed: true,
+          completed_at: new Date().toISOString(),
+        }, {
+          onConflict: 'student_id,lesson_id'
+        });
+
+      if (error) throw error;
+
+      // Update local state
+      const newCompletedLessons = new Set(completedLessons);
+      newCompletedLessons.add(lessonId);
+      setCompletedLessons(newCompletedLessons);
+
+      // Calculate and update progress
+      const allLessons = Object.values(lessons).flat();
+      const totalLessons = allLessons.length;
+      const completedCount = newCompletedLessons.size;
+      const newProgress = Math.round((completedCount / totalLessons) * 100);
+
       await supabase
         .from('enrollments')
         .update({ progress_percentage: newProgress })
         .eq('id', enrollment.id);
 
       setEnrollment({ ...enrollment, progress_percentage: newProgress });
+
+      toast({
+        title: "Lesson Completed!",
+        description: `Progress: ${newProgress}%`,
+      });
     } catch (error) {
-      console.error('Error updating progress:', error);
+      console.error('Error marking lesson complete:', error);
     }
   };
 
@@ -284,7 +326,7 @@ const CoursePage = () => {
                   )}
                 </div>
               </CardHeader>
-              <CardContent>
+              <CardContent className="space-y-4">
                 {currentLesson?.pdf_url && (
                   <Button variant="outline" asChild className="w-full">
                     <a href={currentLesson.pdf_url} target="_blank" rel="noopener noreferrer">
@@ -292,6 +334,21 @@ const CoursePage = () => {
                       Download Resource
                     </a>
                   </Button>
+                )}
+                {currentLesson && !completedLessons.has(currentLesson.id) && (
+                  <Button 
+                    onClick={() => markLessonComplete(currentLesson.id)}
+                    className="w-full"
+                  >
+                    <CheckCircle className="h-4 w-4 mr-2" />
+                    Mark as Complete
+                  </Button>
+                )}
+                {currentLesson && completedLessons.has(currentLesson.id) && (
+                  <div className="flex items-center justify-center gap-2 text-green-600 py-2">
+                    <CheckCircle className="h-5 w-5" />
+                    <span className="font-medium">Lesson Completed</span>
+                  </div>
                 )}
               </CardContent>
             </Card>
@@ -328,31 +385,36 @@ const CoursePage = () => {
                       </AccordionTrigger>
                       <AccordionContent>
                         <div className="space-y-2 pl-4">
-                          {lessons[module.id]?.map((lesson) => (
-                            <button
-                              key={lesson.id}
-                              onClick={() => setCurrentLesson(lesson)}
-                              className={`w-full text-left p-2 rounded-md transition-colors ${
-                                currentLesson?.id === lesson.id
-                                  ? 'bg-primary text-primary-foreground'
-                                  : 'hover:bg-accent'
-                              }`}
-                            >
-                              <div className="flex items-center space-x-2">
-                                {lesson.video_url ? (
-                                  <PlayCircle className="h-4 w-4 flex-shrink-0" />
-                                ) : (
-                                  <FileText className="h-4 w-4 flex-shrink-0" />
-                                )}
-                                <span className="text-sm flex-1">{lesson.title}</span>
-                                {lesson.duration_minutes && (
-                                  <span className="text-xs opacity-70">
-                                    {lesson.duration_minutes}m
-                                  </span>
-                                )}
-                              </div>
-                            </button>
-                          ))}
+                          {lessons[module.id]?.map((lesson) => {
+                            const isCompleted = completedLessons.has(lesson.id);
+                            return (
+                              <button
+                                key={lesson.id}
+                                onClick={() => setCurrentLesson(lesson)}
+                                className={`w-full text-left p-2 rounded-md transition-colors ${
+                                  currentLesson?.id === lesson.id
+                                    ? 'bg-primary text-primary-foreground'
+                                    : 'hover:bg-accent'
+                                }`}
+                              >
+                                <div className="flex items-center space-x-2">
+                                  {isCompleted ? (
+                                    <CheckCircle className="h-4 w-4 flex-shrink-0 text-green-500" />
+                                  ) : lesson.video_url ? (
+                                    <PlayCircle className="h-4 w-4 flex-shrink-0" />
+                                  ) : (
+                                    <FileText className="h-4 w-4 flex-shrink-0" />
+                                  )}
+                                  <span className="text-sm flex-1">{lesson.title}</span>
+                                  {lesson.duration_minutes && (
+                                    <span className="text-xs opacity-70">
+                                      {lesson.duration_minutes}m
+                                    </span>
+                                  )}
+                                </div>
+                              </button>
+                            );
+                          })}
                           {quizzes[module.id]?.map((quiz) => (
                             <Link
                               key={quiz.id}
