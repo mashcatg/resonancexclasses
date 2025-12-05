@@ -28,7 +28,7 @@ interface EnrollmentModalProps {
   onSuccess: () => void;
 }
 
-const BKASH_NUMBER = "+880 1537038468";
+const BKASH_NUMBER = "01950095883";
 
 const EnrollmentModal = ({ course, open, onOpenChange, onSuccess }: EnrollmentModalProps) => {
   const { user } = useAuth();
@@ -139,7 +139,7 @@ const EnrollmentModal = ({ course, open, onOpenChange, onSuccess }: EnrollmentMo
               <div className="bg-primary/10 border border-primary/20 rounded-lg p-4">
                 <div className="flex items-center gap-2 mb-2">
                   <Phone className="h-5 w-5 text-primary" />
-                  <span className="font-medium text-foreground">Send Money to:</span>
+                  <span className="font-medium text-foreground">Make Bkash Payment</span>
                 </div>
                 <p className="text-2xl font-bold text-primary tracking-wider">
                   {BKASH_NUMBER}

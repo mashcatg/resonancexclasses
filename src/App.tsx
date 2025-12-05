@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
 import ProtectedRoute from "@/components/ProtectedRoute";
+import StudentProtectedRoute from "@/components/StudentProtectedRoute";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
@@ -17,6 +18,7 @@ import CourseView from "./pages/admin/CourseView";
 import Students from "./pages/admin/Students";
 import EnrollmentRequests from "./pages/admin/EnrollmentRequests";
 import DeviceApprovals from "./pages/admin/DeviceApprovals";
+import AdminProfile from "./pages/admin/AdminProfile";
 import StudentDashboard from "./pages/student/StudentDashboard";
 import StudentProfile from "./pages/student/StudentProfile";
 import CoursePage from "./pages/student/CoursePage";
@@ -45,38 +47,40 @@ const App = () => (
                 </ProtectedRoute>
               } 
             />
+            {/* Student routes with device session check */}
             <Route 
               path="/student/dashboard" 
               element={
-                <ProtectedRoute>
+                <StudentProtectedRoute>
                   <StudentDashboard />
-                </ProtectedRoute>
+                </StudentProtectedRoute>
               } 
             />
             <Route 
               path="/student/profile" 
               element={
-                <ProtectedRoute>
+                <StudentProtectedRoute>
                   <StudentProfile />
-                </ProtectedRoute>
+                </StudentProtectedRoute>
               } 
             />
             <Route 
               path="/student/course/:courseId"
               element={
-                <ProtectedRoute>
+                <StudentProtectedRoute>
                   <CoursePage />
-                </ProtectedRoute>
+                </StudentProtectedRoute>
               } 
             />
             <Route 
               path="/student/quiz/:quizId" 
               element={
-                <ProtectedRoute>
+                <StudentProtectedRoute>
                   <QuizAttempt />
-                </ProtectedRoute>
+                </StudentProtectedRoute>
               } 
             />
+            {/* Admin routes */}
             <Route 
               path="/admin/courses" 
               element={
@@ -130,6 +134,14 @@ const App = () => (
               element={
                 <ProtectedRoute requireAdmin>
                   <DeviceApprovals />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/admin/profile" 
+              element={
+                <ProtectedRoute requireAdmin>
+                  <AdminProfile />
                 </ProtectedRoute>
               } 
             />

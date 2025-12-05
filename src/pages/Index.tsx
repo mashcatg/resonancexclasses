@@ -5,6 +5,7 @@ import { GraduationCap, BookOpen, Users, Award, Play, Star, ArrowRight, Clock } 
 import { Link } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
+import { truncateText } from "@/lib/htmlUtils";
 import Header from "@/components/Header";
 import HeroSection from "@/components/HeroSection";
 import FeaturesSection from "@/components/FeaturesSection";
@@ -93,7 +94,7 @@ const Index = () => {
                       )}
                     </div>
                     <CardDescription className="line-clamp-3">
-                      {course.description}
+                      {truncateText(course.description || '', 150)}
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="flex-1">
@@ -117,7 +118,7 @@ const Index = () => {
                   </CardContent>
                   <CardFooter>
                     <Button asChild className="w-full">
-                      <Link to="/courses">View Course</Link>
+                      <Link to={`/courses/${course.id}`}>View Course</Link>
                     </Button>
                   </CardFooter>
                 </Card>
@@ -185,7 +186,7 @@ const Index = () => {
             </div>
           </div>
           <div className="border-t border-border mt-8 pt-8 text-center text-muted-foreground">
-            <p>&copy; 2024 ResonanceX Classes. All rights reserved.</p>
+            <p>&copy; {new Date().getFullYear()} ResonanceX Classes. All rights reserved.</p>
           </div>
         </div>
       </footer>
