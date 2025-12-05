@@ -198,7 +198,7 @@ const Courses = () => {
               const isPending = pendingCourses.has(course.id);
 
               return (
-                <Card key={course.id} className="flex flex-col">
+                <Card key={course.id} className="flex flex-col hover:shadow-lg transition-shadow cursor-pointer" onClick={() => navigate(`/courses/${course.id}`)}>
                   {course.thumbnail_url && (
                     <img
                       src={course.thumbnail_url}
@@ -240,7 +240,7 @@ const Courses = () => {
                   </CardContent>
                   <CardFooter>
                     {isEnrolled ? (
-                      <Button asChild className="w-full">
+                      <Button asChild className="w-full" onClick={(e) => e.stopPropagation()}>
                         <Link to={`/student/course/${course.id}`}>
                           Go to Course
                         </Link>
@@ -252,7 +252,10 @@ const Courses = () => {
                       </Button>
                     ) : (
                       <Button
-                        onClick={() => handleEnrollClick(course)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleEnrollClick(course);
+                        }}
                         className="w-full"
                       >
                         Enroll Now

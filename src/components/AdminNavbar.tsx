@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
-import { GraduationCap, BookOpen, Users, CreditCard, Settings, LogOut, User } from "lucide-react";
+import { GraduationCap, BookOpen, Users, CreditCard, Settings, LogOut, User, Shield } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { Link, useLocation } from "react-router-dom";
 
@@ -14,7 +14,7 @@ const AdminNavbar = () => {
     { name: "Courses", href: "/admin/courses", icon: BookOpen },
     { name: "Enrollments", href: "/admin/enrollments", icon: CreditCard },
     { name: "Students", href: "/admin/students", icon: Users },
-    { name: "Settings", href: "/admin/settings", icon: Settings },
+    { name: "Devices", href: "/admin/device-approvals", icon: Shield },
   ];
 
   const getInitials = (firstName: string | null, lastName: string | null) => {

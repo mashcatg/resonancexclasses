@@ -113,7 +113,8 @@ const StudentDashboard = () => {
   };
 
   const recentEnrollments = enrollments.slice(0, 3);
-  const continuelearning = enrollments.filter(e => e.progress_percentage > 0 && e.progress_percentage < 100).slice(0, 3);
+  // Show all enrolled courses that aren't 100% complete (including 0% progress)
+  const continuelearning = enrollments.filter(e => (e.progress_percentage || 0) < 100).slice(0, 3);
 
   if (loading) {
     return (

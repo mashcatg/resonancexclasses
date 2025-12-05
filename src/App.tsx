@@ -9,13 +9,16 @@ import Index from "./pages/Index";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import Courses from "./pages/Courses";
+import CourseDetails from "./pages/CourseDetails";
 import CourseForm from "./pages/admin/CourseForm";
 import CourseList from "./pages/admin/CourseList";
 import CourseEdit from "./pages/admin/CourseEdit";
 import CourseView from "./pages/admin/CourseView";
 import Students from "./pages/admin/Students";
 import EnrollmentRequests from "./pages/admin/EnrollmentRequests";
+import DeviceApprovals from "./pages/admin/DeviceApprovals";
 import StudentDashboard from "./pages/student/StudentDashboard";
+import StudentProfile from "./pages/student/StudentProfile";
 import CoursePage from "./pages/student/CoursePage";
 import QuizAttempt from "./pages/student/QuizAttempt";
 import NotFound from "./pages/NotFound";
@@ -33,7 +36,8 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/login" element={<Login />} />
             <Route path="/courses" element={<Courses />} />
-            <Route 
+            <Route path="/courses/:courseId" element={<CourseDetails />} />
+            <Route
               path="/dashboard" 
               element={
                 <ProtectedRoute>
@@ -50,7 +54,15 @@ const App = () => (
               } 
             />
             <Route 
-              path="/student/course/:courseId" 
+              path="/student/profile" 
+              element={
+                <ProtectedRoute>
+                  <StudentProfile />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/student/course/:courseId"
               element={
                 <ProtectedRoute>
                   <CoursePage />
@@ -110,6 +122,14 @@ const App = () => (
               element={
                 <ProtectedRoute requireAdmin>
                   <EnrollmentRequests />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/admin/device-approvals" 
+              element={
+                <ProtectedRoute requireAdmin>
+                  <DeviceApprovals />
                 </ProtectedRoute>
               } 
             />
