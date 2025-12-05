@@ -3,12 +3,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
-import { BookOpen, Play, Clock, Award, TrendingUp, Target } from "lucide-react";
+import { BookOpen, Play, Clock, Award, TrendingUp, Target, Search } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import StudentNavbar from "@/components/StudentNavbar";
 import { truncateText } from "@/lib/htmlUtils";
+
 interface Enrollment {
   id: string;
   progress_percentage: number;
@@ -32,7 +33,7 @@ interface StudentStats {
 }
 
 const StudentDashboard = () => {
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const [enrollments, setEnrollments] = useState<Enrollment[]>([]);
   const [stats, setStats] = useState<StudentStats>({
     totalCourses: 0,
@@ -113,7 +114,6 @@ const StudentDashboard = () => {
   };
 
   const recentEnrollments = enrollments.slice(0, 3);
-  // Show all enrolled courses that aren't 100% complete (including 0% progress)
   const continuelearning = enrollments.filter(e => (e.progress_percentage || 0) < 100).slice(0, 3);
 
   if (loading) {
@@ -133,9 +133,31 @@ const StudentDashboard = () => {
       
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-foreground mb-2">Welcome back!</h1>
-          <p className="text-muted-foreground">Continue your learning journey</p>
+        <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h1 className="text-2xl lg:text-3xl font-bold text-foreground">
+              Welcome back, {profile?.first_name || 'Student'}!
+            </h1>
+            <p className="text-muted-foreground">
+              Continue your learning journey
+            </p>
+          </div>
+          
+          {/* Quick Actions */}
+          <div className="flex gap-3">
+            <Link to="/dashboard">
+              <Button variant="outline" size="sm">
+                <BookOpen className="h-4 w-4 mr-2" />
+                My Courses
+              </Button>
+            </Link>
+            <Link to="/courses">
+              <Button size="sm">
+                <Search className="h-4 w-4 mr-2" />
+                Browse Courses
+              </Button>
+            </Link>
+          </div>
         </div>
 
         {/* Stats Cards */}
