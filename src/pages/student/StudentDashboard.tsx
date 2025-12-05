@@ -8,7 +8,7 @@ import { Link } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import StudentNavbar from "@/components/StudentNavbar";
-
+import { truncateText } from "@/lib/htmlUtils";
 interface Enrollment {
   id: string;
   progress_percentage: number;
@@ -205,7 +205,7 @@ const StudentDashboard = () => {
                       </Badge>
                     </div>
                     <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
-                      {enrollment.course.description}
+                      {truncateText(enrollment.course.description || '', 120)}
                     </p>
                     <div className="flex items-center justify-between">
                       <div className="flex-1 mr-4">
@@ -253,7 +253,7 @@ const StudentDashboard = () => {
                       </Badge>
                     </div>
                     <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
-                      {enrollment.course.description}
+                      {truncateText(enrollment.course.description || '', 120)}
                     </p>
                     <div className="flex items-center justify-between">
                       <div className="text-xs text-muted-foreground">
