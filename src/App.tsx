@@ -8,6 +8,7 @@ import ProtectedRoute from "@/components/ProtectedRoute";
 import StudentProtectedRoute from "@/components/StudentProtectedRoute";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
+import ResetPassword from "./pages/ResetPassword";
 import Dashboard from "./pages/Dashboard";
 import Courses from "./pages/Courses";
 import CourseDetails from "./pages/CourseDetails";
@@ -16,6 +17,7 @@ import CourseList from "./pages/admin/CourseList";
 import CourseEdit from "./pages/admin/CourseEdit";
 import CourseView from "./pages/admin/CourseView";
 import Students from "./pages/admin/Students";
+import StudentDetails from "./pages/admin/StudentDetails";
 import EnrollmentRequests from "./pages/admin/EnrollmentRequests";
 import DeviceApprovals from "./pages/admin/DeviceApprovals";
 import AdminProfile from "./pages/admin/AdminProfile";
@@ -37,6 +39,7 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/courses" element={<Courses />} />
             <Route path="/courses/:courseId" element={<CourseDetails />} />
             <Route
@@ -118,6 +121,14 @@ const App = () => (
               element={
                 <ProtectedRoute requireAdmin>
                   <Students />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/admin/students/:studentId" 
+              element={
+                <ProtectedRoute requireAdmin>
+                  <StudentDetails />
                 </ProtectedRoute>
               } 
             />

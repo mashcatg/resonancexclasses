@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { User } from "@supabase/supabase-js";
 
@@ -83,6 +83,7 @@ export const useDeviceSession = (
   const [deviceSession, setDeviceSession] = useState<DeviceSession | null>(null);
   const [isBlocked, setIsBlocked] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const sessionIdRef = useRef<string | null>(null);
 
   const checkDeviceSession = useCallback(async () => {
     if (!user || !isStudent) {
@@ -106,6 +107,8 @@ export const useDeviceSession = (
         .single();
 
       if (existingSession) {
+        sessionIdRef.current = existingSession.id;
+        
         // Update last active
         await supabase
           .from("device_sessions")
@@ -114,8 +117,10 @@ export const useDeviceSession = (
 
         setDeviceSession(existingSession);
         
-        // Check if blocked (not approved and not primary)
-        if (!existingSession.is_approved && !existingSession.is_primary) {
+        // Check if blocked: not active, or not approved and not primary
+        if (!existingSession.is_active) {
+          setIsBlocked(true);
+        } else if (!existingSession.is_approved && !existingSession.is_primary) {
           // Check if there's another active approved device
           const { data: otherDevices } = await supabase
             .from("device_sessions")
@@ -163,6 +168,7 @@ export const useDeviceSession = (
           .single();
 
         if (!insertError && newSession) {
+          sessionIdRef.current = newSession.id;
           setDeviceSession(newSession);
           setIsBlocked(!isFirstDevice);
         }
@@ -177,6 +183,48 @@ export const useDeviceSession = (
   useEffect(() => {
     checkDeviceSession();
   }, [checkDeviceSession]);
+
+  // Set up realtime subscription for device session changes
+  useEffect(() => {
+    if (!user || !isStudent || !sessionIdRef.current) return;
+
+    const channel = supabase
+      .channel(`device-session-${sessionIdRef.current}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'device_sessions',
+          filter: `id=eq.${sessionIdRef.current}`,
+        },
+        (payload) => {
+          const newData = payload.new as DeviceSession;
+          setDeviceSession(newData);
+          
+          // Check if device was revoked
+          if (!newData.is_active || (!newData.is_approved && !newData.is_primary)) {
+            setIsBlocked(true);
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user, isStudent, deviceSession?.id]);
+
+  // Periodic check every 30 seconds
+  useEffect(() => {
+    if (!user || !isStudent) return;
+
+    const interval = setInterval(() => {
+      checkDeviceSession();
+    }, 30000);
+
+    return () => clearInterval(interval);
+  }, [user, isStudent, checkDeviceSession]);
 
   return {
     deviceSession,

@@ -179,6 +179,7 @@ const DeviceApprovals = () => {
         .update({
           is_approved: false,
           is_primary: false,
+          is_active: false,
         })
         .eq("id", revokeDialog.id);
 
@@ -229,7 +230,7 @@ const DeviceApprovals = () => {
 
       <div className="container mx-auto px-4 py-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-foreground mb-2">Device Approvals</h1>
+          <h1 className="text-2xl font-bold text-foreground mb-2">Device Approvals</h1>
           <p className="text-muted-foreground">
             Manage student device access for single-device login.
           </p>

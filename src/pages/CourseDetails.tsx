@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { Separator } from "@/components/ui/separator";
 import {
   ArrowLeft,
   Clock,
@@ -14,13 +13,15 @@ import {
   Users,
   CheckCircle,
   PlayCircle,
-  FileText,
   HelpCircle,
   Loader2,
   GraduationCap,
   Lock,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
 import EnrollmentModal from "@/components/EnrollmentModal";
+import { stripHtml, truncateText } from "@/lib/htmlUtils";
 
 interface Course {
   id: string;
@@ -60,6 +61,7 @@ const CourseDetails = () => {
   const [isPending, setIsPending] = useState(false);
   const [enrollModalOpen, setEnrollModalOpen] = useState(false);
   const [enrollmentCount, setEnrollmentCount] = useState(0);
+  const [showFullDescription, setShowFullDescription] = useState(false);
 
   useEffect(() => {
     if (courseId) {
@@ -179,6 +181,15 @@ const CourseDetails = () => {
     0
   );
 
+  // Description handling
+  const descriptionText = stripHtml(course?.description || '');
+  const shouldTruncateDescription = descriptionText.length > 300;
+  const displayDescription = showFullDescription || !shouldTruncateDescription 
+    ? descriptionText 
+    : `${descriptionText.substring(0, 300)}...`;
+
+  const hasBanner = !!course?.banner_url;
+
   if (loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -220,9 +231,9 @@ const CourseDetails = () => {
 
       {/* Hero Section */}
       <div
-        className="bg-gradient-to-br from-primary/10 via-background to-background py-12"
+        className={`py-12 ${hasBanner ? '' : 'bg-gradient-to-br from-primary/10 via-background to-background'}`}
         style={
-          course.banner_url
+          hasBanner
             ? {
                 backgroundImage: `linear-gradient(to bottom, rgba(0,0,0,0.7), rgba(0,0,0,0.9)), url(${course.banner_url})`,
                 backgroundSize: "cover",
@@ -236,19 +247,47 @@ const CourseDetails = () => {
             <div className="lg:col-span-2 space-y-4">
               <div className="flex flex-wrap gap-2">
                 {course.category && (
-                  <Badge variant="secondary">{course.category}</Badge>
+                  <Badge 
+                    variant="secondary" 
+                    className={hasBanner ? "bg-white/20 text-white border-white/30 hover:bg-white/30" : ""}
+                  >
+                    {course.category}
+                  </Badge>
                 )}
                 {course.difficulty_level && (
-                  <Badge variant="outline">{course.difficulty_level}</Badge>
+                  <Badge 
+                    variant="outline" 
+                    className={hasBanner ? "bg-primary/20 text-white border-primary/50 hover:bg-primary/30" : ""}
+                  >
+                    {course.difficulty_level}
+                  </Badge>
                 )}
               </div>
-              <h1 className="text-3xl md:text-4xl font-bold text-foreground">
+              <h1 className={`text-3xl md:text-4xl font-bold ${hasBanner ? 'text-white' : 'text-foreground'}`}>
                 {course.title}
               </h1>
-              <p className="text-lg text-muted-foreground">
-                {course.description}
-              </p>
-              <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
+              <div className={hasBanner ? 'text-white/90' : 'text-muted-foreground'}>
+                <p className="text-lg">
+                  {displayDescription}
+                </p>
+                {shouldTruncateDescription && (
+                  <button
+                    onClick={() => setShowFullDescription(!showFullDescription)}
+                    className={`mt-2 flex items-center gap-1 text-sm font-medium ${hasBanner ? 'text-primary-foreground hover:text-white' : 'text-primary hover:underline'}`}
+                  >
+                    {showFullDescription ? (
+                      <>
+                        Show Less <ChevronUp className="h-4 w-4" />
+                      </>
+                    ) : (
+                      <>
+                        Show More <ChevronDown className="h-4 w-4" />
+                      </>
+                    )}
+                  </button>
+                )}
+              </div>
+              <div className={`flex flex-wrap items-center gap-4 text-sm ${hasBanner ? 'text-white/80' : 'text-muted-foreground'}`}>
                 <span className="flex items-center gap-1">
                   <Users className="h-4 w-4" />
                   {enrollmentCount} students

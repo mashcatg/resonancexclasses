@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import AdminNavbar from "@/components/AdminNavbar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -6,8 +7,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2 } from "lucide-react";
-
+import { Loader2, ChevronRight } from "lucide-react";
 interface StudentData {
   id: string;
   email: string;
@@ -20,6 +20,7 @@ interface StudentData {
 
 const Students = () => {
   const { isAdmin } = useAuth();
+  const navigate = useNavigate();
   const [students, setStudents] = useState<StudentData[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -98,7 +99,7 @@ const Students = () => {
       
       <div className="container mx-auto px-4 py-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-foreground mb-2">
+          <h1 className="text-2xl font-bold text-foreground mb-2">
             Student Management
           </h1>
           <p className="text-muted-foreground">
@@ -128,11 +129,16 @@ const Students = () => {
                     <TableHead>Courses Enrolled</TableHead>
                     <TableHead>Avg Progress</TableHead>
                     <TableHead>Status</TableHead>
+                    <TableHead></TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {students.map((student) => (
-                    <TableRow key={student.id}>
+                    <TableRow 
+                      key={student.id} 
+                      className="cursor-pointer hover:bg-muted/50"
+                      onClick={() => navigate(`/admin/students/${student.id}`)}
+                    >
                       <TableCell>
                         <div className="flex items-center space-x-3">
                           <Avatar>
@@ -167,6 +173,9 @@ const Students = () => {
                         <Badge variant={student.enrollmentCount > 0 ? "default" : "secondary"}>
                           {student.enrollmentCount > 0 ? 'Active' : 'Inactive'}
                         </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <ChevronRight className="h-4 w-4 text-muted-foreground" />
                       </TableCell>
                     </TableRow>
                   ))}

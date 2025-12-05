@@ -3,10 +3,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { GraduationCap, Eye, EyeOff } from "lucide-react";
+import { GraduationCap, Eye, EyeOff, ArrowLeft } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -18,6 +20,9 @@ const Login = () => {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const [forgotEmail, setForgotEmail] = useState("");
+  const [forgotLoading, setForgotLoading] = useState(false);
   
   const { signIn, signUp, user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
@@ -57,6 +62,28 @@ const Login = () => {
     setLoading(false);
   };
 
+  const handleForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!forgotEmail) return;
+
+    setForgotLoading(true);
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(forgotEmail, {
+        redirectTo: `${window.location.origin}/reset-password`,
+      });
+
+      if (error) throw error;
+
+      toast.success("Password reset email sent! Check your inbox.");
+      setShowForgotPassword(false);
+      setForgotEmail("");
+    } catch (error: any) {
+      toast.error(error.message || "Failed to send reset email");
+    } finally {
+      setForgotLoading(false);
+    }
+  };
+
   if (authLoading) {
     return (
       <div className="min-h-screen bg-gradient-hero flex items-center justify-center">
@@ -82,157 +109,194 @@ const Login = () => {
         {/* Login/Signup Card */}
         <Card className="bg-white/95 backdrop-blur-sm border-white/20 animate-scale-in">
           <CardHeader className="text-center pb-4">
-            <CardTitle className="text-2xl font-semibold text-foreground">Welcome</CardTitle>
+            <CardTitle className="text-2xl font-semibold text-foreground">
+              {showForgotPassword ? "Reset Password" : "Welcome"}
+            </CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
-            <Tabs defaultValue="signin" className="w-full">
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="signin">Sign In</TabsTrigger>
-                <TabsTrigger value="signup">Sign Up</TabsTrigger>
-              </TabsList>
-              
-              <TabsContent value="signin" className="space-y-6">
-                <form onSubmit={handleSignIn} className="space-y-6">
-                  {/* Email */}
-                  <div className="space-y-2">
-                    <Label htmlFor="email" className="text-sm font-medium">Email Address</Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      placeholder="Enter your email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      className="w-full"
-                      required
-                    />
-                  </div>
+            {showForgotPassword ? (
+              <form onSubmit={handleForgotPassword} className="space-y-6">
+                <div className="space-y-2">
+                  <Label htmlFor="forgotEmail" className="text-sm font-medium">Email Address</Label>
+                  <Input
+                    id="forgotEmail"
+                    type="email"
+                    placeholder="Enter your email"
+                    value={forgotEmail}
+                    onChange={(e) => setForgotEmail(e.target.value)}
+                    className="w-full"
+                    required
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    We'll send you a link to reset your password.
+                  </p>
+                </div>
 
-                  {/* Password */}
-                  <div className="space-y-2">
-                    <Label htmlFor="password" className="text-sm font-medium">Password</Label>
-                    <div className="relative">
+                <Button 
+                  type="submit" 
+                  className="w-full btn-hero text-white font-medium py-3"
+                  disabled={forgotLoading}
+                >
+                  {forgotLoading ? "Sending..." : "Send Reset Link"}
+                </Button>
+
+                <Button
+                  type="button"
+                  variant="ghost"
+                  className="w-full"
+                  onClick={() => setShowForgotPassword(false)}
+                >
+                  <ArrowLeft className="h-4 w-4 mr-2" />
+                  Back to Sign In
+                </Button>
+              </form>
+            ) : (
+              <Tabs defaultValue="signin" className="w-full">
+                <TabsList className="grid w-full grid-cols-2">
+                  <TabsTrigger value="signin">Sign In</TabsTrigger>
+                  <TabsTrigger value="signup">Sign Up</TabsTrigger>
+                </TabsList>
+                
+                <TabsContent value="signin" className="space-y-6">
+                  <form onSubmit={handleSignIn} className="space-y-6">
+                    {/* Email */}
+                    <div className="space-y-2">
+                      <Label htmlFor="email" className="text-sm font-medium">Email Address</Label>
                       <Input
-                        id="password"
-                        type={showPassword ? "text" : "password"}
-                        placeholder="Enter your password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        className="w-full pr-10"
+                        id="email"
+                        type="email"
+                        placeholder="Enter your email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        className="w-full"
                         required
                       />
+                    </div>
+
+                    {/* Password */}
+                    <div className="space-y-2">
+                      <Label htmlFor="password" className="text-sm font-medium">Password</Label>
+                      <div className="relative">
+                        <Input
+                          id="password"
+                          type={showPassword ? "text" : "password"}
+                          placeholder="Enter your password"
+                          value={password}
+                          onChange={(e) => setPassword(e.target.value)}
+                          className="w-full pr-10"
+                          required
+                        />
+                        <button
+                          type="button"
+                          className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                          onClick={() => setShowPassword(!showPassword)}
+                        >
+                          {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                        </button>
+                      </div>
                       <button
                         type="button"
-                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                        onClick={() => setShowPassword(!showPassword)}
+                        className="text-sm text-primary hover:underline"
+                        onClick={() => setShowForgotPassword(true)}
                       >
-                        {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                        Forgot Password?
                       </button>
                     </div>
-                  </div>
 
-                  {/* Submit Button */}
-                  <Button 
-                    type="submit" 
-                    className="w-full btn-hero text-white font-medium py-3"
-                    disabled={loading}
-                  >
-                    {loading ? "Signing In..." : "Sign In"}
-                  </Button>
-                </form>
-              </TabsContent>
+                    {/* Submit Button */}
+                    <Button 
+                      type="submit" 
+                      className="w-full btn-hero text-white font-medium py-3"
+                      disabled={loading}
+                    >
+                      {loading ? "Signing In..." : "Sign In"}
+                    </Button>
+                  </form>
+                </TabsContent>
 
-              <TabsContent value="signup" className="space-y-6">
-                <form onSubmit={handleSignUp} className="space-y-6">
-                  {/* First Name & Last Name */}
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="firstName" className="text-sm font-medium">First Name</Label>
-                      <Input
-                        id="firstName"
-                        type="text"
-                        placeholder="First name"
-                        value={firstName}
-                        onChange={(e) => setFirstName(e.target.value)}
-                        className="w-full"
-                      />
+                <TabsContent value="signup" className="space-y-6">
+                  <form onSubmit={handleSignUp} className="space-y-6">
+                    {/* First Name & Last Name */}
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="firstName" className="text-sm font-medium">First Name</Label>
+                        <Input
+                          id="firstName"
+                          type="text"
+                          placeholder="First name"
+                          value={firstName}
+                          onChange={(e) => setFirstName(e.target.value)}
+                          className="w-full"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="lastName" className="text-sm font-medium">Last Name</Label>
+                        <Input
+                          id="lastName"
+                          type="text"
+                          placeholder="Last name"
+                          value={lastName}
+                          onChange={(e) => setLastName(e.target.value)}
+                          className="w-full"
+                        />
+                      </div>
                     </div>
+
+                    {/* Email */}
                     <div className="space-y-2">
-                      <Label htmlFor="lastName" className="text-sm font-medium">Last Name</Label>
+                      <Label htmlFor="signUpEmail" className="text-sm font-medium">Email Address</Label>
                       <Input
-                        id="lastName"
-                        type="text"
-                        placeholder="Last name"
-                        value={lastName}
-                        onChange={(e) => setLastName(e.target.value)}
+                        id="signUpEmail"
+                        type="email"
+                        placeholder="Enter your email"
+                        value={signUpEmail}
+                        onChange={(e) => setSignUpEmail(e.target.value)}
                         className="w-full"
-                      />
-                    </div>
-                  </div>
-
-                  {/* Email */}
-                  <div className="space-y-2">
-                    <Label htmlFor="signUpEmail" className="text-sm font-medium">Email Address</Label>
-                    <Input
-                      id="signUpEmail"
-                      type="email"
-                      placeholder="Enter your email"
-                      value={signUpEmail}
-                      onChange={(e) => setSignUpEmail(e.target.value)}
-                      className="w-full"
-                      required
-                    />
-                  </div>
-
-                  {/* Password */}
-                  <div className="space-y-2">
-                    <Label htmlFor="signUpPassword" className="text-sm font-medium">Password</Label>
-                    <div className="relative">
-                      <Input
-                        id="signUpPassword"
-                        type={showSignUpPassword ? "text" : "password"}
-                        placeholder="Create a password"
-                        value={signUpPassword}
-                        onChange={(e) => setSignUpPassword(e.target.value)}
-                        className="w-full pr-10"
                         required
                       />
-                      <button
-                        type="button"
-                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                        onClick={() => setShowSignUpPassword(!showSignUpPassword)}
-                      >
-                        {showSignUpPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                      </button>
                     </div>
-                  </div>
 
-                  {/* Submit Button */}
-                  <Button 
-                    type="submit" 
-                    className="w-full btn-hero text-white font-medium py-3"
-                    disabled={loading}
-                  >
-                    {loading ? "Creating Account..." : "Create Account"}
-                  </Button>
-                </form>
-              </TabsContent>
-            </Tabs>
+                    {/* Password */}
+                    <div className="space-y-2">
+                      <Label htmlFor="signUpPassword" className="text-sm font-medium">Password</Label>
+                      <div className="relative">
+                        <Input
+                          id="signUpPassword"
+                          type={showSignUpPassword ? "text" : "password"}
+                          placeholder="Create a password"
+                          value={signUpPassword}
+                          onChange={(e) => setSignUpPassword(e.target.value)}
+                          className="w-full pr-10"
+                          required
+                        />
+                        <button
+                          type="button"
+                          className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                          onClick={() => setShowSignUpPassword(!showSignUpPassword)}
+                        >
+                          {showSignUpPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                        </button>
+                      </div>
+                    </div>
 
-            {/* Demo Notice */}
-            <div className="mt-6 p-4 bg-muted/50 rounded-lg">
-              <p className="text-sm font-medium text-muted-foreground mb-2">Note:</p>
-              <div className="space-y-1 text-xs text-muted-foreground">
-                <p>• mashcatg@gmail.com gets automatic SuperAdmin access</p>
-                <p>• All other users start as Students</p>
-                <p>• Check your email after signing up for verification</p>
-              </div>
-            </div>
+                    {/* Submit Button */}
+                    <Button 
+                      type="submit" 
+                      className="w-full btn-hero text-white font-medium py-3"
+                      disabled={loading}
+                    >
+                      {loading ? "Creating Account..." : "Create Account"}
+                    </Button>
+                  </form>
+                </TabsContent>
+              </Tabs>
+            )}
           </CardContent>
         </Card>
 
         {/* Footer */}
         <div className="text-center mt-8 text-white/80 text-sm animate-fade-in">
-          © 2024 ResonanceX Classes. All rights reserved.
+          © {new Date().getFullYear()} ResonanceX Classes. All rights reserved.
         </div>
       </div>
     </div>
