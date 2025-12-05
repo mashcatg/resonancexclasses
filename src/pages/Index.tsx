@@ -1,15 +1,17 @@
 import { useEffect, useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
-import { GraduationCap, BookOpen, Users, Award, Play, Star, ArrowRight, Clock } from "lucide-react";
 import { Link } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
-import { truncateText } from "@/lib/htmlUtils";
 import Header from "@/components/Header";
 import HeroSection from "@/components/HeroSection";
 import FeaturesSection from "@/components/FeaturesSection";
 import StatsSection from "@/components/StatsSection";
+import JourneySection from "@/components/JourneySection";
+import TestimonialsSection from "@/components/TestimonialsSection";
+import { Clock, ArrowRight, BookOpen, Mail, Phone, MapPin, Facebook, Twitter, Linkedin, Youtube } from "lucide-react";
+import { truncateText } from "@/lib/htmlUtils";
 
 interface Course {
   id: string;
@@ -26,167 +28,265 @@ const Index = () => {
   const [featuredCourses, setFeaturedCourses] = useState<Course[]>([]);
 
   useEffect(() => {
+    const fetchFeaturedCourses = async () => {
+      const { data } = await supabase
+        .from("courses")
+        .select("id, title, description, category, difficulty_level, price, thumbnail_url, duration_minutes")
+        .eq("is_published", true)
+        .order("created_at", { ascending: false })
+        .limit(3);
+      
+      if (data) {
+        setFeaturedCourses(data);
+      }
+    };
+
     fetchFeaturedCourses();
   }, []);
 
-  const fetchFeaturedCourses = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('courses')
-        .select('*')
-        .eq('is_published', true)
-        .order('created_at', { ascending: false })
-        .limit(3);
-
-      if (error) throw error;
-      setFeaturedCourses(data || []);
-    } catch (error) {
-      console.error('Error fetching courses:', error);
+  const getDifficultyColor = (level: string | null) => {
+    switch (level?.toLowerCase()) {
+      case "beginner":
+        return "bg-green-100 text-green-700 border-green-200";
+      case "intermediate":
+        return "bg-yellow-100 text-yellow-700 border-yellow-200";
+      case "advanced":
+        return "bg-red-100 text-red-700 border-red-200";
+      default:
+        return "bg-muted text-muted-foreground";
     }
   };
 
-  const getDifficultyColor = (level: string | null) => {
-    switch (level?.toLowerCase()) {
-      case 'beginner': return 'bg-green-100 text-green-800 border-green-200';
-      case 'intermediate': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-      case 'advanced': return 'bg-red-100 text-red-800 border-red-200';
-      default: return 'bg-gray-100 text-gray-800 border-gray-200';
-    }
+  const footerLinks = {
+    courses: [
+      { label: "Development", href: "/courses" },
+      { label: "Business", href: "/courses" },
+      { label: "Design", href: "/courses" },
+      { label: "Marketing", href: "/courses" },
+    ],
+    support: [
+      { label: "Help Center", href: "#" },
+      { label: "FAQs", href: "#" },
+      { label: "Privacy Policy", href: "#" },
+      { label: "Terms of Service", href: "#" },
+    ],
   };
 
   return (
     <div className="min-h-screen bg-background">
       <Header />
       <HeroSection />
-      <FeaturesSection />
+      <JourneySection />
       <StatsSection />
 
       {/* Featured Courses Section */}
-      {featuredCourses.length > 0 && (
-        <section className="py-20 bg-muted/50">
-          <div className="container mx-auto px-4">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+      <section className="py-20 bg-background">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col md:flex-row md:items-end md:justify-between mb-12">
+            <div>
+              <span className="text-primary font-semibold text-sm uppercase tracking-wider">
+                Top Picks
+              </span>
+              <h2 className="text-3xl md:text-4xl font-bold text-foreground mt-2">
                 Featured Courses
               </h2>
-              <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-                Start learning today with our top-rated courses
+              <p className="text-muted-foreground mt-2 max-w-xl">
+                Explore our most popular courses and start your learning journey today
               </p>
             </div>
+            <Link to="/courses" className="mt-4 md:mt-0">
+              <Button variant="outline" className="group">
+                View All Courses
+                <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+              </Button>
+            </Link>
+          </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-              {featuredCourses.map((course) => (
-                <Card key={course.id} className="flex flex-col">
-                  {course.thumbnail_url && (
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {featuredCourses.map((course, index) => (
+              <Link 
+                key={course.id} 
+                to={`/course/${course.id}`}
+                className="animate-fade-in"
+                style={{ animationDelay: `${index * 0.1}s` }}
+              >
+                <Card className="h-full overflow-hidden hover:shadow-xl transition-all duration-300 group border-border hover:border-primary/30">
+                  <div className="relative overflow-hidden">
                     <img
-                      src={course.thumbnail_url}
+                      src={course.thumbnail_url || "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=400&h=250&fit=crop"}
                       alt={course.title}
-                      className="w-full h-48 object-cover rounded-t-lg"
+                      className="w-full h-48 object-cover transition-transform duration-300 group-hover:scale-105"
                     />
-                  )}
-                  <CardHeader>
-                    <div className="flex items-start justify-between mb-2">
-                      <CardTitle className="line-clamp-2 flex-1">{course.title}</CardTitle>
-                      {course.difficulty_level && (
+                    <div className="absolute top-4 right-4">
+                      <Badge className="bg-primary text-primary-foreground font-semibold">
+                        ৳{course.price.toLocaleString()}
+                      </Badge>
+                    </div>
+                    {course.difficulty_level && (
+                      <div className="absolute top-4 left-4">
                         <Badge variant="outline" className={getDifficultyColor(course.difficulty_level)}>
                           {course.difficulty_level}
                         </Badge>
-                      )}
-                    </div>
-                    <CardDescription className="line-clamp-3">
-                      {truncateText(course.description || '', 150)}
-                    </CardDescription>
+                      </div>
+                    )}
+                  </div>
+                  <CardHeader className="pb-2">
+                    {course.category && (
+                      <span className="text-xs text-primary font-medium uppercase tracking-wider">
+                        {course.category}
+                      </span>
+                    )}
+                    <CardTitle className="text-lg group-hover:text-primary transition-colors line-clamp-2">
+                      {course.title}
+                    </CardTitle>
                   </CardHeader>
-                  <CardContent className="flex-1">
-                    <div className="flex items-center justify-between text-sm text-muted-foreground mb-4">
-                      {course.category && (
-                        <div className="flex items-center">
-                          <BookOpen className="h-4 w-4 mr-1" />
-                          {course.category}
-                        </div>
-                      )}
-                      {course.duration_minutes && (
-                        <div className="flex items-center">
-                          <Clock className="h-4 w-4 mr-1" />
-                          {Math.round(course.duration_minutes / 60)}h
-                        </div>
-                      )}
-                    </div>
-                    <div className="text-2xl font-bold text-primary">
-                      ৳{course.price.toLocaleString('en-BD')}
+                  <CardContent>
+                    <CardDescription className="line-clamp-2 mb-4">
+                      {truncateText(course.description || "", 100)}
+                    </CardDescription>
+                    <div className="flex items-center text-sm text-muted-foreground">
+                      <Clock className="h-4 w-4 mr-1" />
+                      <span>{course.duration_minutes || 0} mins</span>
                     </div>
                   </CardContent>
-                  <CardFooter>
-                    <Button asChild className="w-full">
-                      <Link to={`/courses/${course.id}`}>View Course</Link>
-                    </Button>
-                  </CardFooter>
                 </Card>
-              ))}
-            </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
 
-            <div className="text-center">
-              <Button asChild size="lg" variant="outline">
-                <Link to="/courses">
-                  View All Courses
+      <FeaturesSection />
+      <TestimonialsSection />
+
+      {/* CTA Section */}
+      <section className="py-20 bg-primary">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="max-w-3xl mx-auto text-center text-white">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">
+              Admissions Open for 2025 Batch
+            </h2>
+            <p className="text-lg text-white/80 mb-8">
+              Don't miss your chance to transform your career. Join our community of successful learners and gain the skills you need to succeed.
+            </p>
+            <div className="flex flex-wrap justify-center gap-4">
+              <Link to="/login">
+                <Button 
+                  size="lg" 
+                  className="bg-white text-primary hover:bg-white/90 text-lg px-8 py-6 rounded-full font-semibold"
+                >
+                  Get Started Now
                   <ArrowRight className="ml-2 h-5 w-5" />
-                </Link>
+                </Button>
+              </Link>
+              <Button 
+                variant="outline" 
+                size="lg"
+                className="border-2 border-white/30 text-white hover:bg-white/10 text-lg px-8 py-6 rounded-full font-semibold"
+              >
+                <Phone className="mr-2 h-5 w-5" />
+                +880 1950-095883
               </Button>
             </div>
           </div>
-        </section>
-      )}
-      
-      {/* CTA Section */}
-      <section className="py-20 bg-primary">
-        <div className="container mx-auto px-4 text-center">
-          <h2 className="text-3xl md:text-4xl font-bold text-primary-foreground mb-6">
-            Ready to Start Learning?
-          </h2>
-          <p className="text-xl text-primary-foreground/90 mb-8 max-w-2xl mx-auto">
-            Join thousands of students already learning on ResonanceX Classes
-          </p>
-          <Link to="/login">
-            <Button size="lg" variant="secondary" className="text-lg px-8 py-6">
-              Get Started Now
-              <ArrowRight className="ml-2 h-5 w-5" />
-            </Button>
-          </Link>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="bg-muted py-12">
-        <div className="container mx-auto px-4">
-          <div className="grid md:grid-cols-4 gap-8">
-            <div className="md:col-span-2">
-              <div className="flex items-center space-x-2 mb-4">
-                <GraduationCap className="h-8 w-8 text-primary" />
-                <span className="text-xl font-bold">ResonanceX Classes</span>
-              </div>
-              <p className="text-muted-foreground mb-4">
-                World-class learning management system for modern education.
+      <footer className="bg-foreground text-background py-16">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
+            {/* Brand */}
+            <div className="lg:col-span-1">
+              <Link to="/" className="flex items-center space-x-2 mb-4">
+                <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
+                  <BookOpen className="h-6 w-6 text-primary-foreground" />
+                </div>
+                <span className="text-xl font-bold text-background">ResonanceX</span>
+              </Link>
+              <p className="text-background/70 mb-6">
+                Empowering learners worldwide with premium education and expert-led courses.
               </p>
+              <div className="flex space-x-4">
+                {[Facebook, Twitter, Linkedin, Youtube].map((Icon, i) => (
+                  <a 
+                    key={i} 
+                    href="#" 
+                    className="w-10 h-10 rounded-full bg-background/10 flex items-center justify-center hover:bg-primary transition-colors"
+                  >
+                    <Icon className="h-5 w-5" />
+                  </a>
+                ))}
+              </div>
             </div>
+
+            {/* Popular Courses */}
             <div>
-              <h4 className="font-semibold mb-4">Product</h4>
-              <ul className="space-y-2 text-muted-foreground">
-                <li><Link to="/courses" className="hover:text-foreground transition-colors">Courses</Link></li>
-                <li><Link to="/pricing" className="hover:text-foreground transition-colors">Pricing</Link></li>
-                <li><Link to="/features" className="hover:text-foreground transition-colors">Features</Link></li>
+              <h3 className="font-semibold text-lg mb-4">Popular Courses</h3>
+              <ul className="space-y-3">
+                {footerLinks.courses.map((link) => (
+                  <li key={link.label}>
+                    <Link 
+                      to={link.href} 
+                      className="text-background/70 hover:text-primary transition-colors"
+                    >
+                      {link.label}
+                    </Link>
+                  </li>
+                ))}
               </ul>
             </div>
+
+            {/* Support */}
             <div>
-              <h4 className="font-semibold mb-4">Company</h4>
-              <ul className="space-y-2 text-muted-foreground">
-                <li><Link to="/about" className="hover:text-foreground transition-colors">About</Link></li>
-                <li><Link to="/contact" className="hover:text-foreground transition-colors">Contact</Link></li>
-                <li><Link to="/support" className="hover:text-foreground transition-colors">Support</Link></li>
+              <h3 className="font-semibold text-lg mb-4">Support</h3>
+              <ul className="space-y-3">
+                {footerLinks.support.map((link) => (
+                  <li key={link.label}>
+                    <a 
+                      href={link.href} 
+                      className="text-background/70 hover:text-primary transition-colors"
+                    >
+                      {link.label}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Contact */}
+            <div>
+              <h3 className="font-semibold text-lg mb-4">Contact Us</h3>
+              <ul className="space-y-4">
+                <li className="flex items-start gap-3">
+                  <MapPin className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+                  <span className="text-background/70">Dhaka, Bangladesh</span>
+                </li>
+                <li className="flex items-center gap-3">
+                  <Phone className="h-5 w-5 text-primary flex-shrink-0" />
+                  <span className="text-background/70">+880 1950-095883</span>
+                </li>
+                <li className="flex items-center gap-3">
+                  <Mail className="h-5 w-5 text-primary flex-shrink-0" />
+                  <span className="text-background/70">support@resonancex.com</span>
+                </li>
               </ul>
             </div>
           </div>
-          <div className="border-t border-border mt-8 pt-8 text-center text-muted-foreground">
-            <p>&copy; {new Date().getFullYear()} ResonanceX Classes. All rights reserved.</p>
+
+          {/* Bottom Bar */}
+          <div className="border-t border-background/10 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+            <p className="text-background/60 text-sm">
+              © {new Date().getFullYear()} ResonanceX Classes. All rights reserved.
+            </p>
+            <div className="flex gap-6 text-sm">
+              <a href="#" className="text-background/60 hover:text-primary transition-colors">
+                Privacy Policy
+              </a>
+              <a href="#" className="text-background/60 hover:text-primary transition-colors">
+                Terms of Service
+              </a>
+            </div>
           </div>
         </div>
       </footer>

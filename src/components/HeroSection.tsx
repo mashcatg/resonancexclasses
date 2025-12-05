@@ -1,73 +1,134 @@
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Play } from "lucide-react";
+import { ArrowRight, Users, BookOpen, Award } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const HeroSection = () => {
+  const stats = [
+    { icon: Users, value: "270+", label: "Expert Instructors" },
+    { icon: BookOpen, value: "5,550+", label: "Quality Courses" },
+    { icon: Award, value: "33K+", label: "Active Students" },
+  ];
+
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
-      {/* Background gradient */}
-      <div className="absolute inset-0 bg-gradient-hero opacity-95" />
+    <section className="relative min-h-[90vh] flex items-center overflow-hidden bg-gradient-to-br from-primary via-primary to-blue-700">
+      {/* Background pattern */}
+      <div className="absolute inset-0 opacity-10">
+        <div className="absolute top-20 left-10 w-72 h-72 bg-white rounded-full blur-3xl" />
+        <div className="absolute bottom-20 right-10 w-96 h-96 bg-blue-300 rounded-full blur-3xl" />
+      </div>
+      
+      {/* Dot pattern */}
       <div 
-        className="absolute inset-0 opacity-30"
+        className="absolute inset-0 opacity-20"
         style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Ccircle cx='30' cy='30' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`
+          backgroundImage: `radial-gradient(circle, rgba(255,255,255,0.3) 1px, transparent 1px)`,
+          backgroundSize: '30px 30px'
         }}
       />
-      
-      <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center max-w-4xl mx-auto">
-          {/* Main heading */}
-          <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-6 animate-fade-in">
-            Experience the most{" "}
-            <span className="bg-gradient-to-r from-white to-blue-200 bg-clip-text text-transparent">
-              advanced learning
-            </span>{" "}
-            platform
-          </h1>
-          
-          <p className="text-xl md:text-2xl text-white/90 mb-8 animate-slide-up">
-            Designed for modern professionals with world-class courses, expert instructors, and cutting-edge technology
-          </p>
 
-          {/* CTA Buttons */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12 animate-scale-in">
-            <Link to="/login">
-              <Button 
-                size="lg" 
-                className="btn-ghost-white text-lg px-8 py-4 group"
-              >
-                Start Learning Today
-                <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
-              </Button>
-            </Link>
-            <Button 
-              variant="ghost" 
-              size="lg"
-              className="text-white hover:bg-white/10 text-lg px-8 py-4"
-            >
-              <Play className="mr-2 h-5 w-5" />
-              Watch Demo
-            </Button>
+      <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <div className="grid lg:grid-cols-2 gap-12 items-center">
+          {/* Left Content */}
+          <div className="text-white space-y-8 animate-fade-in">
+            <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-full px-4 py-2 text-sm font-medium">
+              <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
+              Admissions Open for 2025
+            </div>
+            
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">
+              Unlock Your
+              <span className="block text-blue-200">Learning Potential</span>
+            </h1>
+            
+            <p className="text-lg md:text-xl text-white/80 max-w-lg leading-relaxed">
+              Join thousands of learners worldwide. Access premium courses from industry experts and transform your career with ResonanceX.
+            </p>
+
+            {/* CTA Buttons */}
+            <div className="flex flex-wrap gap-4">
+              <Link to="/courses">
+                <Button 
+                  size="lg" 
+                  className="bg-white text-primary hover:bg-white/90 text-lg px-8 py-6 rounded-full group font-semibold shadow-lg"
+                >
+                  Explore Courses
+                  <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
+                </Button>
+              </Link>
+              <Link to="/login">
+                <Button 
+                  variant="outline" 
+                  size="lg"
+                  className="border-2 border-white/30 text-white hover:bg-white/10 text-lg px-8 py-6 rounded-full font-semibold"
+                >
+                  Get Started Free
+                </Button>
+              </Link>
+            </div>
+
+            {/* Stats */}
+            <div className="grid grid-cols-3 gap-6 pt-8 border-t border-white/20">
+              {stats.map((stat, index) => {
+                const Icon = stat.icon;
+                return (
+                  <div 
+                    key={stat.label} 
+                    className="text-center animate-scale-in"
+                    style={{ animationDelay: `${index * 0.15}s` }}
+                  >
+                    <div className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-white/10 mb-2">
+                      <Icon className="h-5 w-5 text-blue-200" />
+                    </div>
+                    <div className="text-2xl md:text-3xl font-bold">{stat.value}</div>
+                    <div className="text-sm text-white/70">{stat.label}</div>
+                  </div>
+                );
+              })}
+            </div>
           </div>
 
-          {/* Trust indicators */}
-          <div className="text-white/80 animate-fade-in">
-            <p className="mb-4 text-sm uppercase tracking-wider">Trusted by students worldwide</p>
-            <div className="flex flex-wrap justify-center items-center gap-8 opacity-60">
-              <div className="text-sm">🎓 Harvard</div>
-              <div className="text-sm">🎓 MIT</div>
-              <div className="text-sm">🎓 Stanford</div>
-              <div className="text-sm">🎓 Oxford</div>
-              <div className="text-sm">🎓 Cambridge</div>
+          {/* Right Content - Image/Illustration */}
+          <div className="relative hidden lg:block animate-fade-in" style={{ animationDelay: '0.3s' }}>
+            <div className="relative">
+              {/* Main image container */}
+              <div className="relative z-10 rounded-3xl overflow-hidden shadow-2xl border-4 border-white/20">
+                <img
+                  src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=600&h=500&fit=crop"
+                  alt="Students learning together"
+                  className="w-full h-[500px] object-cover"
+                />
+                {/* Overlay gradient */}
+                <div className="absolute inset-0 bg-gradient-to-t from-primary/40 to-transparent" />
+              </div>
+              
+              {/* Floating cards */}
+              <div className="absolute -bottom-6 -left-6 bg-white rounded-2xl p-4 shadow-xl animate-float z-20">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+                    <Award className="h-6 w-6 text-green-600" />
+                  </div>
+                  <div>
+                    <div className="text-sm text-muted-foreground">Certified</div>
+                    <div className="font-bold text-foreground">Courses</div>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="absolute -top-4 -right-4 bg-white rounded-2xl p-4 shadow-xl animate-float z-20" style={{ animationDelay: '1s' }}>
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                    <Users className="h-6 w-6 text-primary" />
+                  </div>
+                  <div>
+                    <div className="text-sm text-muted-foreground">Join</div>
+                    <div className="font-bold text-foreground">33K+ Students</div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </div>
-
-      {/* Floating elements */}
-      <div className="absolute top-20 left-10 w-20 h-20 bg-white/10 rounded-full animate-float hidden lg:block" />
-      <div className="absolute top-40 right-20 w-16 h-16 bg-white/10 rounded-full animate-float" style={{ animationDelay: '2s' }} />
-      <div className="absolute bottom-40 left-20 w-12 h-12 bg-white/10 rounded-full animate-float" style={{ animationDelay: '4s' }} />
     </section>
   );
 };
