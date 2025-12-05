@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
+import { truncateText } from "@/lib/htmlUtils";
 import Header from "@/components/Header";
 import StudentNavbar from "@/components/StudentNavbar";
 import EnrollmentModal from "@/components/EnrollmentModal";
@@ -216,7 +217,7 @@ const Courses = () => {
                       )}
                     </div>
                     <CardDescription className="line-clamp-3">
-                      {course.description}
+                      {truncateText(course.description || '', 150)}
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="flex-1">

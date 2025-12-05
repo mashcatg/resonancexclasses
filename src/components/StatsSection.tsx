@@ -6,29 +6,21 @@ const StatsSection = () => {
       icon: Users,
       number: "10K+",
       label: "Active Students",
-      color: "text-blue-500",
-      bgColor: "bg-blue-50 dark:bg-blue-950/20",
     },
     {
       icon: BookOpen,
       number: "500+",
       label: "Expert Courses",
-      color: "text-green-500",
-      bgColor: "bg-green-50 dark:bg-green-950/20",
     },
     {
       icon: Award,
       number: "95%",
       label: "Success Rate",
-      color: "text-purple-500",
-      bgColor: "bg-purple-50 dark:bg-purple-950/20",
     },
     {
       icon: Clock,
       number: "24/7",
       label: "Support",
-      color: "text-orange-500",
-      bgColor: "bg-orange-50 dark:bg-orange-950/20",
     },
   ];
 
@@ -44,8 +36,8 @@ const StatsSection = () => {
                 className="stats-card text-center animate-scale-in"
                 style={{ animationDelay: `${index * 0.1}s` }}
               >
-                <div className={`inline-flex items-center justify-center w-16 h-16 rounded-full ${stat.bgColor} mb-4`}>
-                  <Icon className={`h-8 w-8 ${stat.color}`} />
+                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-4">
+                  <Icon className="h-8 w-8 text-primary" />
                 </div>
                 <div className="text-3xl lg:text-4xl font-bold text-primary mb-2">
                   {stat.number}
