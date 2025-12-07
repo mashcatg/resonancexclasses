@@ -165,14 +165,14 @@ const Dashboard = () => {
               <p className="text-sm text-muted-foreground">
                 Create and manage your courses, add lessons, and track progress.
               </p>
-              <div className="flex space-x-2">
+              <div className="flex space-x-2 flex-col md:flex-row">
                 <Button asChild>
                   <Link to="/admin/courses/new">
                     <Plus className="h-4 w-4 mr-2" />
                     New Course
                   </Link>
                 </Button>
-                <Button variant="outline" asChild>
+                <Button variant="outline" asChild className="mt-3 md:mt-0 mlx-0 md:mx-2">
                   <Link to="/admin/courses">
                     <Eye className="h-4 w-4 mr-2" />
                     View All

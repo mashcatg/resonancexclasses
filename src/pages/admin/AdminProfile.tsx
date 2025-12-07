@@ -59,7 +59,7 @@ const AdminProfile = () => {
   const getRoleBadgeColor = (role: string) => {
     switch (role) {
       case 'superadmin':
-        return 'bg-red-500 hover:bg-red-600';
+        return 'bg-primary/20 text-primary';
       case 'admin':
         return 'bg-blue-500 hover:bg-blue-600';
       default:
@@ -71,7 +71,7 @@ const AdminProfile = () => {
     <div className="min-h-screen bg-background">
       <AdminNavbar />
       <div className="container mx-auto px-4 py-8 max-w-2xl">
-        <h1 className="text-3xl font-bold text-foreground mb-8">My Profile</h1>
+        <h1 className="text-2xl md:text-3xl font-semibold md:font-bold text-foreground mb-8">My Profile</h1>
         
         <Card>
           <CardHeader className="text-center">
@@ -91,9 +91,9 @@ const AdminProfile = () => {
               {displayProfile?.email}
             </CardDescription>
             <div className="flex justify-center mt-2">
-              <Badge className={`${getRoleBadgeColor(displayProfile?.role || '')} text-white`}>
-                {displayProfile?.role?.toUpperCase()}
-              </Badge>
+              <Badge className={`${getRoleBadgeColor(profile?.role || '')} mt-2`}>
+              {profile?.role?.toUpperCase()}
+            </Badge>
             </div>
           </CardHeader>
           <CardContent className="space-y-6">

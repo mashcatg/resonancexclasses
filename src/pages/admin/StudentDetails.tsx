@@ -309,24 +309,29 @@ const StudentDetails = () => {
 
         {/* Tabs */}
         <Tabs defaultValue="enrollments" className="space-y-6">
-          <TabsList>
-            <TabsTrigger value="enrollments" className="flex items-center gap-2">
-              <BookOpen className="h-4 w-4" />
-              Enrollments
-            </TabsTrigger>
-            <TabsTrigger value="quizzes" className="flex items-center gap-2">
-              <Award className="h-4 w-4" />
-              Quiz Attempts
-            </TabsTrigger>
-            <TabsTrigger value="devices" className="flex items-center gap-2">
-              <Monitor className="h-4 w-4" />
-              Devices
-            </TabsTrigger>
-            <TabsTrigger value="transactions" className="flex items-center gap-2">
-              <CreditCard className="h-4 w-4" />
-              Transactions
-            </TabsTrigger>
-          </TabsList>
+          <div className="overflow-x-auto">
+            <TabsList className="inline-flex min-w-full md:min-w-0">
+              <TabsTrigger value="enrollments" className="flex items-center gap-2 whitespace-nowrap">
+                <BookOpen className="h-4 w-4" />
+                <span className="hidden sm:inline">Enrollments</span>
+                <span className="sm:hidden">Enroll</span>
+              </TabsTrigger>
+              <TabsTrigger value="quizzes" className="flex items-center gap-2 whitespace-nowrap">
+                <Award className="h-4 w-4" />
+                <span className="hidden sm:inline">Quiz Attempts</span>
+                <span className="sm:hidden">Quizzes</span>
+              </TabsTrigger>
+              <TabsTrigger value="devices" className="flex items-center gap-2 whitespace-nowrap">
+                <Monitor className="h-4 w-4" />
+                <span>Devices</span>
+              </TabsTrigger>
+              <TabsTrigger value="transactions" className="flex items-center gap-2 whitespace-nowrap">
+                <CreditCard className="h-4 w-4" />
+                <span className="hidden sm:inline">Transactions</span>
+                <span className="sm:hidden">Trans</span>
+              </TabsTrigger>
+            </TabsList>
+          </div>
 
           {/* Enrollments Tab */}
           <TabsContent value="enrollments">
@@ -338,41 +343,43 @@ const StudentDetails = () => {
                 {enrollments.length === 0 ? (
                   <p className="text-center py-8 text-muted-foreground">No enrollments found.</p>
                 ) : (
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Course</TableHead>
-                        <TableHead>Enrolled</TableHead>
-                        <TableHead>Progress</TableHead>
-                        <TableHead>Status</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {enrollments.map((enrollment) => (
-                        <TableRow key={enrollment.id}>
-                          <TableCell className="font-medium">{enrollment.course.title}</TableCell>
-                          <TableCell>
-                            {format(new Date(enrollment.enrolled_at), "MMM d, yyyy")}
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex items-center gap-2">
-                              <Progress value={enrollment.progress_percentage} className="w-20 h-2" />
-                              <span className="text-sm">{enrollment.progress_percentage}%</span>
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            {enrollment.completed_at ? (
-                              <Badge className="bg-green-100 text-green-800">Completed</Badge>
-                            ) : enrollment.progress_percentage > 0 ? (
-                              <Badge variant="secondary">In Progress</Badge>
-                            ) : (
-                              <Badge variant="outline">Not Started</Badge>
-                            )}
-                          </TableCell>
+                  <div className="overflow-x-auto">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead className="whitespace-nowrap">Course</TableHead>
+                          <TableHead className="whitespace-nowrap">Enrolled</TableHead>
+                          <TableHead className="whitespace-nowrap">Progress</TableHead>
+                          <TableHead className="whitespace-nowrap">Status</TableHead>
                         </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
+                      </TableHeader>
+                      <TableBody>
+                        {enrollments.map((enrollment) => (
+                          <TableRow key={enrollment.id}>
+                            <TableCell className="font-medium whitespace-nowrap">{enrollment.course.title}</TableCell>
+                            <TableCell className="whitespace-nowrap">
+                              {format(new Date(enrollment.enrolled_at), "MMM d, yyyy")}
+                            </TableCell>
+                            <TableCell className="whitespace-nowrap">
+                              <div className="flex items-center gap-2">
+                                <Progress value={enrollment.progress_percentage} className="w-20 h-2" />
+                                <span className="text-sm">{enrollment.progress_percentage}%</span>
+                              </div>
+                            </TableCell>
+                            <TableCell className="whitespace-nowrap">
+                              {enrollment.completed_at ? (
+                                <Badge className="bg-green-100 text-green-800">Completed</Badge>
+                              ) : enrollment.progress_percentage > 0 ? (
+                                <Badge variant="secondary">In Progress</Badge>
+                              ) : (
+                                <Badge variant="outline">Not Started</Badge>
+                              )}
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
                 )}
               </CardContent>
             </Card>
@@ -388,40 +395,42 @@ const StudentDetails = () => {
                 {quizAttempts.length === 0 ? (
                   <p className="text-center py-8 text-muted-foreground">No quiz attempts found.</p>
                 ) : (
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Quiz</TableHead>
-                        <TableHead>Course</TableHead>
-                        <TableHead>Score</TableHead>
-                        <TableHead>Date</TableHead>
-                        <TableHead>Time Taken</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {quizAttempts.map((attempt) => (
-                        <TableRow key={attempt.id}>
-                          <TableCell className="font-medium">{attempt.quiz.title}</TableCell>
-                          <TableCell>{attempt.quiz.course.title}</TableCell>
-                          <TableCell>
-                            {attempt.score !== null && attempt.max_score !== null ? (
-                              <span className={attempt.percentage && attempt.percentage >= 70 ? "text-green-600" : "text-red-600"}>
-                                {attempt.score}/{attempt.max_score} ({attempt.percentage}%)
-                              </span>
-                            ) : (
-                              <span className="text-muted-foreground">-</span>
-                            )}
-                          </TableCell>
-                          <TableCell>
-                            {format(new Date(attempt.started_at), "MMM d, yyyy")}
-                          </TableCell>
-                          <TableCell>
-                            {attempt.time_taken_minutes ? `${attempt.time_taken_minutes} min` : "-"}
-                          </TableCell>
+                  <div className="overflow-x-auto">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead className="whitespace-nowrap">Quiz</TableHead>
+                          <TableHead className="whitespace-nowrap">Course</TableHead>
+                          <TableHead className="whitespace-nowrap">Score</TableHead>
+                          <TableHead className="whitespace-nowrap">Date</TableHead>
+                          <TableHead className="whitespace-nowrap">Time Taken</TableHead>
                         </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
+                      </TableHeader>
+                      <TableBody>
+                        {quizAttempts.map((attempt) => (
+                          <TableRow key={attempt.id}>
+                            <TableCell className="font-medium whitespace-nowrap">{attempt.quiz.title}</TableCell>
+                            <TableCell className="whitespace-nowrap">{attempt.quiz.course.title}</TableCell>
+                            <TableCell className="whitespace-nowrap">
+                              {attempt.score !== null && attempt.max_score !== null ? (
+                                <span className={attempt.percentage && attempt.percentage >= 70 ? "text-green-600" : "text-red-600"}>
+                                  {attempt.score}/{attempt.max_score} ({attempt.percentage}%)
+                                </span>
+                              ) : (
+                                <span className="text-muted-foreground">-</span>
+                              )}
+                            </TableCell>
+                            <TableCell className="whitespace-nowrap">
+                              {format(new Date(attempt.started_at), "MMM d, yyyy")}
+                            </TableCell>
+                            <TableCell className="whitespace-nowrap">
+                              {attempt.time_taken_minutes ? `${attempt.time_taken_minutes} min` : "-"}
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
                 )}
               </CardContent>
             </Card>
@@ -437,53 +446,55 @@ const StudentDetails = () => {
                 {deviceSessions.length === 0 ? (
                   <p className="text-center py-8 text-muted-foreground">No device sessions found.</p>
                 ) : (
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Device</TableHead>
-                        <TableHead>Last Active</TableHead>
-                        <TableHead>Status</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {deviceSessions.map((session) => (
-                        <TableRow key={session.id}>
-                          <TableCell>
-                            <div className="flex items-center gap-2">
-                              <Monitor className="h-4 w-4 text-muted-foreground" />
-                              <div>
-                                <p className="font-medium">{session.device_name}</p>
-                                <p className="text-xs text-muted-foreground">
-                                  {session.browser} • {session.os}
-                                </p>
+                  <div className="overflow-x-auto">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead className="whitespace-nowrap">Device</TableHead>
+                          <TableHead className="whitespace-nowrap">Last Active</TableHead>
+                          <TableHead className="whitespace-nowrap">Status</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {deviceSessions.map((session) => (
+                          <TableRow key={session.id}>
+                            <TableCell className="whitespace-nowrap">
+                              <div className="flex items-center gap-2">
+                                <Monitor className="h-4 w-4 text-muted-foreground" />
+                                <div>
+                                  <p className="font-medium text-sm">{session.device_name}</p>
+                                  <p className="text-xs text-muted-foreground">
+                                    {session.browser} • {session.os}
+                                  </p>
+                                </div>
                               </div>
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            {formatDistanceToNow(new Date(session.last_active_at), { addSuffix: true })}
-                          </TableCell>
-                          <TableCell>
-                            {session.is_approved && session.is_active ? (
-                              <Badge className="bg-green-100 text-green-800">
-                                <CheckCircle className="h-3 w-3 mr-1" />
-                                Active {session.is_primary && "(Primary)"}
-                              </Badge>
-                            ) : !session.is_active ? (
-                              <Badge variant="destructive">
-                                <XCircle className="h-3 w-3 mr-1" />
-                                Revoked
-                              </Badge>
-                            ) : (
-                              <Badge variant="secondary">
-                                <Clock className="h-3 w-3 mr-1" />
-                                Pending
-                              </Badge>
-                            )}
+                            </TableCell>
+                            <TableCell className="whitespace-nowrap">
+                              {formatDistanceToNow(new Date(session.last_active_at), { addSuffix: true })}
+                            </TableCell>
+                            <TableCell className="whitespace-nowrap">
+                              {session.is_approved && session.is_active ? (
+                                <Badge className="bg-green-100 text-green-800">
+                                  <CheckCircle className="h-3 w-3 mr-1" />
+                                  Active {session.is_primary && "(Primary)"}
+                                </Badge>
+                              ) : !session.is_active ? (
+                                <Badge variant="destructive">
+                                  <XCircle className="h-3 w-3 mr-1" />
+                                  Revoked
+                                </Badge>
+                              ) : (
+                                <Badge variant="secondary">
+                                  <Clock className="h-3 w-3 mr-1" />
+                                  Pending
+                                </Badge>
+                              )}
                           </TableCell>
                         </TableRow>
                       ))}
                     </TableBody>
-                  </Table>
+                    </Table>
+                  </div>
                 )}
               </CardContent>
             </Card>
@@ -499,40 +510,42 @@ const StudentDetails = () => {
                 {transactions.length === 0 ? (
                   <p className="text-center py-8 text-muted-foreground">No transactions found.</p>
                 ) : (
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Course</TableHead>
-                        <TableHead>Amount</TableHead>
-                        <TableHead>Transaction ID</TableHead>
-                        <TableHead>Date</TableHead>
-                        <TableHead>Status</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {transactions.map((transaction) => (
-                        <TableRow key={transaction.id}>
-                          <TableCell className="font-medium">{transaction.course.title}</TableCell>
-                          <TableCell>৳{transaction.amount.toLocaleString("en-BD")}</TableCell>
-                          <TableCell className="font-mono text-sm">
-                            {transaction.trx_id || "-"}
-                          </TableCell>
-                          <TableCell>
-                            {format(new Date(transaction.created_at), "MMM d, yyyy")}
-                          </TableCell>
-                          <TableCell>
-                            {transaction.status === "completed" ? (
-                              <Badge className="bg-green-100 text-green-800">Completed</Badge>
-                            ) : transaction.status === "pending" ? (
-                              <Badge variant="secondary">Pending</Badge>
-                            ) : (
-                              <Badge variant="destructive">Failed</Badge>
-                            )}
-                          </TableCell>
+                  <div className="overflow-x-auto">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead className="whitespace-nowrap">Course</TableHead>
+                          <TableHead className="whitespace-nowrap">Amount</TableHead>
+                          <TableHead className="whitespace-nowrap">Transaction ID</TableHead>
+                          <TableHead className="whitespace-nowrap">Date</TableHead>
+                          <TableHead className="whitespace-nowrap">Status</TableHead>
                         </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
+                      </TableHeader>
+                      <TableBody>
+                        {transactions.map((transaction) => (
+                          <TableRow key={transaction.id}>
+                            <TableCell className="font-medium whitespace-nowrap">{transaction.course.title}</TableCell>
+                            <TableCell className="whitespace-nowrap">৳{transaction.amount.toLocaleString("en-BD")}</TableCell>
+                            <TableCell className="font-mono text-sm whitespace-nowrap">
+                              {transaction.trx_id || "-"}
+                            </TableCell>
+                            <TableCell className="whitespace-nowrap">
+                              {format(new Date(transaction.created_at), "MMM d, yyyy")}
+                            </TableCell>
+                            <TableCell className="whitespace-nowrap">
+                              {transaction.status === "completed" ? (
+                                <Badge className="bg-green-100 text-green-800">Completed</Badge>
+                              ) : transaction.status === "pending" ? (
+                                <Badge variant="secondary">Pending</Badge>
+                              ) : (
+                                <Badge variant="destructive">Failed</Badge>
+                              )}
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
                 )}
               </CardContent>
             </Card>

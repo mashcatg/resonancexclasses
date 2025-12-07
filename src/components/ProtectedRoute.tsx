@@ -1,6 +1,7 @@
 import { ReactNode, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
+import { Loader2 } from 'lucide-react';
 
 interface ProtectedRouteProps {
   children: ReactNode;
@@ -33,8 +34,10 @@ const ProtectedRoute = ({ children, requireAdmin = false, requireSuperAdmin = fa
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-hero flex items-center justify-center">
-        <div className="text-white">Loading...</div>
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-primary">
+          <Loader2 className="animate-spin h-6 w-6 mr-2" />
+          Loading...</div>
       </div>
     );
   }

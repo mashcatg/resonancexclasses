@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -26,6 +26,7 @@ interface Course {
 
 const Index = () => {
   const [featuredCourses, setFeaturedCourses] = useState<Course[]>([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchFeaturedCourses = async () => {
@@ -104,60 +105,55 @@ const Index = () => {
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
             {featuredCourses.map((course, index) => (
-              <Link 
+              <Card 
                 key={course.id} 
-                to={`/course/${course.id}`}
-                className="animate-fade-in"
+                className="h-full overflow-hidden hover:shadow-xl transition-all duration-300 group border-border hover:border-primary/30 cursor-pointer animate-fade-in"
                 style={{ animationDelay: `${index * 0.1}s` }}
+                onClick={() => navigate(`/courses/${course.id}`)}
               >
-                <Card className="h-full overflow-hidden hover:shadow-xl transition-all duration-300 group border-border hover:border-primary/30">
-                  <div className="relative overflow-hidden">
-                    <img
-                      src={course.thumbnail_url || "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=400&h=250&fit=crop"}
-                      alt={course.title}
-                      className="w-full h-48 object-cover transition-transform duration-300 group-hover:scale-105"
-                    />
-                    <div className="absolute top-4 right-4">
-                      <Badge className="bg-primary text-primary-foreground font-semibold">
-                        ৳{course.price.toLocaleString()}
+                <div className="relative overflow-hidden">
+                  <img
+                    src={course.thumbnail_url || "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=400&h=250&fit=crop"}
+                    alt={course.title}
+                    className="w-full h-48 object-cover transition-transform duration-300 group-hover:scale-105"
+                  />
+                  <div className="absolute top-4 right-4">
+                    <Badge className="bg-primary text-primary-foreground font-semibold">
+                      ৳{course.price.toLocaleString()}
+                    </Badge>
+                  </div>
+                  {course.difficulty_level && (
+                    <div className="absolute top-4 left-4">
+                      <Badge variant="outline" className={getDifficultyColor(course.difficulty_level)}>
+                        {course.difficulty_level}
                       </Badge>
                     </div>
-                    {course.difficulty_level && (
-                      <div className="absolute top-4 left-4">
-                        <Badge variant="outline" className={getDifficultyColor(course.difficulty_level)}>
-                          {course.difficulty_level}
-                        </Badge>
-                      </div>
-                    )}
+                  )}
+                </div>
+                <CardHeader className="pb-2">
+                  {course.category && (
+                    <span className="text-xs text-primary font-medium uppercase tracking-wider">
+                      {course.category}
+                    </span>
+                  )}
+                  <CardTitle className="text-lg group-hover:text-primary transition-colors line-clamp-2">
+                    {course.title}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <CardDescription className="line-clamp-2 mb-4">
+                    {truncateText(course.description || "", 100)}
+                  </CardDescription>
+                  <div className="flex items-center text-sm text-muted-foreground">
+                    <Clock className="h-4 w-4 mr-1" />
+                    <span>{course.duration_minutes || 0} mins</span>
                   </div>
-                  <CardHeader className="pb-2">
-                    {course.category && (
-                      <span className="text-xs text-primary font-medium uppercase tracking-wider">
-                        {course.category}
-                      </span>
-                    )}
-                    <CardTitle className="text-lg group-hover:text-primary transition-colors line-clamp-2">
-                      {course.title}
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <CardDescription className="line-clamp-2 mb-4">
-                      {truncateText(course.description || "", 100)}
-                    </CardDescription>
-                    <div className="flex items-center text-sm text-muted-foreground">
-                      <Clock className="h-4 w-4 mr-1" />
-                      <span>{course.duration_minutes || 0} mins</span>
-                    </div>
-                  </CardContent>
-                </Card>
-              </Link>
+                </CardContent>
+              </Card>
             ))}
           </div>
         </div>
       </section>
-
-      <FeaturesSection />
-      <TestimonialsSection />
 
       {/* CTA Section */}
       <section className="py-12 sm:py-16 lg:py-20 bg-primary">
