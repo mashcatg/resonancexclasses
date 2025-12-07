@@ -35,7 +35,7 @@ const ProtectedRoute = ({ children, requireAdmin = false, requireSuperAdmin = fa
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="text-primary">
+        <div className="text-primary flex items-center justify-center">
           <Loader2 className="animate-spin h-6 w-6 mr-2" />
           Loading...</div>
       </div>
