@@ -9,10 +9,10 @@ const TestimonialsSection = () => {
 
   const testimonial = {
     quote: "ResonanceX transformed my career. The courses are well-structured, the instructors are world-class, and the learning experience is unmatched. I went from a beginner to landing my dream job in just 6 months!",
-    author: "Sarah Johnson",
-    role: "Software Engineer at Google",
+    author: "John Harris",
+    role: "CSE, BUET",
     rating: 5,
-    avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&h=150&fit=crop&crop=face",
+    avatar: "/testimonial.jpg",
   };
 
   return (
