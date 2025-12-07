@@ -41,7 +41,7 @@ const FeaturesSection = () => {
                   <img alt="Team discussion" className="w-full h-[160px] object-cover" src="/lovable-uploads/1fb10044-83b2-43d8-a332-5c1324b54e6a.jpg" />
                 </div>
                 <div className="rounded-2xl overflow-hidden shadow-lg">
-                  <img src="https://images.unsplash.com/photo-1524178232363-1fb2b075b655?w=300&h=400&fit=crop" alt="Classroom learning" className="w-full h-[240px] object-cover" />
+                  <img alt="Classroom learning" className="w-full h-[240px] object-cover" src="/lovable-uploads/c7794912-69fa-4164-a4ce-8698bd4b9f9f.jpg" />
                 </div>
               </div>
             </div>
