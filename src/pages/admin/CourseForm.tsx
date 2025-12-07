@@ -396,7 +396,7 @@ const CourseForm = () => {
             </div>
           </div>
           <h1 className="text-3xl font-bold text-foreground">Create New Course</h1>
-          <p className="text-muted-foreground">Build your course with rich content, modules, lessons, and quizzes. Changes are auto-saved as drafts.</p>
+          <p className="text-muted-foreground text-sm md:text-md">Build your course with rich content, modules, lessons, and quizzes. Changes are auto-saved as drafts.</p>
         </div>
 
         <div className="space-y-6">

@@ -86,7 +86,7 @@ const Students = () => {
             <CardTitle>Access Denied</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-muted-foreground">You don't have permission to view this page.</p>
+            <p className="text-muted-foreground text-sm md:text-md">You don't have permission to view this page.</p>
           </CardContent>
         </Card>
       </div>
@@ -102,7 +102,7 @@ const Students = () => {
           <h1 className="text-2xl font-bold text-foreground mb-2">
             Student Management
           </h1>
-          <p className="text-muted-foreground">
+          <p className="text-muted-foreground text-sm md:text-md">
             View and manage all enrolled students
           </p>
         </div>
@@ -118,7 +118,7 @@ const Students = () => {
               </div>
             ) : students.length === 0 ? (
               <div className="text-center py-12">
-                <p className="text-muted-foreground">No students enrolled yet.</p>
+                <p className="text-muted-foreground text-sm md:text-md">No students enrolled yet.</p>
               </div>
             ) : (
               <Table>

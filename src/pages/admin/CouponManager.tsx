@@ -272,7 +272,7 @@ const CouponManager = () => {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-3xl font-bold text-foreground">Coupon Management</h1>
-              <p className="text-muted-foreground">Create and manage discount coupons for your courses.</p>
+              <p className="text-muted-foreground text-sm md:text-md">Create and manage discount coupons for your courses.</p>
             </div>
             <Button onClick={openCreateDialog}>
               <Plus className="h-4 w-4 mr-2" />
@@ -384,7 +384,7 @@ const CouponManager = () => {
 
             {coupons.length === 0 && (
               <div className="text-center py-8">
-                <p className="text-muted-foreground">No coupons found. Create your first coupon!</p>
+                <p className="text-muted-foreground text-sm md:text-md">No coupons found. Create your first coupon!</p>
               </div>
             )}
           </CardContent>

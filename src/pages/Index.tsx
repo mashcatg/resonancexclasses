@@ -80,17 +80,17 @@ const Index = () => {
       <StatsSection />
 
       {/* Featured Courses Section */}
-      <section className="py-20 bg-background">
+      <section className="py-12 sm:py-16 lg:py-20 bg-background">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col md:flex-row md:items-end md:justify-between mb-12">
+          <div className="flex flex-col md:flex-row md:items-end md:justify-between mb-8 sm:mb-10 lg:mb-12">
             <div>
-              <span className="text-primary font-semibold text-sm uppercase tracking-wider">
+              <span className="text-primary font-semibold text-xs sm:text-sm uppercase tracking-wider">
                 Top Picks
               </span>
-              <h2 className="text-3xl md:text-4xl font-bold text-foreground mt-2">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mt-2">
                 Featured Courses
               </h2>
-              <p className="text-muted-foreground mt-2 max-w-xl">
+              <p className="text-sm sm:text-base text-muted-foreground mt-2 max-w-xl">
                 Explore our most popular courses and start your learning journey today
               </p>
             </div>
@@ -102,7 +102,7 @@ const Index = () => {
             </Link>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
             {featuredCourses.map((course, index) => (
               <Link 
                 key={course.id} 
@@ -160,31 +160,31 @@ const Index = () => {
       <TestimonialsSection />
 
       {/* CTA Section */}
-      <section className="py-20 bg-primary">
+      <section className="py-12 sm:py-16 lg:py-20 bg-primary">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-3xl mx-auto text-center text-white">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">
-              Admissions Open for 2025 Batch
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4">
+              Admissions Open for 2026 Batch
             </h2>
-            <p className="text-lg text-white/80 mb-8">
-              Don't miss your chance to transform your career. Join our community of successful learners and gain the skills you need to succeed.
+            <p className="text-sm sm:text-base lg:text-lg text-white/80 mb-6 sm:mb-8">
+              Start your learning journey today. Choose from 15+ quality courses and join 8,000+ successful students who have transformed their careers with our platform.
             </p>
-            <div className="flex flex-wrap justify-center gap-4">
+            <div className="flex flex-wrap justify-center gap-2 sm:gap-4">
               <Link to="/login">
                 <Button 
                   size="lg" 
-                  className="bg-white text-primary hover:bg-white/90 text-lg px-8 py-6 rounded-full font-semibold"
+                  className="bg-white text-primary hover:bg-white/90 text-sm sm:text-base lg:text-lg px-4 sm:px-8 py-3 sm:py-6 rounded-full font-semibold"
                 >
                   Get Started Now
-                  <ArrowRight className="ml-2 h-5 w-5" />
+                  <ArrowRight className="ml-2 h-4 w-4 sm:h-5 sm:w-5" />
                 </Button>
               </Link>
               <Button 
                 variant="outline" 
                 size="lg"
-                className="border-2 border-white/30 text-white hover:bg-white/10 text-lg px-8 py-6 rounded-full font-semibold"
+                className="border-2 border-white/30 bg-white/30 text-white hover:bg-white/10 text-sm sm:text-base lg:text-lg px-4 sm:px-8 py-3 sm:py-6 rounded-full font-semibold"
               >
-                <Phone className="mr-2 h-5 w-5" />
+                <Phone className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
                 +880 1950-095883
               </Button>
             </div>
@@ -193,28 +193,28 @@ const Index = () => {
       </section>
 
       {/* Footer */}
-      <footer className="bg-foreground text-background py-16">
+      <footer className="bg-[#181b1f] text-background py-12 sm:py-16">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 lg:gap-12 mb-8 sm:mb-12">
             {/* Brand */}
             <div className="lg:col-span-1">
               <Link to="/" className="flex items-center space-x-2 mb-4">
-                <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
-                  <BookOpen className="h-6 w-6 text-primary-foreground" />
+                <div className="w-8 sm:w-10 h-8 sm:h-10 bg-primary rounded-lg flex items-center justify-center">
+                  <BookOpen className="h-5 sm:h-6 w-5 sm:w-6 text-primary-foreground" />
                 </div>
-                <span className="text-xl font-bold text-background">ResonanceX</span>
+                <span className="text-lg sm:text-xl font-bold text-background">ResonanceX</span>
               </Link>
-              <p className="text-background/70 mb-6">
+              <p className="text-xs sm:text-sm text-background/70 mb-6">
                 Empowering learners worldwide with premium education and expert-led courses.
               </p>
-              <div className="flex space-x-4">
+              <div className="flex space-x-3 sm:space-x-4">
                 {[Facebook, Twitter, Linkedin, Youtube].map((Icon, i) => (
                   <a 
                     key={i} 
                     href="#" 
-                    className="w-10 h-10 rounded-full bg-background/10 flex items-center justify-center hover:bg-primary transition-colors"
+                    className="w-8 sm:w-10 h-8 sm:h-10 rounded-full bg-background/10 flex items-center justify-center hover:bg-primary transition-colors"
                   >
-                    <Icon className="h-5 w-5" />
+                    <Icon className="h-4 sm:h-5 w-4 sm:w-5" />
                   </a>
                 ))}
               </div>
@@ -222,13 +222,13 @@ const Index = () => {
 
             {/* Popular Courses */}
             <div>
-              <h3 className="font-semibold text-lg mb-4">Popular Courses</h3>
-              <ul className="space-y-3">
+              <h3 className="font-semibold text-base sm:text-lg mb-3 sm:mb-4">Popular Courses</h3>
+              <ul className="space-y-2 sm:space-y-3">
                 {footerLinks.courses.map((link) => (
                   <li key={link.label}>
                     <Link 
                       to={link.href} 
-                      className="text-background/70 hover:text-primary transition-colors"
+                      className="text-xs sm:text-sm text-background/70 hover:text-primary transition-colors"
                     >
                       {link.label}
                     </Link>
@@ -239,13 +239,13 @@ const Index = () => {
 
             {/* Support */}
             <div>
-              <h3 className="font-semibold text-lg mb-4">Support</h3>
-              <ul className="space-y-3">
+              <h3 className="font-semibold text-base sm:text-lg mb-3 sm:mb-4">Support</h3>
+              <ul className="space-y-2 sm:space-y-3">
                 {footerLinks.support.map((link) => (
                   <li key={link.label}>
                     <a 
                       href={link.href} 
-                      className="text-background/70 hover:text-primary transition-colors"
+                      className="text-xs sm:text-sm text-background/70 hover:text-primary transition-colors"
                     >
                       {link.label}
                     </a>
@@ -256,30 +256,30 @@ const Index = () => {
 
             {/* Contact */}
             <div>
-              <h3 className="font-semibold text-lg mb-4">Contact Us</h3>
-              <ul className="space-y-4">
-                <li className="flex items-start gap-3">
-                  <MapPin className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
-                  <span className="text-background/70">Dhaka, Bangladesh</span>
+              <h3 className="font-semibold text-base sm:text-lg mb-3 sm:mb-4">Contact Us</h3>
+              <ul className="space-y-3 sm:space-y-4">
+                <li className="flex items-start gap-2 sm:gap-3">
+                  <MapPin className="h-4 sm:h-5 w-4 sm:w-5 text-primary flex-shrink-0 mt-0.5" />
+                  <span className="text-xs sm:text-sm text-background/70">Dhaka, Bangladesh</span>
                 </li>
-                <li className="flex items-center gap-3">
-                  <Phone className="h-5 w-5 text-primary flex-shrink-0" />
-                  <span className="text-background/70">+880 1950-095883</span>
+                <li className="flex items-center gap-2 sm:gap-3">
+                  <Phone className="h-4 sm:h-5 w-4 sm:w-5 text-primary flex-shrink-0" />
+                  <span className="text-xs sm:text-sm text-background/70">+880 1950-095883</span>
                 </li>
-                <li className="flex items-center gap-3">
-                  <Mail className="h-5 w-5 text-primary flex-shrink-0" />
-                  <span className="text-background/70">support@resonancex.com</span>
+                <li className="flex items-center gap-2 sm:gap-3">
+                  <Mail className="h-4 sm:h-5 w-4 sm:w-5 text-primary flex-shrink-0" />
+                  <span className="text-xs sm:text-sm text-background/70">support@resonancex.com</span>
                 </li>
               </ul>
             </div>
           </div>
 
           {/* Bottom Bar */}
-          <div className="border-t border-background/10 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
-            <p className="text-background/60 text-sm">
+          <div className="border-t border-background/10 pt-6 sm:pt-8 flex flex-col md:flex-row justify-between items-center gap-3 sm:gap-4">
+            <p className="text-background/60 text-xs sm:text-sm">
               © {new Date().getFullYear()} ResonanceX Classes. All rights reserved.
             </p>
-            <div className="flex gap-6 text-sm">
+            <div className="flex gap-4 sm:gap-6 text-xs sm:text-sm">
               <a href="#" className="text-background/60 hover:text-primary transition-colors">
                 Privacy Policy
               </a>

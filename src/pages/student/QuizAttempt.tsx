@@ -323,7 +323,7 @@ const QuizAttempt = () => {
             <CardHeader>
               <CardTitle>{quiz.title}</CardTitle>
               {quiz.description && (
-                <p className="text-muted-foreground">{quiz.description}</p>
+                <p className="text-muted-foreground text-sm md:text-md">{quiz.description}</p>
               )}
             </CardHeader>
             <CardContent>

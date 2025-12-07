@@ -188,7 +188,7 @@ const CourseView = () => {
                     dangerouslySetInnerHTML={{ __html: course.description }}
                   />
                 ) : (
-                  <p className="text-muted-foreground">No description available.</p>
+                  <p className="text-muted-foreground text-sm md:text-md">No description available.</p>
                 )}
               </CardContent>
             </Card>

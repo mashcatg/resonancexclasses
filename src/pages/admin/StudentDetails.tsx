@@ -213,7 +213,7 @@ const StudentDetails = () => {
             <CardTitle>Access Denied</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-muted-foreground">
+            <p className="text-muted-foreground text-sm md:text-md">
               You don't have permission to view this page.
             </p>
           </CardContent>

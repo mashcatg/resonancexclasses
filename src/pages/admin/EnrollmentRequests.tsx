@@ -248,8 +248,8 @@ const EnrollmentRequests = () => {
 
       <div className="container mx-auto px-4 py-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-foreground mb-2">Enrollment Requests</h1>
-          <p className="text-muted-foreground">
+          <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-1">Enrollment Requests</h1>
+          <p className="text-muted-foreground text-sm md:text-md">
             Review and approve student enrollment requests.
           </p>
         </div>

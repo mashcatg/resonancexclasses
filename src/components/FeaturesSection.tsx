@@ -78,7 +78,7 @@ const FeaturesSection = () => {
             </div>
             
             {/* Floating badge */}
-            <div className="absolute -bottom-4 left-1/2 transform -translate-x-1/2 bg-primary text-primary-foreground px-6 py-3 rounded-full shadow-lg font-semibold">
+            <div className="absolute -bottom-4 left-1/2 transform -translate-x-1/2 bg-primary text-primary-foreground px-4 md:px-6 py-2 md:py-3 rounded-full shadow-lg font-semibold">
               10+ Years of Excellence
             </div>
           </div>
@@ -86,10 +86,10 @@ const FeaturesSection = () => {
           {/* Right - Content */}
           <div className="space-y-8 animate-fade-in" style={{ animationDelay: '0.2s' }}>
             <div>
-              <span className="text-primary font-semibold text-sm uppercase tracking-wider">
+              <span className="w-12 md:w-14 h-12 md:h-14 rounded-full bg-primary/10 flex items-center justify-center group-hover:bg-primary group-hover:scale-110 transition-all duration-300">
                 Why Choose Us
               </span>
-              <h2 className="text-3xl md:text-4xl font-bold text-foreground mt-2 mb-4">
+              <h2 className="text-2xl md:text-3xl font-bold text-foreground mt-2 mb-4">
                 Offering Premier Online Learning Opportunities
               </h2>
               <p className="text-muted-foreground text-lg">

@@ -4,9 +4,9 @@ import { Link } from "react-router-dom";
 
 const HeroSection = () => {
   const stats = [
-    { icon: Users, value: "270+", label: "Expert Instructors" },
-    { icon: BookOpen, value: "5,550+", label: "Quality Courses" },
-    { icon: Award, value: "33K+", label: "Active Students" },
+    { icon: Users, value: "50+", label: "Expert Instructors" },
+    { icon: BookOpen, value: "15+", label: "Quality Courses" },
+    { icon: Award, value: "8K+", label: "Active Students" },
   ];
 
   return (
@@ -26,40 +26,40 @@ const HeroSection = () => {
         }}
       />
 
-      <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <div className="grid lg:grid-cols-2 gap-12 items-center">
+      <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-20 lg:py-24">
+        <div className="grid lg:grid-cols-2 gap-6 sm:gap-8 lg:gap-12 items-center">
           {/* Left Content */}
-          <div className="text-white space-y-8 animate-fade-in">
-            <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-full px-4 py-2 text-sm font-medium">
+          <div className="text-white space-y-4 sm:space-y-6 lg:space-y-8 animate-fade-in">
+            <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-full px-4 py-2 text-xs md:text-sm font-medium">
               <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
-              Admissions Open for 2025
+              Admissions Open for 2026
             </div>
             
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">
-              Unlock Your
-              <span className="block text-blue-200">Learning Potential</span>
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">
+              Master New Skills
+              <span className="block text-blue-200">Learn From Experts</span>
             </h1>
             
-            <p className="text-lg md:text-xl text-white/80 max-w-lg leading-relaxed">
-              Join thousands of learners worldwide. Access premium courses from industry experts and transform your career with ResonanceX.
+            <p className="text-sm sm:text-base lg:text-lg text-white/80 max-w-lg leading-relaxed">
+              Join our community of learners. Access quality courses from experienced professionals and advance your career at your own pace.
             </p>
 
             {/* CTA Buttons */}
-            <div className="flex flex-wrap gap-4">
+            <div className="flex flex-wrap gap-2 sm:gap-4">
               <Link to="/courses">
                 <Button 
                   size="lg" 
-                  className="bg-white text-primary hover:bg-white/90 text-lg px-8 py-6 rounded-full group font-semibold shadow-lg"
+                  className="bg-white text-primary hover:bg-white/90 text-sm sm:text-lg px-4 sm:px-8 py-4 sm:py-6 rounded-full group"
                 >
                   Explore Courses
-                  <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
+                  <ArrowRight className="ml-2 h-4 w-4 sm:h-5 sm:w-5 transition-transform group-hover:translate-x-1" />
                 </Button>
               </Link>
               <Link to="/login">
                 <Button 
                   variant="outline" 
                   size="lg"
-                  className="border-2 border-white/30 text-white hover:bg-white/10 text-lg px-8 py-6 rounded-full font-semibold"
+                  className="border-2 border-white/30 bg-white/30 text-white hover:bg-white/10 text-sm sm:text-lg px-4 sm:px-8 py-4 sm:py-6 rounded-full"
                 >
                   Get Started Free
                 </Button>
@@ -67,7 +67,7 @@ const HeroSection = () => {
             </div>
 
             {/* Stats */}
-            <div className="grid grid-cols-3 gap-6 pt-8 border-t border-white/20">
+            <div className="grid grid-cols-3 gap-3 sm:gap-6 pt-4 sm:pt-8 border-t border-white/20">
               {stats.map((stat, index) => {
                 const Icon = stat.icon;
                 return (
@@ -76,11 +76,11 @@ const HeroSection = () => {
                     className="text-center animate-scale-in"
                     style={{ animationDelay: `${index * 0.15}s` }}
                   >
-                    <div className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-white/10 mb-2">
-                      <Icon className="h-5 w-5 text-blue-200" />
+                    <div className="inline-flex items-center justify-center w-8 sm:w-10 h-8 sm:h-10 rounded-full bg-white/10 mb-2">
+                      <Icon className="h-4 w-4 sm:h-5 sm:w-5 text-blue-200" />
                     </div>
-                    <div className="text-2xl md:text-3xl font-bold">{stat.value}</div>
-                    <div className="text-sm text-white/70">{stat.label}</div>
+                    <div className="text-lg sm:text-2xl md:text-3xl font-bold">{stat.value}</div>
+                    <div className="text-xs sm:text-xs md:text-sm text-white/70">{stat.label}</div>
                   </div>
                 );
               })}
@@ -121,7 +121,7 @@ const HeroSection = () => {
                   </div>
                   <div>
                     <div className="text-sm text-muted-foreground">Join</div>
-                    <div className="font-bold text-foreground">33K+ Students</div>
+                    <div className="font-bold text-foreground">8K+ Students</div>
                   </div>
                 </div>
               </div>

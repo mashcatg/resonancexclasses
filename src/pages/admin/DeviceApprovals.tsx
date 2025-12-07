@@ -231,7 +231,7 @@ const DeviceApprovals = () => {
       <div className="container mx-auto px-4 py-8">
         <div className="mb-8">
           <h1 className="text-2xl font-bold text-foreground mb-2">Device Approvals</h1>
-          <p className="text-muted-foreground">
+          <p className="text-muted-foreground text-sm md:text-md">
             Manage student device access for single-device login.
           </p>
         </div>

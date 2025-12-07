@@ -40,7 +40,7 @@ const Header = () => {
           {/* Sign In Button */}
           <div className="hidden md:flex items-center space-x-4">
             <Link to="/login">
-              <Button variant="outline" className="border-primary text-primary hover:bg-primary hover:text-white">
+              <Button variant="outline" className="border-primary bg-primary text-white hover:bg-primary/80 hover:text-white">
                 Sign In
               </Button>
             </Link>
@@ -62,7 +62,7 @@ const Header = () => {
         {/* Mobile Navigation */}
         {isMenuOpen && (
           <div className="md:hidden py-4 animate-fade-in">
-            <div className="flex flex-col space-y-4">
+            <div className="flex flex-col space-y-3">
               {navigation.map((item) => (
                 <a
                   key={item.name}
@@ -77,7 +77,7 @@ const Header = () => {
                 <Link to="/login">
                   <Button 
                     variant="outline" 
-                    className="w-full border-primary text-primary hover:bg-primary hover:text-white"
+                    className="w-full border-primary bg-primary text-white hover:bg-primary/90 hover:text-white"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     Sign In

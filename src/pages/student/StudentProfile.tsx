@@ -84,14 +84,14 @@ const StudentProfile = () => {
 
       <div className="container mx-auto px-4 py-8 max-w-2xl">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-foreground mb-2">My Profile</h1>
-          <p className="text-muted-foreground">Manage your account information</p>
+          <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-1">My Profile</h1>
+          <p className="text-muted-foreground text-sm md:text-md">Manage your account information</p>
         </div>
 
         {/* Profile Overview */}
         <Card className="mb-6">
           <CardContent className="pt-6">
-            <div className="flex items-center gap-6">
+            <div className="flex items-center flex-col md:flex-row gap-6">
               <Avatar className="h-20 w-20">
                 <AvatarImage src={profile?.avatar_url || ""} />
                 <AvatarFallback className="text-2xl bg-primary text-primary-foreground">
@@ -99,13 +99,13 @@ const StudentProfile = () => {
                 </AvatarFallback>
               </Avatar>
               <div className="flex-1">
-                <h2 className="text-xl font-semibold">
+                <h2 className="text-xl font-semibold text-center md:text-left">
                   {firstName && lastName
                     ? `${firstName} ${lastName}`
                     : user?.email}
                 </h2>
-                <p className="text-muted-foreground">{user?.email}</p>
-                <div className="flex items-center gap-4 mt-2 text-sm text-muted-foreground">
+                <p className="text-muted-foreground text-sm md:text-md">{user?.email}</p>
+                <div className="flex items-center gap-4 mt-2 text-sm text-muted-foreground justify-center md:justify-start">
                   <span className="flex items-center gap-1">
                     <BookOpen className="h-4 w-4" />
                     {enrollmentCount} courses enrolled

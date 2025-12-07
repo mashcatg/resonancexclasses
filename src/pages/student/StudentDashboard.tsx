@@ -135,17 +135,17 @@ const StudentDashboard = () => {
         {/* Header */}
         <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h1 className="text-2xl lg:text-3xl font-bold text-foreground">
+            <h1 className="text-xl lg:text-2xl font-bold text-foreground">
               Welcome back, {profile?.first_name || 'Student'}!
             </h1>
-            <p className="text-muted-foreground">
+            <p className="text-muted-foreground text-sm md:text-md">
               Continue your learning journey
             </p>
           </div>
           
           {/* Quick Actions */}
           <div className="flex gap-3">
-            <Link to="/dashboard">
+            <Link to="/my-courses">
               <Button variant="outline" size="sm">
                 <BookOpen className="h-4 w-4 mr-2" />
                 My Courses
@@ -247,7 +247,7 @@ const StudentDashboard = () => {
               ) : (
                 <div className="text-center py-8">
                   <Target className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                  <p className="text-muted-foreground">No courses in progress</p>
+                  <p className="text-muted-foreground text-sm md:text-md">No courses in progress</p>
                   <Button asChild className="mt-4">
                     <Link to="/courses">Browse Courses</Link>
                   </Button>
@@ -292,7 +292,7 @@ const StudentDashboard = () => {
               ) : (
                 <div className="text-center py-8">
                   <BookOpen className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                  <p className="text-muted-foreground">No courses enrolled yet</p>
+                  <p className="text-muted-foreground text-sm md:text-md">No courses enrolled yet</p>
                   <Button asChild className="mt-4">
                     <Link to="/courses">Browse Courses</Link>
                   </Button>

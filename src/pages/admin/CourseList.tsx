@@ -165,8 +165,8 @@ const CourseList = () => {
       <div className="container mx-auto px-4 py-8">
         <div className="flex justify-between items-center mb-6">
           <div>
-            <h1 className="text-3xl font-bold text-foreground mb-2">Course Management</h1>
-            <p className="text-muted-foreground">
+            <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-1">Course Management</h1>
+            <p className="text-muted-foreground text-sm md:text-md">
               Manage your courses, track performance, and create new content.
             </p>
           </div>

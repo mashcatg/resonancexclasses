@@ -141,8 +141,8 @@ const Courses = () => {
       
       <div className="container mx-auto px-4 py-8">
         <div className="mb-8">
-          <h1 className="text-4xl font-bold text-foreground mb-2">Browse Courses</h1>
-          <p className="text-muted-foreground">Discover and enroll in our courses</p>
+          <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-1">Browse Courses</h1>
+          <p className="text-muted-foreground text-sm md:text-md">Discover and enroll in our courses</p>
         </div>
 
         {/* Filters */}
@@ -189,7 +189,7 @@ const Courses = () => {
           <Card>
             <CardContent className="py-20 text-center">
               <BookOpen className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-              <p className="text-muted-foreground">No courses found matching your criteria.</p>
+              <p className="text-muted-foreground text-sm md:text-md">No courses found matching your criteria.</p>
             </CardContent>
           </Card>
         ) : (

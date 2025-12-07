@@ -35,12 +35,12 @@ const StudentNavbar = () => {
   };
 
   const navLinks = [
-    { to: "/dashboard", label: "My Courses", icon: BookOpen },
+    { to: "/my-courses", label: "My Courses", icon: BookOpen },
     { to: "/courses", label: "Browse Courses", icon: Search },
   ];
 
   return (
-    <nav className="bg-card border-b border-border shadow-sm sticky top-0 z-50">
+    <nav className="bg-card border-b border-border sticky top-0 z-50">
       <div className="mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           {/* Logo */}
@@ -144,7 +144,7 @@ const StudentNavbar = () => {
                     key={link.to}
                     to={link.to}
                     onClick={() => setIsMenuOpen(false)}
-                    className="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-muted transition-colors"
+                    className="flex items-center space-x-3 px-3 py-3 rounded-lg hover:bg-muted transition-colors"
                   >
                     <Icon className="h-5 w-5 text-primary" />
                     <span className="font-medium">{link.label}</span>
