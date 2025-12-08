@@ -23,6 +23,7 @@ import DeviceApprovals from "./pages/admin/DeviceApprovals";
 import AdminProfile from "./pages/admin/AdminProfile";
 import StudentDashboard from "./pages/student/StudentDashboard";
 import StudentProfile from "./pages/student/StudentProfile";
+import MyCourses from "./pages/student/MyCourses";
 import CoursePage from "./pages/student/CoursePage";
 import QuizAttempt from "./pages/student/QuizAttempt";
 import NotFound from "./pages/NotFound";
@@ -64,6 +65,22 @@ const App = () => (
               element={
                 <StudentProtectedRoute>
                   <StudentProfile />
+                </StudentProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/student/my-courses" 
+              element={
+                <StudentProtectedRoute>
+                  <MyCourses />
+                </StudentProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/my-courses" 
+              element={
+                <StudentProtectedRoute>
+                  <MyCourses />
                 </StudentProtectedRoute>
               } 
             />
