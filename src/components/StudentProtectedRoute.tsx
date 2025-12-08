@@ -12,7 +12,7 @@ interface StudentProtectedRouteProps {
 const StudentProtectedRoute = ({ children }: StudentProtectedRouteProps) => {
   const { user, profile, loading: authLoading, signOut } = useAuth();
   const isStudent = profile?.role === "student";
-  const { isBlocked, isLoading: deviceLoading } = useDeviceSession(user, isStudent);
+  const { isBlocked, isRevoked, isLoading: deviceLoading } = useDeviceSession(user, isStudent);
 
   if (authLoading || (isStudent && deviceLoading)) {
     return (
@@ -30,7 +30,7 @@ const StudentProtectedRoute = ({ children }: StudentProtectedRouteProps) => {
   if (isStudent && isBlocked) {
     return (
       <div className="min-h-screen bg-background">
-        <DeviceBlockedModal open={true} onLogout={signOut} />
+        <DeviceBlockedModal open={true} onLogout={signOut} isRevoked={isRevoked} />
       </div>
     );
   }
