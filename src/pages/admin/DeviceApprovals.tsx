@@ -32,7 +32,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Loader2, Search, Check, X, Monitor, Clock, Shield, XCircle } from "lucide-react";
+import { Loader2, Search, Check, X, Monitor, Clock, Shield, XCircle, RefreshCw } from "lucide-react";
 import { format, formatDistanceToNow } from "date-fns";
 
 interface DeviceSession {
@@ -154,6 +154,47 @@ const DeviceApprovals = () => {
       toast({
         title: "Error",
         description: error.message || "Failed to approve device.",
+        variant: "destructive",
+      });
+    } finally {
+      setProcessing(null);
+    }
+  };
+
+  const handleReapprove = async (session: DeviceSession) => {
+    setProcessing(session.id);
+    try {
+      const { error } = await supabase
+        .from("device_sessions")
+        .update({
+          is_approved: true,
+          is_active: true,
+          approved_at: new Date().toISOString(),
+          approved_by: user?.id,
+        })
+        .eq("id", session.id);
+
+      if (error) throw error;
+
+      // Create notification
+      await supabase.from("notifications").insert({
+        user_id: session.user_id,
+        title: "Device Re-approved",
+        message: `Your device "${session.device_name}" has been re-approved. You can now access your courses from this device.`,
+        type: "success",
+      });
+
+      toast({
+        title: "Re-approved!",
+        description: "Device access has been restored.",
+      });
+
+      fetchSessions();
+    } catch (error: any) {
+      console.error("Error re-approving:", error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to re-approve device.",
         variant: "destructive",
       });
     } finally {
@@ -373,7 +414,21 @@ const DeviceApprovals = () => {
                                 Revoke
                               </Button>
                             ) : (
-                              <span className="text-sm text-muted-foreground">-</span>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => handleReapprove(session)}
+                                disabled={processing === session.id}
+                              >
+                                {processing === session.id ? (
+                                  <Loader2 className="h-4 w-4 animate-spin" />
+                                ) : (
+                                  <>
+                                    <RefreshCw className="h-4 w-4 mr-1" />
+                                    Re-approve
+                                  </>
+                                )}
+                              </Button>
                             )}
                           </div>
                         </TableCell>

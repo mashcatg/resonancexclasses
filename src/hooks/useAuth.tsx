@@ -203,7 +203,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const signOut = async () => {
     try {
       const { error } = await supabase.auth.signOut();
-      if (error) {
+      
+      // Clear local state regardless of error
+      setUser(null);
+      setSession(null);
+      setProfile(null);
+      
+      // Only show error if it's NOT a session_not_found error
+      if (error && !error.message?.includes('session_not_found') && !error.message?.includes('Session not found')) {
         toast({
           title: "Sign Out Failed",
           description: error.message,
@@ -216,11 +223,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         });
       }
     } catch (error: any) {
-      toast({
-        title: "Sign Out Failed",
-        description: error.message,
-        variant: "destructive",
-      });
+      // Clear local state on any error
+      setUser(null);
+      setSession(null);
+      setProfile(null);
+      
+      if (!error.message?.includes('session_not_found') && !error.message?.includes('Session not found')) {
+        toast({
+          title: "Sign Out Failed",
+          description: error.message,
+          variant: "destructive",
+        });
+      }
     }
   };
 

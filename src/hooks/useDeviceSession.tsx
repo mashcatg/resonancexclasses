@@ -18,6 +18,7 @@ interface DeviceSession {
 interface UseDeviceSessionReturn {
   deviceSession: DeviceSession | null;
   isBlocked: boolean;
+  isRevoked: boolean;
   isLoading: boolean;
   checkDeviceSession: () => Promise<void>;
 }
@@ -82,6 +83,7 @@ export const useDeviceSession = (
 ): UseDeviceSessionReturn => {
   const [deviceSession, setDeviceSession] = useState<DeviceSession | null>(null);
   const [isBlocked, setIsBlocked] = useState(false);
+  const [isRevoked, setIsRevoked] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const sessionIdRef = useRef<string | null>(null);
 
@@ -122,8 +124,10 @@ export const useDeviceSession = (
         // 2. is_approved is false (pending approval)
         if (!existingSession.is_active || !existingSession.is_approved) {
           setIsBlocked(true);
+          setIsRevoked(!existingSession.is_active); // Revoked if is_active is false
         } else {
           setIsBlocked(false);
+          setIsRevoked(false);
         }
       } else {
         // No session exists, create one
@@ -157,6 +161,7 @@ export const useDeviceSession = (
           setDeviceSession(newSession);
           // Block if not first device (needs admin approval)
           setIsBlocked(!isFirstDevice);
+          setIsRevoked(false); // New devices are never revoked
         }
       }
     } catch (error) {
@@ -191,8 +196,10 @@ export const useDeviceSession = (
           // Check if device was revoked or unapproved
           if (!newData.is_active || !newData.is_approved) {
             setIsBlocked(true);
+            setIsRevoked(!newData.is_active);
           } else {
             setIsBlocked(false);
+            setIsRevoked(false);
           }
         }
       )
@@ -217,6 +224,7 @@ export const useDeviceSession = (
   return {
     deviceSession,
     isBlocked,
+    isRevoked,
     isLoading,
     checkDeviceSession,
   };
