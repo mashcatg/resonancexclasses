@@ -40,7 +40,7 @@ const AdminNavbar = () => {
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <Link to="/dashboard" className="flex items-center space-x-2">
-              <img src="icon transparent.png" alt="Logo" className="w-12 h-12" />
+              <img src="/icon transparent.png" alt="Logo" className="w-12 h-12" />
             
           </Link>
 

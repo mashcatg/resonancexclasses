@@ -198,7 +198,7 @@ const Index = () => {
             {/* Brand */}
             <div className="lg:col-span-1">
               <Link to="/" className="flex items-center space-x-2 mb-4">
-              <img src="icon transparent.png" alt="Logo" className="w-12 h-12" />
+              <img src="/icon transparent.png" alt="Logo" className="w-12 h-12" />
               </Link>
               <p className="text-xs sm:text-sm text-background/70 mb-6">
                 Empowering learners worldwide with premium education and expert-led courses.
