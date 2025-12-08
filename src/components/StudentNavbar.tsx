@@ -35,7 +35,7 @@ const StudentNavbar = () => {
   };
 
   const navLinks = [
-    { to: "/my-courses", label: "My Courses", icon: BookOpen },
+    { to: "/student/my-courses", label: "My Courses", icon: BookOpen },
     { to: "/courses", label: "Browse Courses", icon: Search },
   ];
 

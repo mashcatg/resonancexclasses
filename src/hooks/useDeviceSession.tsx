@@ -104,7 +104,7 @@ export const useDeviceSession = (
         .select("*")
         .eq("user_id", user.id)
         .eq("device_fingerprint", fingerprint)
-        .single();
+        .maybeSingle();
 
       if (existingSession) {
         sessionIdRef.current = existingSession.id;
@@ -117,38 +117,22 @@ export const useDeviceSession = (
 
         setDeviceSession(existingSession);
         
-        // Check if blocked: not active, or not approved and not primary
-        if (!existingSession.is_active) {
+        // Device is blocked if:
+        // 1. is_active is false (revoked by admin)
+        // 2. is_approved is false (pending approval)
+        if (!existingSession.is_active || !existingSession.is_approved) {
           setIsBlocked(true);
-        } else if (!existingSession.is_approved && !existingSession.is_primary) {
-          // Check if there's another active approved device
-          const { data: otherDevices } = await supabase
-            .from("device_sessions")
-            .select("*")
-            .eq("user_id", user.id)
-            .neq("id", existingSession.id)
-            .or("is_approved.eq.true,is_primary.eq.true");
-
-          if (otherDevices && otherDevices.length > 0) {
-            setIsBlocked(true);
-          } else {
-            // This is the first device, auto-approve it as primary
-            await supabase
-              .from("device_sessions")
-              .update({ is_approved: true, is_primary: true })
-              .eq("id", existingSession.id);
-            setIsBlocked(false);
-          }
         } else {
           setIsBlocked(false);
         }
-      } else if (fetchError?.code === "PGRST116") {
+      } else {
         // No session exists, create one
-        // Check if user has any other devices
+        // Check if user has any approved devices
         const { data: existingDevices } = await supabase
           .from("device_sessions")
           .select("*")
           .eq("user_id", user.id)
+          .eq("is_approved", true)
           .eq("is_active", true);
 
         const isFirstDevice = !existingDevices || existingDevices.length === 0;
@@ -161,8 +145,9 @@ export const useDeviceSession = (
             device_name: deviceName,
             browser,
             os,
-            is_approved: isFirstDevice,
+            is_approved: isFirstDevice, // Auto-approve first device
             is_primary: isFirstDevice,
+            is_active: true,
           })
           .select()
           .single();
@@ -170,6 +155,7 @@ export const useDeviceSession = (
         if (!insertError && newSession) {
           sessionIdRef.current = newSession.id;
           setDeviceSession(newSession);
+          // Block if not first device (needs admin approval)
           setIsBlocked(!isFirstDevice);
         }
       }
@@ -202,9 +188,11 @@ export const useDeviceSession = (
           const newData = payload.new as DeviceSession;
           setDeviceSession(newData);
           
-          // Check if device was revoked
-          if (!newData.is_active || (!newData.is_approved && !newData.is_primary)) {
+          // Check if device was revoked or unapproved
+          if (!newData.is_active || !newData.is_approved) {
             setIsBlocked(true);
+          } else {
+            setIsBlocked(false);
           }
         }
       )

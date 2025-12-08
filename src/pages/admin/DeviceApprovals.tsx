@@ -32,7 +32,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Loader2, Search, Check, X, Monitor, Clock, Shield } from "lucide-react";
+import { Loader2, Search, Check, X, Monitor, Clock, Shield, XCircle } from "lucide-react";
 import { format, formatDistanceToNow } from "date-fns";
 
 interface DeviceSession {
@@ -80,9 +80,11 @@ const DeviceApprovals = () => {
         .order("created_at", { ascending: false });
 
       if (statusFilter === "pending") {
-        query = query.eq("is_approved", false);
+        query = query.eq("is_approved", false).eq("is_active", true);
       } else if (statusFilter === "approved") {
-        query = query.eq("is_approved", true);
+        query = query.eq("is_approved", true).eq("is_active", true);
+      } else if (statusFilter === "revoked") {
+        query = query.eq("is_active", false);
       }
 
       const { data, error } = await query;
@@ -121,19 +123,11 @@ const DeviceApprovals = () => {
   const handleApprove = async (session: DeviceSession) => {
     setProcessing(session.id);
     try {
-      // Deactivate other devices for this user
-      await supabase
-        .from("device_sessions")
-        .update({ is_approved: false, is_primary: false })
-        .eq("user_id", session.user_id)
-        .neq("id", session.id);
-
-      // Approve this device
+      // Simply approve this device - allow multiple devices per user
       const { error } = await supabase
         .from("device_sessions")
         .update({
           is_approved: true,
-          is_primary: true,
           approved_at: new Date().toISOString(),
           approved_by: user?.id,
         })
@@ -145,7 +139,7 @@ const DeviceApprovals = () => {
       await supabase.from("notifications").insert({
         user_id: session.user_id,
         title: "Device Approved",
-        message: `Your device "${session.device_name}" has been approved. You can now access your courses.`,
+        message: `Your device "${session.device_name}" has been approved. You can now access your courses from this device.`,
         type: "success",
       });
 
@@ -178,7 +172,6 @@ const DeviceApprovals = () => {
         .from("device_sessions")
         .update({
           is_approved: false,
-          is_primary: false,
           is_active: false,
         })
         .eq("id", revokeDialog.id);
@@ -224,6 +217,31 @@ const DeviceApprovals = () => {
     );
   });
 
+  const getStatusBadge = (session: DeviceSession) => {
+    if (!session.is_active) {
+      return (
+        <Badge variant="outline" className="bg-red-100 text-red-800 border-red-200">
+          <XCircle className="h-3 w-3 mr-1" />
+          Revoked
+        </Badge>
+      );
+    }
+    if (session.is_approved) {
+      return (
+        <Badge variant="outline" className="bg-green-100 text-green-800 border-green-200">
+          <Check className="h-3 w-3 mr-1" />
+          Approved
+        </Badge>
+      );
+    }
+    return (
+      <Badge variant="outline" className="bg-yellow-100 text-yellow-800 border-yellow-200">
+        <Clock className="h-3 w-3 mr-1" />
+        Pending
+      </Badge>
+    );
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <AdminNavbar />
@@ -232,7 +250,7 @@ const DeviceApprovals = () => {
         <div className="mb-8">
           <h1 className="text-2xl font-bold text-foreground mb-2">Device Approvals</h1>
           <p className="text-muted-foreground text-sm md:text-md">
-            Manage student device access for single-device login.
+            Manage student device access. Students can use multiple approved devices.
           </p>
         </div>
 
@@ -257,6 +275,7 @@ const DeviceApprovals = () => {
                   <SelectItem value="all">All Devices</SelectItem>
                   <SelectItem value="pending">Pending Approval</SelectItem>
                   <SelectItem value="approved">Approved</SelectItem>
+                  <SelectItem value="revoked">Revoked</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -324,22 +343,11 @@ const DeviceApprovals = () => {
                           </div>
                         </TableCell>
                         <TableCell>
-                          {session.is_approved ? (
-                            <Badge variant="outline" className="bg-green-100 text-green-800 border-green-200">
-                              <Check className="h-3 w-3 mr-1" />
-                              Approved
-                              {session.is_primary && " (Primary)"}
-                            </Badge>
-                          ) : (
-                            <Badge variant="outline" className="bg-yellow-100 text-yellow-800 border-yellow-200">
-                              <Clock className="h-3 w-3 mr-1" />
-                              Pending
-                            </Badge>
-                          )}
+                          {getStatusBadge(session)}
                         </TableCell>
                         <TableCell className="text-right">
                           <div className="flex justify-end gap-2">
-                            {!session.is_approved ? (
+                            {!session.is_approved && session.is_active ? (
                               <Button
                                 size="sm"
                                 onClick={() => handleApprove(session)}
@@ -354,7 +362,7 @@ const DeviceApprovals = () => {
                                   </>
                                 )}
                               </Button>
-                            ) : (
+                            ) : session.is_active ? (
                               <Button
                                 size="sm"
                                 variant="destructive"
@@ -364,6 +372,8 @@ const DeviceApprovals = () => {
                                 <X className="h-4 w-4 mr-1" />
                                 Revoke
                               </Button>
+                            ) : (
+                              <span className="text-sm text-muted-foreground">-</span>
                             )}
                           </div>
                         </TableCell>
@@ -386,8 +396,8 @@ const DeviceApprovals = () => {
           <AlertDialogHeader>
             <AlertDialogTitle>Revoke Device Access?</AlertDialogTitle>
             <AlertDialogDescription>
-              This will revoke the student's access from this device. They will need to
-              request approval again to use this device.
+              This will revoke the student's access from this device. They will be signed out
+              and need to request approval again to use this device.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
