@@ -70,11 +70,9 @@ const ResetPassword = () => {
         {/* Logo and Title */}
         <div className="text-center mb-8 animate-fade-in">
           <Link to="/" className="inline-flex items-center justify-center space-x-2 mb-4">
-            <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center">
-              <GraduationCap className="w-7 h-7 text-white" />
-            </div>
+           <img src="logo transparent.png" alt="Logo" className="w-24 h-24" />
           </Link>
-          <h1 className="text-3xl font-bold text-white mb-2">ResonanceX Classes</h1>
+          
           <p className="text-white/80">Set your new password</p>
         </div>
 
@@ -167,7 +165,7 @@ const ResetPassword = () => {
 
         {/* Footer */}
         <div className="text-center mt-8 text-white/80 text-sm animate-fade-in">
-          © {new Date().getFullYear()} ResonanceX Classes. All rights reserved.
+          © {new Date().getFullYear()} ResonanceX Classes. All rights reserved. Build by <a href="https://studio.ennovat.com" className="text-primary underline">Ennovat Studio</a>
         </div>
       </div>
     </div>

@@ -111,10 +111,9 @@ const Login = () => {
           <div className="relative z-10 flex-1 flex flex-col">
             {/* Logo */}
             <Link to="/" className="flex items-center space-x-2 mb-16">
-              <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center">
-                <BookOpen className="h-6 w-6 text-primary" />
-              </div>
-              <span className="text-2xl font-bold">ResonanceX</span>
+             
+                <img src="logo transparent.png" alt="Logo" className="w-24 h-24 brightness-0 invert" />
+
             </Link>
             
             {/* Main content */}
@@ -146,7 +145,7 @@ const Login = () => {
             
             {/* Footer */}
             <div className="text-xs sm:text-sm text-white/60">
-              © {new Date().getFullYear()} ResonanceX Classes. All rights reserved.
+              © {new Date().getFullYear()} ResonanceX Classes. All rights reserved. Build by <a href="https://studio.ennovat.com" className="text-primary underline">Ennovat Studio</a>
             </div>
           </div>
         </div>
@@ -154,11 +153,9 @@ const Login = () => {
         {/* Right Side - Form */}
         <div className="flex flex-col justify-center p-4 sm:p-8 lg:p-16 bg-background">
           {/* Mobile logo */}
-          <Link to="/" className="flex lg:hidden items-center space-x-2 mb-6 sm:mb-8">
-            <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
-              <BookOpen className="h-6 w-6 text-primary-foreground" />
-            </div>
-            <span className="text-xl sm:text-2xl font-bold text-foreground">ResonanceX</span>
+          <Link to="/" className="flex lg:hidden items-center space-x-2 mb-2 sm:mb-8">
+            
+            <img src="logo transparent.png" alt="Logo" className="w-24 h-24 brightness-0 invert" />
           </Link>
 
           <div className="w-full max-w-md mx-auto">

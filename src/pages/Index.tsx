@@ -198,10 +198,7 @@ const Index = () => {
             {/* Brand */}
             <div className="lg:col-span-1">
               <Link to="/" className="flex items-center space-x-2 mb-4">
-                <div className="w-8 sm:w-10 h-8 sm:h-10 bg-primary rounded-lg flex items-center justify-center">
-                  <BookOpen className="h-5 sm:h-6 w-5 sm:w-6 text-primary-foreground" />
-                </div>
-                <span className="text-lg sm:text-xl font-bold text-background">ResonanceX</span>
+              <img src="icon transparent.png" alt="Logo" className="w-12 h-12" />
               </Link>
               <p className="text-xs sm:text-sm text-background/70 mb-6">
                 Empowering learners worldwide with premium education and expert-led courses.
@@ -276,7 +273,7 @@ const Index = () => {
           {/* Bottom Bar */}
           <div className="border-t border-background/10 pt-6 sm:pt-8 flex flex-col md:flex-row justify-between items-center gap-3 sm:gap-4">
             <p className="text-background/60 text-xs sm:text-sm">
-              © {new Date().getFullYear()} ResonanceX Classes. All rights reserved.
+              © {new Date().getFullYear()} ResonanceX Classes. All rights reserved. Build by <a href="https://studio.ennovat.com" className="text-primary underline">Ennovat Studio</a>
             </p>
             <div className="flex gap-4 sm:gap-6 text-xs sm:text-sm">
               <a href="#" className="text-background/60 hover:text-primary transition-colors">

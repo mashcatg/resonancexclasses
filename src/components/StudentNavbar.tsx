@@ -46,8 +46,7 @@ const StudentNavbar = () => {
           {/* Logo */}
           <div className="flex items-center">
             <Link to="/dashboard" className="flex items-center space-x-2">
-              <GraduationCap className="h-8 w-8 text-primary" />
-              <span className="text-xl font-bold text-foreground">ResonanceX Classes</span>
+              <img src="icon transparent.png" alt="Logo" className="w-12 h-12" />
             </Link>
           </div>
 
