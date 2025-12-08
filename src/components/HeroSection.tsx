@@ -85,7 +85,7 @@ const HeroSection = () => {
             <div className="relative">
               {/* Main image container */}
               <div className="relative z-10 rounded-3xl overflow-hidden shadow-2xl border-4 border-white/20">
-                <img alt="Students learning together" className="w-full h-[500px] object-cover" src="/lovable-uploads/752faa04-d836-41c8-b87a-53c509bb9b86.jpg" />
+                <img alt="Students learning together" className="w-full h-[500px] object-cover" src="/images/752faa04-d836-41c8-b87a-53c509bb9b86.jpg" />
                 {/* Overlay gradient */}
                 <div className="absolute inset-0 bg-gradient-to-t from-primary/40 to-transparent" />
               </div>
