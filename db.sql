@@ -1,11 +1,12 @@
--- =========================================================
--- RESONANCEX CLASSES LMS - COMPLETE DATABASE SCHEMA
--- Run this in a new Supabase project's SQL Editor
--- =========================================================
+-- ===============================================
+-- ResonanceX Classes LMS - Complete Database Schema
+-- ===============================================
 
 -- =====================
--- 1. PROFILES TABLE
+-- 1. TABLES
 -- =====================
+
+-- User profiles table
 CREATE TABLE public.profiles (
   id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
   user_id UUID NOT NULL UNIQUE REFERENCES auth.users(id) ON DELETE CASCADE,
@@ -18,9 +19,7 @@ CREATE TABLE public.profiles (
   updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()
 );
 
--- =====================
--- 2. COURSES TABLE
--- =====================
+-- Courses table
 CREATE TABLE public.courses (
   id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
   title TEXT NOT NULL,
@@ -43,9 +42,7 @@ CREATE TABLE public.courses (
   updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()
 );
 
--- =====================
--- 3. COURSE MODULES TABLE
--- =====================
+-- Course modules table
 CREATE TABLE public.course_modules (
   id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
   course_id UUID NOT NULL REFERENCES public.courses(id) ON DELETE CASCADE,
@@ -56,9 +53,7 @@ CREATE TABLE public.course_modules (
   updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()
 );
 
--- =====================
--- 4. LESSONS TABLE
--- =====================
+-- Lessons table
 CREATE TABLE public.lessons (
   id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
   module_id UUID NOT NULL REFERENCES public.course_modules(id) ON DELETE CASCADE,
@@ -73,9 +68,7 @@ CREATE TABLE public.lessons (
   updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()
 );
 
--- =====================
--- 5. ENROLLMENTS TABLE
--- =====================
+-- Enrollments table
 CREATE TABLE public.enrollments (
   id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
   student_id UUID NOT NULL,
@@ -86,9 +79,7 @@ CREATE TABLE public.enrollments (
   UNIQUE(student_id, course_id)
 );
 
--- =====================
--- 6. COUPONS TABLE
--- =====================
+-- Coupons table
 CREATE TABLE public.coupons (
   id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
   code TEXT NOT NULL UNIQUE,
@@ -104,9 +95,7 @@ CREATE TABLE public.coupons (
   created_by UUID REFERENCES auth.users(id)
 );
 
--- =====================
--- 7. COURSE COUPONS TABLE
--- =====================
+-- Course-Coupons junction table
 CREATE TABLE public.course_coupons (
   id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
   course_id UUID NOT NULL REFERENCES public.courses(id) ON DELETE CASCADE,
@@ -115,9 +104,7 @@ CREATE TABLE public.course_coupons (
   UNIQUE(course_id, coupon_id)
 );
 
--- =====================
--- 8. QUIZZES TABLE
--- =====================
+-- Quizzes table
 CREATE TABLE public.quizzes (
   id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
   course_id UUID NOT NULL REFERENCES public.courses(id) ON DELETE CASCADE,
@@ -135,9 +122,7 @@ CREATE TABLE public.quizzes (
   updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()
 );
 
--- =====================
--- 9. QUIZ QUESTIONS TABLE
--- =====================
+-- Quiz questions table
 CREATE TABLE public.quiz_questions (
   id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
   quiz_id UUID NOT NULL REFERENCES public.quizzes(id) ON DELETE CASCADE,
@@ -152,9 +137,7 @@ CREATE TABLE public.quiz_questions (
   updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()
 );
 
--- =====================
--- 10. QUIZ ATTEMPTS TABLE
--- =====================
+-- Quiz attempts table
 CREATE TABLE public.quiz_attempts (
   id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
   quiz_id UUID NOT NULL REFERENCES public.quizzes(id) ON DELETE CASCADE,
@@ -168,12 +151,10 @@ CREATE TABLE public.quiz_attempts (
   time_taken_minutes INTEGER
 );
 
--- =====================
--- 11. CONTENT ITEMS TABLE (for mixed lesson/quiz ordering)
--- =====================
+-- Content items table (for mixed lesson/quiz ordering)
 CREATE TABLE public.content_items (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  module_id UUID NOT NULL REFERENCES course_modules(id) ON DELETE CASCADE,
+  module_id UUID NOT NULL REFERENCES public.course_modules(id) ON DELETE CASCADE,
   item_type TEXT NOT NULL CHECK (item_type IN ('lesson', 'quiz')),
   item_id UUID NOT NULL,
   order_index INTEGER NOT NULL DEFAULT 0,
@@ -181,14 +162,12 @@ CREATE TABLE public.content_items (
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT now()
 );
 
--- =====================
--- 12. TRANSACTIONS TABLE
--- =====================
+-- Transactions table
 CREATE TABLE public.transactions (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID REFERENCES auth.users(id) NOT NULL,
-  course_id UUID REFERENCES courses(id) NOT NULL,
-  enrollment_id UUID REFERENCES enrollments(id),
+  course_id UUID REFERENCES public.courses(id) NOT NULL,
+  enrollment_id UUID REFERENCES public.enrollments(id),
   payment_id TEXT,
   trx_id TEXT,
   merchant_invoice_number TEXT UNIQUE NOT NULL,
@@ -204,9 +183,7 @@ CREATE TABLE public.transactions (
   updated_at TIMESTAMPTZ DEFAULT now()
 );
 
--- =====================
--- 13. LESSON PROGRESS TABLE
--- =====================
+-- Lesson progress table
 CREATE TABLE public.lesson_progress (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   student_id UUID NOT NULL,
@@ -220,9 +197,7 @@ CREATE TABLE public.lesson_progress (
   UNIQUE(student_id, lesson_id)
 );
 
--- =====================
--- 14. NOTIFICATIONS TABLE
--- =====================
+-- Notifications table
 CREATE TABLE public.notifications (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID NOT NULL,
@@ -234,9 +209,7 @@ CREATE TABLE public.notifications (
   created_at TIMESTAMPTZ DEFAULT now()
 );
 
--- =====================
--- 15. DEVICE SESSIONS TABLE
--- =====================
+-- Device sessions table
 CREATE TABLE public.device_sessions (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID NOT NULL,
@@ -255,9 +228,19 @@ CREATE TABLE public.device_sessions (
   UNIQUE(user_id, device_fingerprint)
 );
 
--- =========================================================
--- ENABLE ROW LEVEL SECURITY ON ALL TABLES
--- =========================================================
+-- =====================
+-- 2. INDEXES
+-- =====================
+
+CREATE INDEX idx_transactions_user_id ON public.transactions(user_id);
+CREATE INDEX idx_transactions_payment_id ON public.transactions(payment_id);
+CREATE INDEX idx_transactions_status ON public.transactions(status);
+CREATE INDEX idx_transactions_merchant_invoice ON public.transactions(merchant_invoice_number);
+
+-- =====================
+-- 3. ENABLE RLS
+-- =====================
+
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.courses ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.course_modules ENABLE ROW LEVEL SECURITY;
@@ -274,271 +257,143 @@ ALTER TABLE public.lesson_progress ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.notifications ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.device_sessions ENABLE ROW LEVEL SECURITY;
 
--- =========================================================
--- RLS POLICIES FOR PROFILES
--- =========================================================
+-- =====================
+-- 4. RLS POLICIES
+-- =====================
+
+-- Profiles policies
 CREATE POLICY "Users can view all profiles" ON public.profiles FOR SELECT USING (true);
 CREATE POLICY "Users can update their own profile" ON public.profiles FOR UPDATE USING (auth.uid() = user_id);
 CREATE POLICY "Users can insert their own profile" ON public.profiles FOR INSERT WITH CHECK (auth.uid() = user_id);
 
--- =========================================================
--- RLS POLICIES FOR COURSES
--- =========================================================
+-- Courses policies
 CREATE POLICY "Anyone can view published courses" ON public.courses FOR SELECT USING (is_published = true OR auth.uid() = instructor_id);
 CREATE POLICY "Instructors can manage their courses" ON public.courses FOR ALL USING (auth.uid() = instructor_id);
 CREATE POLICY "Admins can manage all courses" ON public.courses FOR ALL USING (
-  EXISTS (
-    SELECT 1 FROM public.profiles 
-    WHERE user_id = auth.uid() 
-    AND role IN ('admin', 'superadmin')
-  )
+  EXISTS (SELECT 1 FROM public.profiles WHERE user_id = auth.uid() AND role IN ('admin', 'superadmin'))
 );
 
--- =========================================================
--- RLS POLICIES FOR COURSE MODULES
--- =========================================================
+-- Course modules policies
 CREATE POLICY "Anyone can view modules of accessible courses" ON public.course_modules FOR SELECT USING (
-  EXISTS (
-    SELECT 1 FROM public.courses 
-    WHERE id = course_id 
-    AND (is_published = true OR instructor_id = auth.uid())
-  )
+  EXISTS (SELECT 1 FROM public.courses WHERE id = course_id AND (is_published = true OR instructor_id = auth.uid()))
 );
 CREATE POLICY "Course owners can manage modules" ON public.course_modules FOR ALL USING (
-  EXISTS (
-    SELECT 1 FROM public.courses 
-    WHERE id = course_id 
-    AND (instructor_id = auth.uid() OR EXISTS (
-      SELECT 1 FROM public.profiles 
-      WHERE user_id = auth.uid() 
-      AND role IN ('admin', 'superadmin')
-    ))
-  )
+  EXISTS (SELECT 1 FROM public.courses WHERE id = course_id 
+    AND (instructor_id = auth.uid() OR EXISTS (SELECT 1 FROM public.profiles WHERE user_id = auth.uid() AND role IN ('admin', 'superadmin'))))
 );
 
--- =========================================================
--- RLS POLICIES FOR LESSONS
--- =========================================================
+-- Lessons policies
 CREATE POLICY "Anyone can view lessons of accessible courses" ON public.lessons FOR SELECT USING (
-  EXISTS (
-    SELECT 1 FROM public.course_modules cm
-    JOIN public.courses c ON c.id = cm.course_id
-    WHERE cm.id = module_id 
-    AND (c.is_published = true OR c.instructor_id = auth.uid())
-  )
+  EXISTS (SELECT 1 FROM public.course_modules cm JOIN public.courses c ON c.id = cm.course_id 
+    WHERE cm.id = module_id AND (c.is_published = true OR c.instructor_id = auth.uid()))
 );
 CREATE POLICY "Course owners can manage lessons" ON public.lessons FOR ALL USING (
-  EXISTS (
-    SELECT 1 FROM public.course_modules cm
-    JOIN public.courses c ON c.id = cm.course_id
-    WHERE cm.id = module_id 
-    AND (c.instructor_id = auth.uid() OR EXISTS (
-      SELECT 1 FROM public.profiles 
-      WHERE user_id = auth.uid() 
-      AND role IN ('admin', 'superadmin')
-    ))
-  )
+  EXISTS (SELECT 1 FROM public.course_modules cm JOIN public.courses c ON c.id = cm.course_id 
+    WHERE cm.id = module_id AND (c.instructor_id = auth.uid() OR EXISTS (SELECT 1 FROM public.profiles WHERE user_id = auth.uid() AND role IN ('admin', 'superadmin'))))
 );
 
--- =========================================================
--- RLS POLICIES FOR ENROLLMENTS
--- =========================================================
+-- Enrollments policies
 CREATE POLICY "Students can view their enrollments" ON public.enrollments FOR SELECT USING (auth.uid() = student_id);
 CREATE POLICY "Students can enroll in courses" ON public.enrollments FOR INSERT WITH CHECK (auth.uid() = student_id);
 CREATE POLICY "Students can update their progress" ON public.enrollments FOR UPDATE USING (auth.uid() = student_id);
 CREATE POLICY "Admins can view all enrollments" ON public.enrollments FOR SELECT USING (
-  EXISTS (
-    SELECT 1 FROM public.profiles 
-    WHERE user_id = auth.uid() 
-    AND role IN ('admin', 'superadmin')
-  )
+  EXISTS (SELECT 1 FROM public.profiles WHERE user_id = auth.uid() AND role IN ('admin', 'superadmin'))
 );
-CREATE POLICY "Admins can create enrollments" ON public.enrollments FOR INSERT TO authenticated
-WITH CHECK (
-  EXISTS (
-    SELECT 1 FROM profiles
-    WHERE profiles.user_id = auth.uid()
-    AND profiles.role IN ('admin', 'superadmin')
-  )
+CREATE POLICY "Admins can create enrollments" ON public.enrollments FOR INSERT TO authenticated WITH CHECK (
+  EXISTS (SELECT 1 FROM public.profiles WHERE user_id = auth.uid() AND role IN ('admin', 'superadmin'))
 );
 
--- =========================================================
--- RLS POLICIES FOR COUPONS
--- =========================================================
-CREATE POLICY "Admins can manage all coupons" ON public.coupons FOR ALL USING (EXISTS (
-  SELECT 1 FROM profiles 
-  WHERE profiles.user_id = auth.uid() 
-  AND profiles.role IN ('admin', 'superadmin')
-));
+-- Coupons policies
+CREATE POLICY "Admins can manage all coupons" ON public.coupons FOR ALL USING (
+  EXISTS (SELECT 1 FROM public.profiles WHERE user_id = auth.uid() AND role IN ('admin', 'superadmin'))
+);
 CREATE POLICY "Students can view active coupons" ON public.coupons FOR SELECT USING (is_active = true AND (expires_at IS NULL OR expires_at > now()));
 
--- =========================================================
--- RLS POLICIES FOR COURSE COUPONS
--- =========================================================
-CREATE POLICY "Admins can manage course coupons" ON public.course_coupons FOR ALL USING (EXISTS (
-  SELECT 1 FROM profiles 
-  WHERE profiles.user_id = auth.uid() 
-  AND profiles.role IN ('admin', 'superadmin')
-));
-CREATE POLICY "Students can view course coupons" ON public.course_coupons FOR SELECT USING (EXISTS (
-  SELECT 1 FROM public.coupons c 
-  WHERE c.id = coupon_id 
-  AND c.is_active = true 
-  AND (c.expires_at IS NULL OR c.expires_at > now())
-));
+-- Course coupons policies
+CREATE POLICY "Admins can manage course coupons" ON public.course_coupons FOR ALL USING (
+  EXISTS (SELECT 1 FROM public.profiles WHERE user_id = auth.uid() AND role IN ('admin', 'superadmin'))
+);
+CREATE POLICY "Students can view course coupons" ON public.course_coupons FOR SELECT USING (
+  EXISTS (SELECT 1 FROM public.coupons c WHERE c.id = coupon_id AND c.is_active = true AND (c.expires_at IS NULL OR c.expires_at > now()))
+);
 
--- =========================================================
--- RLS POLICIES FOR QUIZZES
--- =========================================================
-CREATE POLICY "Anyone can view quizzes of accessible courses" ON public.quizzes FOR SELECT USING (EXISTS (
-  SELECT 1 FROM courses c 
-  WHERE c.id = course_id 
-  AND (c.is_published = true OR c.instructor_id = auth.uid())
-));
-CREATE POLICY "Course owners can manage quizzes" ON public.quizzes FOR ALL USING (EXISTS (
-  SELECT 1 FROM courses c 
-  WHERE c.id = course_id 
-  AND (c.instructor_id = auth.uid() OR EXISTS (
-    SELECT 1 FROM profiles 
-    WHERE profiles.user_id = auth.uid() 
-    AND profiles.role IN ('admin', 'superadmin')
-  ))
-));
+-- Quizzes policies
+CREATE POLICY "Anyone can view quizzes of accessible courses" ON public.quizzes FOR SELECT USING (
+  EXISTS (SELECT 1 FROM public.courses c WHERE c.id = course_id AND (c.is_published = true OR c.instructor_id = auth.uid()))
+);
+CREATE POLICY "Course owners can manage quizzes" ON public.quizzes FOR ALL USING (
+  EXISTS (SELECT 1 FROM public.courses c WHERE c.id = course_id 
+    AND (c.instructor_id = auth.uid() OR EXISTS (SELECT 1 FROM public.profiles WHERE user_id = auth.uid() AND role IN ('admin', 'superadmin'))))
+);
 
--- =========================================================
--- RLS POLICIES FOR QUIZ QUESTIONS
--- =========================================================
-CREATE POLICY "Anyone can view questions of accessible quizzes" ON public.quiz_questions FOR SELECT USING (EXISTS (
-  SELECT 1 FROM quizzes q 
-  JOIN courses c ON c.id = q.course_id 
-  WHERE q.id = quiz_id 
-  AND (c.is_published = true OR c.instructor_id = auth.uid())
-));
-CREATE POLICY "Course owners can manage quiz questions" ON public.quiz_questions FOR ALL USING (EXISTS (
-  SELECT 1 FROM quizzes q 
-  JOIN courses c ON c.id = q.course_id 
-  WHERE q.id = quiz_id 
-  AND (c.instructor_id = auth.uid() OR EXISTS (
-    SELECT 1 FROM profiles 
-    WHERE profiles.user_id = auth.uid() 
-    AND profiles.role IN ('admin', 'superadmin')
-  ))
-));
+-- Quiz questions policies
+CREATE POLICY "Anyone can view questions of accessible quizzes" ON public.quiz_questions FOR SELECT USING (
+  EXISTS (SELECT 1 FROM public.quizzes q JOIN public.courses c ON c.id = q.course_id WHERE q.id = quiz_id AND (c.is_published = true OR c.instructor_id = auth.uid()))
+);
+CREATE POLICY "Course owners can manage quiz questions" ON public.quiz_questions FOR ALL USING (
+  EXISTS (SELECT 1 FROM public.quizzes q JOIN public.courses c ON c.id = q.course_id WHERE q.id = quiz_id 
+    AND (c.instructor_id = auth.uid() OR EXISTS (SELECT 1 FROM public.profiles WHERE user_id = auth.uid() AND role IN ('admin', 'superadmin'))))
+);
 
--- =========================================================
--- RLS POLICIES FOR QUIZ ATTEMPTS
--- =========================================================
+-- Quiz attempts policies
 CREATE POLICY "Students can view their own attempts" ON public.quiz_attempts FOR SELECT USING (auth.uid() = student_id);
 CREATE POLICY "Students can insert their own attempts" ON public.quiz_attempts FOR INSERT WITH CHECK (auth.uid() = student_id);
 CREATE POLICY "Students can update their own attempts" ON public.quiz_attempts FOR UPDATE USING (auth.uid() = student_id);
-CREATE POLICY "Instructors can view attempts for their courses" ON public.quiz_attempts FOR SELECT USING (EXISTS (
-  SELECT 1 FROM quizzes q 
-  JOIN courses c ON c.id = q.course_id 
-  WHERE q.id = quiz_id 
-  AND (c.instructor_id = auth.uid() OR EXISTS (
-    SELECT 1 FROM profiles 
-    WHERE profiles.user_id = auth.uid() 
-    AND profiles.role IN ('admin', 'superadmin')
-  ))
-));
-
--- =========================================================
--- RLS POLICIES FOR CONTENT ITEMS
--- =========================================================
-CREATE POLICY "Course owners can manage content items" ON content_items FOR ALL USING (
-  EXISTS (
-    SELECT 1 FROM course_modules cm
-    JOIN courses c ON c.id = cm.course_id
-    WHERE cm.id = content_items.module_id
-    AND (c.instructor_id = auth.uid() OR EXISTS (
-      SELECT 1 FROM profiles 
-      WHERE user_id = auth.uid() 
-      AND role IN ('admin', 'superadmin')
-    ))
-  )
-);
-CREATE POLICY "Anyone can view content items of accessible courses" ON content_items FOR SELECT USING (
-  EXISTS (
-    SELECT 1 FROM course_modules cm
-    JOIN courses c ON c.id = cm.course_id
-    WHERE cm.id = content_items.module_id
-    AND (c.is_published = true OR c.instructor_id = auth.uid())
-  )
+CREATE POLICY "Instructors can view attempts for their courses" ON public.quiz_attempts FOR SELECT USING (
+  EXISTS (SELECT 1 FROM public.quizzes q JOIN public.courses c ON c.id = q.course_id WHERE q.id = quiz_id 
+    AND (c.instructor_id = auth.uid() OR EXISTS (SELECT 1 FROM public.profiles WHERE user_id = auth.uid() AND role IN ('admin', 'superadmin'))))
 );
 
--- =========================================================
--- RLS POLICIES FOR TRANSACTIONS
--- =========================================================
-CREATE POLICY "Students can view own transactions" ON transactions FOR SELECT USING (auth.uid() = user_id);
-CREATE POLICY "Students can insert own transactions" ON transactions FOR INSERT WITH CHECK (auth.uid() = user_id);
-CREATE POLICY "Admins can view all transactions" ON transactions FOR SELECT USING (
-  EXISTS (
-    SELECT 1 FROM profiles 
-    WHERE user_id = auth.uid() 
-    AND role IN ('admin', 'superadmin')
-  )
+-- Content items policies
+CREATE POLICY "Course owners can manage content items" ON public.content_items FOR ALL USING (
+  EXISTS (SELECT 1 FROM public.course_modules cm JOIN public.courses c ON c.id = cm.course_id WHERE cm.id = content_items.module_id 
+    AND (c.instructor_id = auth.uid() OR EXISTS (SELECT 1 FROM public.profiles WHERE user_id = auth.uid() AND role IN ('admin', 'superadmin'))))
 );
-CREATE POLICY "Admins can update transactions" ON transactions FOR UPDATE USING (
-  EXISTS (
-    SELECT 1 FROM profiles 
-    WHERE user_id = auth.uid() 
-    AND role IN ('admin', 'superadmin')
-  )
+CREATE POLICY "Anyone can view content items of accessible courses" ON public.content_items FOR SELECT USING (
+  EXISTS (SELECT 1 FROM public.course_modules cm JOIN public.courses c ON c.id = cm.course_id WHERE cm.id = content_items.module_id AND (c.is_published = true OR c.instructor_id = auth.uid()))
 );
 
--- =========================================================
--- RLS POLICIES FOR LESSON PROGRESS
--- =========================================================
+-- Transactions policies
+CREATE POLICY "Students can view own transactions" ON public.transactions FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "Students can insert own transactions" ON public.transactions FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Admins can view all transactions" ON public.transactions FOR SELECT USING (
+  EXISTS (SELECT 1 FROM public.profiles WHERE user_id = auth.uid() AND role IN ('admin', 'superadmin'))
+);
+CREATE POLICY "Admins can update transactions" ON public.transactions FOR UPDATE USING (
+  EXISTS (SELECT 1 FROM public.profiles WHERE user_id = auth.uid() AND role IN ('admin', 'superadmin'))
+);
+
+-- Lesson progress policies
 CREATE POLICY "Students can view their own progress" ON public.lesson_progress FOR SELECT USING (auth.uid() = student_id);
 CREATE POLICY "Students can insert their own progress" ON public.lesson_progress FOR INSERT WITH CHECK (auth.uid() = student_id);
 CREATE POLICY "Students can update their own progress" ON public.lesson_progress FOR UPDATE USING (auth.uid() = student_id);
-CREATE POLICY "Admins can view all progress" ON public.lesson_progress FOR SELECT USING (EXISTS (
-  SELECT 1 FROM profiles
-  WHERE profiles.user_id = auth.uid()
-  AND profiles.role IN ('admin', 'superadmin')
-));
+CREATE POLICY "Admins can view all progress" ON public.lesson_progress FOR SELECT USING (
+  EXISTS (SELECT 1 FROM public.profiles WHERE user_id = auth.uid() AND role IN ('admin', 'superadmin'))
+);
 
--- =========================================================
--- RLS POLICIES FOR NOTIFICATIONS
--- =========================================================
+-- Notifications policies
 CREATE POLICY "Users can view their own notifications" ON public.notifications FOR SELECT USING (auth.uid() = user_id);
 CREATE POLICY "Users can update their own notifications" ON public.notifications FOR UPDATE USING (auth.uid() = user_id);
-CREATE POLICY "Admins can insert notifications" ON public.notifications FOR INSERT WITH CHECK (EXISTS (
-  SELECT 1 FROM profiles
-  WHERE profiles.user_id = auth.uid()
-  AND profiles.role IN ('admin', 'superadmin')
-));
+CREATE POLICY "Admins can insert notifications" ON public.notifications FOR INSERT WITH CHECK (
+  EXISTS (SELECT 1 FROM public.profiles WHERE user_id = auth.uid() AND role IN ('admin', 'superadmin'))
+);
 
--- =========================================================
--- RLS POLICIES FOR DEVICE SESSIONS
--- =========================================================
+-- Device sessions policies
 CREATE POLICY "Users can view their own device sessions" ON public.device_sessions FOR SELECT USING (auth.uid() = user_id);
 CREATE POLICY "Users can insert their own device sessions" ON public.device_sessions FOR INSERT WITH CHECK (auth.uid() = user_id);
 CREATE POLICY "Users can update their own device sessions" ON public.device_sessions FOR UPDATE USING (auth.uid() = user_id);
-CREATE POLICY "Admins can view all device sessions" ON public.device_sessions FOR SELECT USING (EXISTS (
-  SELECT 1 FROM profiles
-  WHERE profiles.user_id = auth.uid()
-  AND profiles.role IN ('admin', 'superadmin')
-));
-CREATE POLICY "Admins can update all device sessions" ON public.device_sessions FOR UPDATE USING (EXISTS (
-  SELECT 1 FROM profiles
-  WHERE profiles.user_id = auth.uid()
-  AND profiles.role IN ('admin', 'superadmin')
-));
+CREATE POLICY "Admins can view all device sessions" ON public.device_sessions FOR SELECT USING (
+  EXISTS (SELECT 1 FROM public.profiles WHERE user_id = auth.uid() AND role IN ('admin', 'superadmin'))
+);
+CREATE POLICY "Admins can update all device sessions" ON public.device_sessions FOR UPDATE USING (
+  EXISTS (SELECT 1 FROM public.profiles WHERE user_id = auth.uid() AND role IN ('admin', 'superadmin'))
+);
 
--- =========================================================
--- INDEXES FOR PERFORMANCE
--- =========================================================
-CREATE INDEX idx_transactions_user_id ON transactions(user_id);
-CREATE INDEX idx_transactions_payment_id ON transactions(payment_id);
-CREATE INDEX idx_transactions_status ON transactions(status);
-CREATE INDEX idx_transactions_merchant_invoice ON transactions(merchant_invoice_number);
+-- =====================
+-- 5. FUNCTIONS
+-- =====================
 
--- =========================================================
--- FUNCTIONS
--- =========================================================
-
--- Function to handle new user signup
+-- Handle new user signup
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER
 LANGUAGE plpgsql
@@ -553,6 +408,7 @@ BEGIN
     COALESCE(NEW.raw_user_meta_data->>'last_name', ''),
     CASE 
       WHEN NEW.email = 'mashcatg@gmail.com' THEN 'superadmin'
+      -- ADD YOUR SUPERADMIN EMAIL ABOVE
       ELSE 'student'
     END
   );
@@ -560,7 +416,7 @@ BEGIN
 END;
 $$;
 
--- Function to update updated_at timestamp
+-- Update updated_at timestamp
 CREATE OR REPLACE FUNCTION public.update_updated_at_column()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -569,16 +425,16 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SET search_path = public;
 
--- =========================================================
--- TRIGGERS
--- =========================================================
+-- =====================
+-- 6. TRIGGERS
+-- =====================
 
--- Trigger for new user signup
+-- Auto-create profile on user signup
 CREATE TRIGGER on_auth_user_created
   AFTER INSERT ON auth.users
   FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
 
--- Triggers for updated_at
+-- Updated_at triggers
 CREATE TRIGGER update_profiles_updated_at BEFORE UPDATE ON public.profiles FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
 CREATE TRIGGER update_courses_updated_at BEFORE UPDATE ON public.courses FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
 CREATE TRIGGER update_course_modules_updated_at BEFORE UPDATE ON public.course_modules FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
@@ -586,61 +442,30 @@ CREATE TRIGGER update_lessons_updated_at BEFORE UPDATE ON public.lessons FOR EAC
 CREATE TRIGGER update_coupons_updated_at BEFORE UPDATE ON public.coupons FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
 CREATE TRIGGER update_quizzes_updated_at BEFORE UPDATE ON public.quizzes FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
 CREATE TRIGGER update_quiz_questions_updated_at BEFORE UPDATE ON public.quiz_questions FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
-CREATE TRIGGER update_content_items_updated_at BEFORE UPDATE ON content_items FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-CREATE TRIGGER update_transactions_updated_at BEFORE UPDATE ON transactions FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+CREATE TRIGGER update_content_items_updated_at BEFORE UPDATE ON public.content_items FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
+CREATE TRIGGER update_transactions_updated_at BEFORE UPDATE ON public.transactions FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
 
--- =========================================================
--- STORAGE BUCKETS
--- =========================================================
+-- =====================
+-- 7. STORAGE BUCKETS
+-- =====================
 
--- Create bucket for course banners
 INSERT INTO storage.buckets (id, name, public) VALUES ('course-banners', 'course-banners', true);
-
--- Create bucket for course resources (PDFs, documents, etc.)
 INSERT INTO storage.buckets (id, name, public) VALUES ('course-resources', 'course-resources', true);
 
--- =========================================================
--- STORAGE POLICIES
--- =========================================================
-
--- Course banners policies
+-- Storage policies for course-banners
 CREATE POLICY "Course banners are publicly accessible" ON storage.objects FOR SELECT USING (bucket_id = 'course-banners');
 CREATE POLICY "Instructors can upload course banners" ON storage.objects FOR INSERT WITH CHECK (
-  bucket_id = 'course-banners' 
-  AND EXISTS (
-    SELECT 1 FROM profiles 
-    WHERE profiles.user_id = auth.uid() 
-    AND profiles.role IN ('instructor', 'admin', 'superadmin')
-  )
+  bucket_id = 'course-banners' AND EXISTS (SELECT 1 FROM public.profiles WHERE user_id = auth.uid() AND role IN ('instructor', 'admin', 'superadmin'))
 );
 CREATE POLICY "Instructors can update course banners" ON storage.objects FOR UPDATE USING (
-  bucket_id = 'course-banners' 
-  AND EXISTS (
-    SELECT 1 FROM profiles 
-    WHERE profiles.user_id = auth.uid() 
-    AND profiles.role IN ('instructor', 'admin', 'superadmin')
-  )
+  bucket_id = 'course-banners' AND EXISTS (SELECT 1 FROM public.profiles WHERE user_id = auth.uid() AND role IN ('instructor', 'admin', 'superadmin'))
 );
 CREATE POLICY "Instructors can delete course banners" ON storage.objects FOR DELETE USING (
-  bucket_id = 'course-banners' 
-  AND EXISTS (
-    SELECT 1 FROM profiles 
-    WHERE profiles.user_id = auth.uid() 
-    AND profiles.role IN ('instructor', 'admin', 'superadmin')
-  )
+  bucket_id = 'course-banners' AND EXISTS (SELECT 1 FROM public.profiles WHERE user_id = auth.uid() AND role IN ('instructor', 'admin', 'superadmin'))
 );
 
--- Course resources policies
+-- Storage policies for course-resources
 CREATE POLICY "Anyone can view course resources" ON storage.objects FOR SELECT USING (bucket_id = 'course-resources');
-CREATE POLICY "Authenticated users can upload course resources" ON storage.objects FOR INSERT WITH CHECK (
-  bucket_id = 'course-resources' 
-  AND auth.role() = 'authenticated'
-);
-CREATE POLICY "Authenticated users can update their course resources" ON storage.objects FOR UPDATE USING (
-  bucket_id = 'course-resources' 
-  AND auth.role() = 'authenticated'
-);
-CREATE POLICY "Authenticated users can delete their course resources" ON storage.objects FOR DELETE USING (
-  bucket_id = 'course-resources' 
-  AND auth.role() = 'authenticated'
-);
+CREATE POLICY "Authenticated users can upload course resources" ON storage.objects FOR INSERT WITH CHECK (bucket_id = 'course-resources' AND auth.role() = 'authenticated');
+CREATE POLICY "Authenticated users can update their course resources" ON storage.objects FOR UPDATE USING (bucket_id = 'course-resources' AND auth.role() = 'authenticated');
+CREATE POLICY "Authenticated users can delete their course resources" ON storage.objects FOR DELETE USING (bucket_id = 'course-resources' AND auth.role() = 'authenticated');
