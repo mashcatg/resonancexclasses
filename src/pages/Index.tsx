@@ -7,9 +7,15 @@ import { supabase } from "@/integrations/supabase/client";
 import Header from "@/components/Header";
 import HeroSection from "@/components/HeroSection";
 import FeaturesSection from "@/components/FeaturesSection";
+import CategoriesSection from "@/components/CategoriesSection";
+import RecentCoursesSection from "@/components/RecentCoursesSection";
 import StatsSection from "@/components/StatsSection";
 import JourneySection from "@/components/JourneySection";
 import TestimonialsSection from "@/components/TestimonialsSection";
+import InstructorsSection from "@/components/InstructorsSection";
+import FAQSection from "@/components/FAQSection";
+import PartnersSection from "@/components/PartnersSection";
+import CTASection from "@/components/CTASection";
 import { Clock, ArrowRight, BookOpen, Mail, Phone, MapPin, Facebook, Twitter, Linkedin, Youtube } from "lucide-react";
 import { truncateText } from "@/lib/htmlUtils";
 
@@ -78,7 +84,9 @@ const Index = () => {
       <Header />
       <HeroSection />
       <JourneySection />
-      <StatsSection />
+      {/* <StatsSection /> */}
+
+      <CategoriesSection />
 
       {/* Featured Courses Section */}
       <section className="py-12 sm:py-16 lg:py-20 bg-background">
@@ -88,15 +96,15 @@ const Index = () => {
               <span className="text-primary font-semibold text-xs sm:text-sm uppercase tracking-wider">
                 Top Picks
               </span>
-              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mt-2">
+              <h2 className="text-2xl md:text-3xl font-bold text-foreground mt-2">
                 Featured Courses
               </h2>
-              <p className="text-sm sm:text-base text-muted-foreground mt-2 max-w-xl">
+              <p className="text-sm md:text-lg text-muted-foreground mt-2 max-w-xl">
                 Explore our most popular courses and start your learning journey today
               </p>
             </div>
             <Link to="/courses" className="mt-4 md:mt-0">
-              <Button variant="outline" className="group">
+              <Button variant="link" className="group p-0 h-auto font-semibold text-primary hover:no-underline">
                 View All Courses
                 <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
               </Button>
@@ -107,24 +115,24 @@ const Index = () => {
             {featuredCourses.map((course, index) => (
               <Card 
                 key={course.id} 
-                className="h-full overflow-hidden hover:shadow-xl transition-all duration-300 group border-border hover:border-primary/30 cursor-pointer animate-fade-in"
+                className="h-full overflow-hidden border-border hover:border-primary/30 cursor-pointer animate-fade-in flex flex-col"
                 style={{ animationDelay: `${index * 0.1}s` }}
                 onClick={() => navigate(`/courses/${course.id}`)}
               >
-                <div className="relative overflow-hidden">
+                <div className="relative overflow-hidden aspect-video">
                   <img
                     src={course.thumbnail_url || "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=400&h=250&fit=crop"}
                     alt={course.title}
-                    className="w-full h-48 object-cover transition-transform duration-300 group-hover:scale-105"
+                    className="w-full h-full object-cover transition-transform duration-300"
                   />
                   <div className="absolute top-4 right-4">
-                    <Badge className="bg-primary text-primary-foreground font-semibold">
+                    <Badge className="bg-background/90 text-foreground font-semibold backdrop-blur-sm border-none shadow-sm">
                       ৳{course.price.toLocaleString()}
                     </Badge>
                   </div>
                   {course.difficulty_level && (
                     <div className="absolute top-4 left-4">
-                      <Badge variant="outline" className={getDifficultyColor(course.difficulty_level)}>
+                      <Badge variant="secondary" className={`backdrop-blur-sm shadow-sm ${getDifficultyColor(course.difficulty_level)}`}>
                         {course.difficulty_level}
                       </Badge>
                     </div>
@@ -136,17 +144,23 @@ const Index = () => {
                       {course.category}
                     </span>
                   )}
-                  <CardTitle className="text-lg group-hover:text-primary transition-colors line-clamp-2">
+                  <CardTitle className="text-lg line-clamp-2">
                     {course.title}
                   </CardTitle>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="flex-grow flex flex-col justify-between">
                   <CardDescription className="line-clamp-2 mb-4">
                     {truncateText(course.description || "", 100)}
                   </CardDescription>
-                  <div className="flex items-center text-sm text-muted-foreground">
-                    <Clock className="h-4 w-4 mr-1" />
-                    <span>{course.duration_minutes || 0} mins</span>
+                  
+                  <div className="flex items-center justify-between pt-4 border-t border-border/50 mt-auto">
+                    <div className="flex items-center text-sm text-muted-foreground">
+                      <Clock className="w-4 h-4 mr-1" />
+                      <span>{course.duration_minutes ? `${Math.round(course.duration_minutes / 60)}h ${course.duration_minutes % 60}m` : "Self-paced"}</span>
+                    </div>
+                    <div className="flex items-center text-primary font-medium text-sm group-hover:translate-x-1 transition-transform">
+                      View Details <ArrowRight className="w-4 h-4 ml-1" />
+                    </div>
                   </div>
                 </CardContent>
               </Card>
@@ -156,40 +170,13 @@ const Index = () => {
       </section>
 
       <FeaturesSection />
+      <InstructorsSection />
+      <RecentCoursesSection />
+      {/* <PartnersSection /> */}
       <TestimonialsSection />
+      <FAQSection />
 
-      {/* CTA Section */}
-      <section className="py-12 sm:py-16 lg:py-20 bg-primary">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="max-w-3xl mx-auto text-center text-white">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4">
-              Admissions Open for 2026 Batch
-            </h2>
-            <p className="text-sm sm:text-base lg:text-lg text-white/80 mb-6 sm:mb-8">
-              Start your learning journey today. Choose from 15+ quality courses and join 8,000+ successful students who have transformed their careers with our platform.
-            </p>
-            <div className="flex flex-wrap justify-center gap-2 sm:gap-4">
-              <Link to="/login">
-                <Button 
-                  size="lg" 
-                  className="bg-white text-primary hover:bg-white/90 text-sm sm:text-base lg:text-lg px-4 sm:px-8 py-3 sm:py-6 rounded-full font-semibold"
-                >
-                  Get Started Now
-                  <ArrowRight className="ml-2 h-4 w-4 sm:h-5 sm:w-5" />
-                </Button>
-              </Link>
-              <Button 
-                variant="outline" 
-                size="lg"
-                className="border-2 border-white/30 bg-white/30 text-white hover:bg-white/10 text-sm sm:text-base lg:text-lg px-4 sm:px-8 py-3 sm:py-6 rounded-full font-semibold"
-              >
-                <Phone className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
-                +880 1950-095883
-              </Button>
-            </div>
-          </div>
-        </div>
-      </section>
+      <CTASection />
 
       {/* Footer */}
       <footer className="bg-[#181b1f] text-background py-12 sm:py-16">

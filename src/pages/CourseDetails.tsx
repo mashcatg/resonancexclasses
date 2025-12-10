@@ -325,7 +325,7 @@ const CourseDetails = () => {
                       </span>
                       {course.original_price && course.original_price > course.price && (
                         <>
-                          <span className="text-lg text-muted-foreground line-through">
+                          <span className="text-sm md:text-lg text-muted-foreground line-through">
                             ৳{course.original_price.toLocaleString("en-BD")}
                           </span>
                           <Badge variant="destructive">

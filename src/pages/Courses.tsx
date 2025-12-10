@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
@@ -30,6 +30,7 @@ const Courses = () => {
   const { user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [courses, setCourses] = useState<Course[]>([]);
   const [enrolledCourses, setEnrolledCourses] = useState<Set<string>>(new Set());
   const [pendingCourses, setPendingCourses] = useState<Set<string>>(new Set());
@@ -39,6 +40,13 @@ const Courses = () => {
   const [difficultyFilter, setDifficultyFilter] = useState("all");
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
   const [enrollModalOpen, setEnrollModalOpen] = useState(false);
+
+  useEffect(() => {
+    const categoryParam = searchParams.get("category");
+    if (categoryParam) {
+      setCategoryFilter(categoryParam);
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     fetchCourses();
