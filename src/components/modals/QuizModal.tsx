@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
+import RichTextEditor from '@/components/RichTextEditor';
 
 interface QuizModalProps {
   open: boolean;
@@ -21,6 +21,20 @@ const QuizModal: React.FC<QuizModalProps> = ({ open, onOpenChange, onSave, initi
     points_deducted_per_error: initialData?.points_deducted_per_error || 0,
     total_questions: initialData?.total_questions || 0
   });
+
+  useEffect(() => {
+    if (open) {
+      setFormData({
+        title: initialData?.title || '',
+        description: initialData?.description || '',
+        time_limit_minutes: initialData?.time_limit_minutes || null,
+        attempts_allowed: initialData?.attempts_allowed || 3,
+        points_per_question: initialData?.points_per_question || 1,
+        points_deducted_per_error: initialData?.points_deducted_per_error || 0,
+        total_questions: initialData?.total_questions || 0
+      });
+    }
+  }, [initialData, open]);
 
   const handleSave = () => {
     if (!formData.title.trim()) return;
@@ -54,9 +68,13 @@ const QuizModal: React.FC<QuizModalProps> = ({ open, onOpenChange, onSave, initi
     }));
   };
 
+  const handleDescriptionChange = (value: string) => {
+    setFormData(prev => ({ ...prev, description: value }));
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{initialData ? 'Edit Quiz' : 'Add New Quiz'}</DialogTitle>
         </DialogHeader>
@@ -74,12 +92,10 @@ const QuizModal: React.FC<QuizModalProps> = ({ open, onOpenChange, onSave, initi
 
           <div>
             <label className="text-sm font-medium">Description</label>
-            <Textarea
-              name="description"
+            <RichTextEditor
               value={formData.description}
-              onChange={handleInputChange}
+              onChange={handleDescriptionChange}
               placeholder="Quiz description"
-              rows={3}
             />
           </div>
 

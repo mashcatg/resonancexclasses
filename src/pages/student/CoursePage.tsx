@@ -1,14 +1,15 @@
 import { useEffect, useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import StudentNavbar from "@/components/StudentNavbar";
+import Header from "@/components/Header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { PlayCircle, FileText, CheckCircle, Loader2, ArrowLeft, HelpCircle } from "lucide-react";
+import { PlayCircle, FileText, CheckCircle, Loader2, ArrowLeft, HelpCircle, Lock } from "lucide-react";
 import { CustomVideoPlayer } from "@/components/CustomVideoPlayer";
 import { useToast } from "@/hooks/use-toast";
 
@@ -18,6 +19,7 @@ interface Course {
   description: string | null;
   category: string | null;
   difficulty_level: string | null;
+  is_published: boolean;
 }
 
 interface Module {
@@ -31,7 +33,7 @@ interface Lesson {
   id: string;
   title: string;
   description: string | null;
-  video_url: string | null;
+  video_url?: string | null;
   pdf_url: string | null;
   duration_minutes: number | null;
   order_index: number;
@@ -56,6 +58,7 @@ interface Enrollment {
 
 const CoursePage = () => {
   const { courseId } = useParams<{ courseId: string }>();
+  const [searchParams] = useSearchParams();
   const { user } = useAuth();
   const { toast } = useToast();
   const [course, setCourse] = useState<Course | null>(null);
@@ -64,6 +67,8 @@ const CoursePage = () => {
   const [quizzes, setQuizzes] = useState<Record<string, Quiz[]>>({});
   const [enrollment, setEnrollment] = useState<Enrollment | null>(null);
   const [currentLesson, setCurrentLesson] = useState<Lesson | null>(null);
+  const [currentVideoUrl, setCurrentVideoUrl] = useState<string | null>(null);
+  const [loadingVideo, setLoadingVideo] = useState(false);
   const [loading, setLoading] = useState(true);
   const [completedLessons, setCompletedLessons] = useState<Set<string>>(new Set());
 
@@ -108,7 +113,7 @@ const CoursePage = () => {
   }, []);
 
   useEffect(() => {
-    if (courseId && user) {
+    if (courseId) {
       fetchCourseData();
     }
   }, [courseId, user]);
@@ -169,9 +174,10 @@ const CoursePage = () => {
         const quizzesMap: Record<string, Quiz[]> = {};
         
         for (const module of modulesData) {
+          // Exclude video_url from initial fetch for security
           const { data: lessonsData } = await supabase
             .from('lessons')
-            .select('*')
+            .select('id, title, description, pdf_url, duration_minutes, order_index, module_id, is_free, created_at, updated_at')
             .eq('module_id', module.id)
             .order('order_index', { ascending: true });
 
@@ -194,10 +200,28 @@ const CoursePage = () => {
         setLessons(lessonsMap);
         setQuizzes(quizzesMap);
 
-        // Set first lesson as current
-        const firstModuleLessons = lessonsMap[modulesData[0].id];
-        if (firstModuleLessons && firstModuleLessons.length > 0) {
-          setCurrentLesson(firstModuleLessons[0]);
+        // Set initial lesson
+        const lessonIdFromUrl = searchParams.get('lesson');
+        let targetLesson = null;
+
+        if (lessonIdFromUrl) {
+          for (const modId in lessonsMap) {
+            const found = lessonsMap[modId].find(l => l.id === lessonIdFromUrl);
+            if (found) {
+              targetLesson = found;
+              break;
+            }
+          }
+        }
+
+        if (targetLesson) {
+          setCurrentLesson(targetLesson);
+        } else {
+          // Set first lesson as current
+          const firstModuleLessons = lessonsMap[modulesData[0].id];
+          if (firstModuleLessons && firstModuleLessons.length > 0) {
+            setCurrentLesson(firstModuleLessons[0]);
+          }
         }
       }
     } catch (error) {
@@ -206,6 +230,41 @@ const CoursePage = () => {
       setLoading(false);
     }
   };
+
+  // Secure function to fetch video URL only when needed
+  const fetchVideoUrl = async (lessonId: string, isFree: boolean) => {
+    // Only fetch if user is enrolled OR lesson is free
+    if (!enrollment && !isFree) {
+      setCurrentVideoUrl(null);
+      return;
+    }
+
+    setLoadingVideo(true);
+    try {
+      const { data, error } = await supabase
+        .from('lessons')
+        .select('video_url')
+        .eq('id', lessonId)
+        .single();
+
+      if (error) throw error;
+      setCurrentVideoUrl(data?.video_url || null);
+    } catch (error) {
+      console.error('Error fetching video URL:', error);
+      setCurrentVideoUrl(null);
+    } finally {
+      setLoadingVideo(false);
+    }
+  };
+
+  // Fetch video URL when current lesson changes
+  useEffect(() => {
+    if (currentLesson) {
+      fetchVideoUrl(currentLesson.id, currentLesson.is_free);
+    } else {
+      setCurrentVideoUrl(null);
+    }
+  }, [currentLesson?.id, enrollment]);
 
   const markLessonComplete = async (lessonId: string) => {
     if (!user || !courseId || !enrollment) return;
@@ -256,7 +315,7 @@ const CoursePage = () => {
   if (loading) {
     return (
       <div className="min-h-screen bg-background">
-        <StudentNavbar />
+        {user ? <StudentNavbar /> : <Header />}
         <div className="flex items-center justify-center h-96">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
         </div>
@@ -264,15 +323,15 @@ const CoursePage = () => {
     );
   }
 
-  if (!course || !enrollment) {
+  if (!course || (!enrollment && !course.is_published)) {
     return (
       <div className="min-h-screen bg-background">
-        <StudentNavbar />
+        {user ? <StudentNavbar /> : <Header />}
         <div className="container mx-auto px-4 py-8">
           <Card>
             <CardContent className="py-20 text-center">
               <p className="text-muted-foreground mb-4">
-                {!enrollment ? "You need to enroll in this course first." : "Course not found."}
+                {!course ? "Course not found." : "This course is not available."}
               </p>
               <Button asChild>
                 <Link to="/courses">Browse Courses</Link>
@@ -286,13 +345,13 @@ const CoursePage = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <StudentNavbar />
+      {user ? <StudentNavbar /> : <Header />}
       
       <div className="container mx-auto px-4 py-8">
         <Button variant="ghost" asChild className="mb-4">
-          <Link to="/student/dashboard">
+          <Link to={user ? "/student/dashboard" : "/courses"}>
             <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Dashboard
+            {user ? "Back to Dashboard" : "Back to Courses"}
           </Link>
         </Button>
 
@@ -300,13 +359,34 @@ const CoursePage = () => {
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-6">
             {/* Video Player */}
-            {currentLesson?.video_url && (
+            {currentLesson && (
               <Card className="select-none">
                 <CardContent className="p-0">
-                  <CustomVideoPlayer 
-                    url={currentLesson.video_url} 
-                    title={currentLesson.title}
-                  />
+                  {loadingVideo ? (
+                    <div className="aspect-video bg-zinc-950 flex items-center justify-center">
+                      <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                    </div>
+                  ) : (currentLesson.is_free || enrollment) && currentVideoUrl ? (
+                    <CustomVideoPlayer 
+                      url={currentVideoUrl} 
+                      title={currentLesson.title}
+                    />
+                  ) : (currentLesson.is_free || enrollment) && !currentVideoUrl ? (
+                    <div className="aspect-video bg-muted flex flex-col items-center justify-center p-6 text-center">
+                      <FileText className="h-12 w-12 text-muted-foreground mb-4" />
+                      <h3 className="text-lg font-semibold mb-2">No video for this lesson</h3>
+                      <p className="text-muted-foreground">This lesson contains only PDF content.</p>
+                    </div>
+                  ) : (
+                    <div className="aspect-video bg-muted flex flex-col items-center justify-center p-6 text-center">
+                      <Lock className="h-12 w-12 text-muted-foreground mb-4" />
+                      <h3 className="text-lg font-semibold mb-2">This lesson is locked</h3>
+                      <p className="text-muted-foreground mb-4">Enroll in the course to access this lesson.</p>
+                      <Button asChild>
+                        <Link to={`/courses/${courseId}`}>Enroll Now</Link>
+                      </Button>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             )}
@@ -317,9 +397,10 @@ const CoursePage = () => {
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
                     <CardTitle>{currentLesson?.title || course.title}</CardTitle>
-                    <p className="text-muted-foreground mt-2">
-                      {currentLesson?.description || course.description}
-                    </p>
+                    <div 
+                      className="text-muted-foreground mt-2 prose dark:prose-invert max-w-none"
+                      dangerouslySetInnerHTML={{ __html: currentLesson?.description || course.description || '' }}
+                    />
                   </div>
                   {course.difficulty_level && (
                     <Badge variant="outline">{course.difficulty_level}</Badge>
@@ -335,14 +416,27 @@ const CoursePage = () => {
                     </a>
                   </Button>
                 )}
-                {currentLesson && !completedLessons.has(currentLesson.id) && (
+                {currentLesson && !completedLessons.has(currentLesson.id) && enrollment && (
                   <Button 
                     onClick={() => markLessonComplete(currentLesson.id)}
                     className="w-full"
+                    disabled={!currentLesson.is_free && !enrollment}
                   >
                     <CheckCircle className="h-4 w-4 mr-2" />
                     Mark as Complete
                   </Button>
+                )}
+                {currentLesson && !completedLessons.has(currentLesson.id) && !enrollment && (
+                   <Button 
+                   variant="outline"
+                   className="w-full"
+                   asChild
+                 >
+                   <Link to="/login">
+                     <CheckCircle className="h-4 w-4 mr-2" />
+                     Login to Track Progress
+                   </Link>
+                 </Button>
                 )}
                 {currentLesson && completedLessons.has(currentLesson.id) && (
                   <div className="flex items-center justify-center gap-2 text-green-600 py-2">
@@ -357,17 +451,19 @@ const CoursePage = () => {
           {/* Sidebar - Course Content */}
           <div className="space-y-6">
             {/* Progress Card */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Your Progress</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <Progress value={enrollment.progress_percentage} className="mb-2" />
-                <p className="text-sm text-muted-foreground">
-                  {enrollment.progress_percentage}% Complete
-                </p>
-              </CardContent>
-            </Card>
+            {enrollment && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">Your Progress</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <Progress value={enrollment.progress_percentage} className="mb-2" />
+                  <p className="text-sm text-muted-foreground">
+                    {enrollment.progress_percentage}% Complete
+                  </p>
+                </CardContent>
+              </Card>
+            )}
 
             {/* Course Content */}
             <Card>
@@ -400,12 +496,13 @@ const CoursePage = () => {
                                 <div className="flex items-center space-x-2">
                                   {isCompleted ? (
                                     <CheckCircle className="h-4 w-4 flex-shrink-0 text-green-500" />
-                                  ) : lesson.video_url ? (
-                                    <PlayCircle className="h-4 w-4 flex-shrink-0" />
                                   ) : (
-                                    <FileText className="h-4 w-4 flex-shrink-0" />
+                                    <PlayCircle className="h-4 w-4 flex-shrink-0" />
                                   )}
-                                  <span className="text-sm flex-1">{lesson.title}</span>
+                                  <span className="text-sm flex-1 text-left">{lesson.title}</span>
+                                  {lesson.is_free && (
+                                    <Badge variant="secondary" className="text-[10px] h-5 px-1">Free</Badge>
+                                  )}
                                   {lesson.duration_minutes && (
                                     <span className="text-xs opacity-70">
                                       {lesson.duration_minutes}m

@@ -1,11 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Plus, Trash2, Upload } from 'lucide-react';
-import FileUpload from '@/components/FileUpload';
+import { Plus, Trash2 } from 'lucide-react';
+import RichTextEditor from '@/components/RichTextEditor';
 
 interface QuestionModalProps {
   open: boolean;
@@ -23,10 +22,24 @@ const QuestionModal: React.FC<QuestionModalProps> = ({ open, onOpenChange, onSav
     points: initialData?.points || 1,
     options: initialData?.options || ['', '', '', '']
   });
+
+  useEffect(() => {
+    if (open) {
+      setFormData({
+        question_text: initialData?.question_text || '',
+        question_type: initialData?.question_type || 'multiple_choice',
+        correct_answer: initialData?.correct_answer || '',
+        explanation: initialData?.explanation || '',
+        points: initialData?.points || 1,
+        options: initialData?.options || ['', '', '', '']
+      });
+    }
+  }, [initialData, open]);
   
 
   const handleSave = () => {
-    if (!formData.question_text.trim() || !formData.correct_answer.trim()) return;
+    // Basic validation - check if question text is not empty (ignoring HTML tags if possible, but simple check is fine)
+    if (!formData.question_text || (formData.question_text === '<p><br></p>')) return;
     
     let processedOptions = formData.options;
     
@@ -63,6 +76,10 @@ const QuestionModal: React.FC<QuestionModalProps> = ({ open, onOpenChange, onSav
       ...prev,
       [name]: type === 'number' ? parseInt(value) || 1 : value
     }));
+  };
+
+  const handleRichTextChange = (field: string, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
   };
 
   const handleQuestionTypeChange = (value: string) => {
@@ -105,15 +122,6 @@ const QuestionModal: React.FC<QuestionModalProps> = ({ open, onOpenChange, onSav
       const newOptions = formData.options.filter((_, i) => i !== index);
       setFormData(prev => ({ ...prev, options: newOptions }));
     }
-  };
-
-  const handleImageUpload = (url: string) => {
-    // Insert the image URL into the question text
-    const imageMarkdown = `\n\n![Question Image](${url})\n\n`;
-    setFormData(prev => ({
-      ...prev,
-      question_text: prev.question_text + imageMarkdown
-    }));
   };
 
   const renderQuestionTypeSpecificFields = () => {
@@ -219,28 +227,12 @@ const QuestionModal: React.FC<QuestionModalProps> = ({ open, onOpenChange, onSav
         
         <div className="space-y-4">
           <div>
-            <div className="flex items-center justify-between mb-2">
-              <label className="text-sm font-medium">Question Text*</label>
-            </div>
-            <Textarea
-              name="question_text"
+            <label className="text-sm font-medium mb-2 block">Question Text*</label>
+            <RichTextEditor
               value={formData.question_text}
-              onChange={handleInputChange}
-              placeholder="Enter your question here..."
-              rows={4}
+              onChange={(val) => handleRichTextChange('question_text', val)}
+              placeholder="Enter question text (supports LaTeX and Images)"
             />
-            
-            <div className="mt-2 p-3 border rounded-lg bg-muted/50">
-              <p className="text-sm text-muted-foreground mb-2">Upload an image for this question (optional):</p>
-              <FileUpload
-                bucket="course-banners"
-                onUpload={handleImageUpload}
-                accept={{
-                  'image/*': ['.jpeg', '.jpg', '.png', '.webp', '.gif']
-                }}
-                maxSize={5 * 1024 * 1024} // 5MB
-              />
-            </div>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
@@ -273,13 +265,11 @@ const QuestionModal: React.FC<QuestionModalProps> = ({ open, onOpenChange, onSav
           {renderQuestionTypeSpecificFields()}
 
           <div>
-            <label className="text-sm font-medium">Explanation (optional)</label>
-            <Textarea
-              name="explanation"
+            <label className="text-sm font-medium mb-2 block">Explanation (optional)</label>
+            <RichTextEditor
               value={formData.explanation}
-              onChange={handleInputChange}
+              onChange={(val) => handleRichTextChange('explanation', val)}
               placeholder="Explain why this is the correct answer..."
-              rows={2}
             />
           </div>
 

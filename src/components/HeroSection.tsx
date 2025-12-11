@@ -16,10 +16,10 @@ const HeroSection = () => {
           {/* Left Content */}
           <div className="flex-1 text-center lg:text-left space-y-8">
             <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight text-foreground leading-[1.1]">
-              Explore thousands <br />
-              hands-on creative <br />
+              Unlock Your Potential <br />
+              with <br />
               <span className="relative inline-block">
-                course's.
+                ResonanceX Classes.
                 <svg className="absolute w-full h-3 -bottom-1 left-0 text-primary" viewBox="0 0 100 10" preserveAspectRatio="none">
                   <path d="M0 5 Q 50 10 100 5" stroke="currentColor" strokeWidth="3" fill="none" />
                 </svg>
@@ -27,7 +27,7 @@ const HeroSection = () => {
             </h1>
 
             <p className="text-xs sm:text-sm md:text-lg text-muted-foreground max-w-xl mx-auto lg:mx-0 leading-relaxed">
-              Enroll in immersive classes with the world's best instructors. Unlock your creative potential.
+              Join our expert-led courses designed to help you excel in your academic and professional journey.
             </p>
 
             <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">

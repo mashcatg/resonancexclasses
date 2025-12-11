@@ -32,10 +32,10 @@ const JourneySection = () => {
               Simple Process
             </span>
             <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-6 tracking-tight leading-tight">
-              Start Your Learning Journey Today
+              Start Your Journey with ResonanceX
             </h2>
             <p className="text-sm md:text-lg text-muted-foreground mb-8">
-              We've streamlined the process so you can focus on what matters most: acquiring new skills and advancing your career.
+              We've streamlined the process so you can focus on what matters most: learning and excelling.
             </p>
             <button className="group flex items-center text-primary font-semibold hover:text-primary/80 transition-colors">
               Learn more about our process

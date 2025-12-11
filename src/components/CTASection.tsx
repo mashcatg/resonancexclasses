@@ -28,7 +28,7 @@ const CTASection = () => {
                 Admissions Open for 2026 Batch
               </h2>
               <p className="text-xs sm:text-xl text-white/90 mb-8 sm:mb-10 leading-relaxed font-medium">
-                Start your learning journey today. Choose from 15+ quality courses and join 8,000+ successful students who have transformed their careers with our platform.
+                Join ResonanceX Classes today. Choose from our expert-led courses and join thousands of successful students.
               </p>
               <div className="flex flex-col sm:flex-row justify-center lg:justify-start gap-4">
                 <Link to="/login">

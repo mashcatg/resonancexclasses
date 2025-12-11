@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -33,6 +33,23 @@ interface Course {
 const Index = () => {
   const [featuredCourses, setFeaturedCourses] = useState<Course[]>([]);
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // Handle scroll to section when navigating from other pages
+  useEffect(() => {
+    const state = location.state as { scrollTo?: string } | null;
+    if (state?.scrollTo) {
+      // Small delay to ensure the page is fully rendered
+      setTimeout(() => {
+        const element = document.getElementById(state.scrollTo!);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }, 100);
+      // Clear the state to prevent scrolling on refresh
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.state]);
 
   useEffect(() => {
     const fetchFeaturedCourses = async () => {
@@ -66,16 +83,16 @@ const Index = () => {
 
   const footerLinks = {
     courses: [
-      { label: "Development", href: "/courses" },
-      { label: "Business", href: "/courses" },
-      { label: "Design", href: "/courses" },
-      { label: "Marketing", href: "/courses" },
+      { label: "Development", href: "/courses?category=Development" },
+      { label: "Business", href: "/courses?category=Business" },
+      { label: "Design", href: "/courses?category=Design" },
+      { label: "Marketing", href: "/courses?category=Marketing" },
     ],
     support: [
       { label: "Help Center", href: "#" },
       { label: "FAQs", href: "#" },
-      { label: "Privacy Policy", href: "#" },
-      { label: "Terms of Service", href: "#" },
+      { label: "Privacy Policy", href: "/privacy-policy" },
+      { label: "Terms of Service", href: "/terms-of-service" },
     ],
   };
 
@@ -84,12 +101,11 @@ const Index = () => {
       <Header />
       <HeroSection />
       <JourneySection />
-      {/* <StatsSection /> */}
 
       <CategoriesSection />
 
       {/* Featured Courses Section */}
-      <section className="py-12 sm:py-16 lg:py-20 bg-background">
+      <section id="courses" className="py-12 sm:py-16 lg:py-20 bg-background scroll-mt-20">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row md:items-end md:justify-between mb-8 sm:mb-10 lg:mb-12">
             <div>
@@ -172,14 +188,13 @@ const Index = () => {
       <FeaturesSection />
       <InstructorsSection />
       <RecentCoursesSection />
-      {/* <PartnersSection /> */}
       <TestimonialsSection />
       <FAQSection />
 
       <CTASection />
 
       {/* Footer */}
-      <footer className="bg-[#181b1f] text-background py-12 sm:py-16">
+      <footer id="contact" className="bg-[#181b1f] text-background py-12 sm:py-16 scroll-mt-20">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 lg:gap-12 mb-8 sm:mb-12">
             {/* Brand */}
@@ -243,7 +258,7 @@ const Index = () => {
               <ul className="space-y-3 sm:space-y-4">
                 <li className="flex items-start gap-2 sm:gap-3">
                   <MapPin className="h-4 sm:h-5 w-4 sm:w-5 text-primary flex-shrink-0 mt-0.5" />
-                  <span className="text-xs sm:text-sm text-background/70">Dhaka, Bangladesh</span>
+                  <span className="text-xs sm:text-sm text-background/70">594, Donia Bazar Road, Donia (Building Next to Donia Mazar), Dhaka.</span>
                 </li>
                 <li className="flex items-center gap-2 sm:gap-3">
                   <Phone className="h-4 sm:h-5 w-4 sm:w-5 text-primary flex-shrink-0" />
@@ -263,12 +278,12 @@ const Index = () => {
               © {new Date().getFullYear()} ResonanceX Classes. All rights reserved. Build by <a href="https://studio.ennovat.com" className="text-primary underline">Ennovat Studio</a>
             </p>
             <div className="flex gap-4 sm:gap-6 text-xs sm:text-sm">
-              <a href="#" className="text-background/60 hover:text-primary transition-colors">
+              <Link to="/privacy-policy" className="text-background/60 hover:text-primary transition-colors">
                 Privacy Policy
-              </a>
-              <a href="#" className="text-background/60 hover:text-primary transition-colors">
+              </Link>
+              <Link to="/terms-of-service" className="text-background/60 hover:text-primary transition-colors">
                 Terms of Service
-              </a>
+              </Link>
             </div>
           </div>
         </div>

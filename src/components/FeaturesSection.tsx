@@ -2,7 +2,7 @@ import { Play, Users, Trophy, Smartphone, CheckCircle2 } from "lucide-react";
 
 const FeaturesSection = () => {
   return (
-    <section className="py-24 bg-background relative overflow-hidden">
+    <section id="about" className="py-24 bg-background relative overflow-hidden scroll-mt-20">
       {/* Background Decoration */}
       <div className="absolute top-0 right-0 w-1/3 h-1/3 bg-primary/5 rounded-bl-full -z-10 opacity-50" />
 

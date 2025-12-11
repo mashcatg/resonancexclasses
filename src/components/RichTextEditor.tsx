@@ -1,6 +1,13 @@
 import React, { useMemo } from 'react';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
+import 'katex/dist/katex.min.css';
+import katex from 'katex';
+
+// Configure katex for ReactQuill
+if (typeof window !== 'undefined') {
+  window.katex = katex;
+}
 
 interface RichTextEditorProps {
   value: string;
@@ -21,14 +28,14 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
       ['bold', 'italic', 'underline', 'strike'],
       [{ 'list': 'ordered'}, { 'list': 'bullet' }],
       [{ 'indent': '-1'}, { 'indent': '+1' }],
-      ['link'],
+      ['link', 'image', 'formula'],
       ['clean']
     ],
   }), []);
 
   const formats = [
     'header', 'bold', 'italic', 'underline', 'strike',
-    'list', 'bullet', 'indent', 'link'
+    'list', 'bullet', 'indent', 'link', 'image', 'formula'
   ];
 
   return (

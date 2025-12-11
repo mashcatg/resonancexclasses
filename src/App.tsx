@@ -27,6 +27,8 @@ import MyCourses from "./pages/student/MyCourses";
 import CoursePage from "./pages/student/CoursePage";
 import QuizAttempt from "./pages/student/QuizAttempt";
 import NotFound from "./pages/NotFound";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import TermsOfService from "./pages/TermsOfService";
 
 const queryClient = new QueryClient();
 
@@ -36,11 +38,13 @@ const App = () => (
       <AuthProvider>
         <Toaster />
         <Sonner />
-        <BrowserRouter>
+        <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/login" element={<Login />} />
             <Route path="/reset-password" element={<ResetPassword />} />
+            <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+            <Route path="/terms-of-service" element={<TermsOfService />} />
             <Route path="/courses" element={<Courses />} />
             <Route path="/courses/:courseId" element={<CourseDetails />} />
             <Route
@@ -86,11 +90,7 @@ const App = () => (
             />
             <Route 
               path="/student/course/:courseId"
-              element={
-                <StudentProtectedRoute>
-                  <CoursePage />
-                </StudentProtectedRoute>
-              } 
+              element={<CoursePage />} 
             />
             <Route 
               path="/student/quiz/:quizId" 

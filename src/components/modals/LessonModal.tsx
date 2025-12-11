@@ -15,20 +15,40 @@ interface LessonModalProps {
 
 const LessonModal: React.FC<LessonModalProps> = ({ open, onOpenChange, onSave, initialData }) => {
   const [formData, setFormData] = useState({
-    title: initialData?.title || '',
-    description: initialData?.description || '',
-    video_url: initialData?.video_url || '',
-    duration_minutes: initialData?.duration_minutes || 0,
-    is_free: initialData?.is_free || false,
-    pdf_url: initialData?.pdf_url || ''
+    title: '',
+    description: '',
+    video_url: '',
+    duration_minutes: 0,
+    is_free: false,
+    pdf_url: ''
   });
+
+  React.useEffect(() => {
+    if (open) {
+      setFormData({
+        title: initialData?.title || '',
+        description: initialData?.description || '',
+        video_url: initialData?.video_url || '',
+        duration_minutes: initialData?.duration_minutes || 0,
+        is_free: initialData?.is_free || false,
+        pdf_url: initialData?.pdf_url || ''
+      });
+    }
+  }, [open, initialData]);
 
   const handleSave = () => {
     if (!formData.title.trim()) return;
+
+    if (initialData) {
+      if (!window.confirm("Are you sure you want to update this lesson?")) {
+        return;
+      }
+    }
     
     onSave({
       ...initialData,
       ...formData,
+      video_url: formData.video_url.trim(),
       id: initialData?.id || `temp-lesson-${Date.now()}`
     });
     

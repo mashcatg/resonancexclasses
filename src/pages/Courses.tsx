@@ -126,12 +126,20 @@ const Courses = () => {
   const filteredCourses = courses.filter(course => {
     const matchesSearch = course.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          course.description?.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = categoryFilter === "all" || course.category === categoryFilter;
+    
+    const selectedCategories = categoryFilter === "all" ? [] : categoryFilter.split(',').map(s => s.trim());
+    const courseCategories = course.category ? course.category.split(',').map(s => s.trim()) : [];
+    
+    const matchesCategory = categoryFilter === "all" || 
+      selectedCategories.some(sc => courseCategories.includes(sc));
+
     const matchesDifficulty = difficultyFilter === "all" || course.difficulty_level === difficultyFilter;
     return matchesSearch && matchesCategory && matchesDifficulty;
   });
 
-  const categories = Array.from(new Set(courses.map(c => c.category).filter(Boolean)));
+  const categories = Array.from(new Set(
+    courses.flatMap(c => c.category ? c.category.split(',').map(s => s.trim()) : [])
+  )).sort();
   const difficulties = Array.from(new Set(courses.map(c => c.difficulty_level).filter(Boolean)));
 
   const getDifficultyColor = (level: string | null) => {

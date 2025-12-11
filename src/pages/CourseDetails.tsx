@@ -46,7 +46,7 @@ interface Module {
   title: string;
   description: string | null;
   order_index: number;
-  lessons: { id: string; title: string; duration_minutes: number | null }[];
+  lessons: { id: string; title: string; duration_minutes: number | null; is_free: boolean }[];
   quizzes: { id: string; title: string }[];
 }
 
@@ -107,7 +107,7 @@ const CourseDetails = () => {
           modulesData.map(async (module) => {
             const { data: lessons } = await supabase
               .from("lessons")
-              .select("id, title, duration_minutes")
+              .select("id, title, duration_minutes, is_free")
               .eq("module_id", module.id)
               .order("order_index", { ascending: true });
 
@@ -420,8 +420,21 @@ const CourseDetails = () => {
                               key={lesson.id}
                               className="flex items-center gap-3 p-2 text-sm text-muted-foreground"
                             >
-                              <Lock className="h-4 w-4 flex-shrink-0" />
-                              <span className="flex-1">{lesson.title}</span>
+                              {lesson.is_free ? (
+                                <Link 
+                                  to={`/student/course/${course.id}?lesson=${lesson.id}`}
+                                  className="flex items-center gap-3 flex-1 hover:text-primary transition-colors"
+                                >
+                                  <PlayCircle className="h-4 w-4 flex-shrink-0 text-primary" />
+                                  <span className="flex-1 font-medium">{lesson.title}</span>
+                                  <Badge variant="secondary" className="text-xs">Free</Badge>
+                                </Link>
+                              ) : (
+                                <>
+                                  <Lock className="h-4 w-4 flex-shrink-0" />
+                                  <span className="flex-1">{lesson.title}</span>
+                                </>
+                              )}
                               {lesson.duration_minutes && (
                                 <span className="text-xs">
                                   {lesson.duration_minutes}m
