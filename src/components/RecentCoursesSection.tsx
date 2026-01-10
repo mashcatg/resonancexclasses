@@ -47,7 +47,7 @@ const RecentCoursesSection = () => {
               Recent Courses
             </h2>
             <p className="text-muted-foreground mt-2">
-              Stay updated with the latest content added to our platform
+              Keep up with our newest lessons and resources
             </p>
           </div>
           <Link to="/courses" className="mt-4 md:mt-0">

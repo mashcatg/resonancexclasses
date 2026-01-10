@@ -16,7 +16,7 @@ import InstructorsSection from "@/components/InstructorsSection";
 import FAQSection from "@/components/FAQSection";
 import PartnersSection from "@/components/PartnersSection";
 import CTASection from "@/components/CTASection";
-import { Clock, ArrowRight, BookOpen, Mail, Phone, MapPin, Facebook, Twitter, Linkedin, Youtube } from "lucide-react";
+import { Clock, ArrowRight, BookOpen, Mail, Phone, MapPin, Facebook, Youtube, Instagram } from "lucide-react";
 import { truncateText } from "@/lib/htmlUtils";
 
 interface Course {
@@ -83,10 +83,9 @@ const Index = () => {
 
   const footerLinks = {
     courses: [
-      { label: "Development", href: "/courses?category=Development" },
-      { label: "Business", href: "/courses?category=Business" },
-      { label: "Design", href: "/courses?category=Design" },
-      { label: "Marketing", href: "/courses?category=Marketing" },
+      { label: "for SSC", href: "/courses?category=SSC" },
+      { label: "for HSC", href: "/courses?category=HSC" },
+      { label: "for Admission", href: "/courses?category=Admission" },
     ],
     support: [
       { label: "Help Center", href: "#" },
@@ -113,10 +112,10 @@ const Index = () => {
                 Top Picks
               </span>
               <h2 className="text-2xl md:text-3xl font-bold text-foreground mt-2">
-                Featured Courses
+                Build Concepts, Boost Confidence
               </h2>
               <p className="text-sm md:text-lg text-muted-foreground mt-2 max-w-xl">
-                Explore our most popular courses and start your learning journey today
+                Master Physics, Chemistry & Math with RCA
               </p>
             </div>
             <Link to="/courses" className="mt-4 md:mt-0">
@@ -185,11 +184,13 @@ const Index = () => {
         </div>
       </section>
 
-      <FeaturesSection />
+      {/* Bento section: Why Choose Us (removed per instruction) */}
+      {/* <FeaturesSection /> */}
       <InstructorsSection />
       <RecentCoursesSection />
       <TestimonialsSection />
-      <FAQSection />
+      {/* FAQ removed per instruction */}
+      {/* <FAQSection /> */}
 
       <CTASection />
 
@@ -203,13 +204,20 @@ const Index = () => {
               <img src="/icon transparent.png" alt="Logo" className="w-12 h-12" />
               </Link>
               <p className="text-xs sm:text-sm text-background/70 mb-6">
-                Empowering learners worldwide with premium education and expert-led courses.
+                Strengthening Physics & Chemistry skills with expert guidance and practical learning
               </p>
               <div className="flex space-x-3 sm:space-x-4">
-                {[Facebook, Twitter, Linkedin, Youtube].map((Icon, i) => (
+                {[
+                  { Icon: Facebook, href: "https://facebook.com/rcaedtech" },
+                  { Icon: Youtube, href: "https://youtube.com/@rcaedtech" },
+                  { Icon: Instagram, href: "https://instagram.com/rcaedtech" },
+                 
+                ].map(({ Icon, href }, i) => (
                   <a 
                     key={i} 
-                    href="#" 
+                    href={href} 
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className="w-8 sm:w-10 h-8 sm:h-10 rounded-full bg-background/10 flex items-center justify-center hover:bg-primary transition-colors"
                   >
                     <Icon className="h-4 sm:h-5 w-4 sm:w-5" />
@@ -266,7 +274,7 @@ const Index = () => {
                 </li>
                 <li className="flex items-center gap-2 sm:gap-3">
                   <Mail className="h-4 sm:h-5 w-4 sm:w-5 text-primary flex-shrink-0" />
-                  <span className="text-xs sm:text-sm text-background/70">support@resonancex.com</span>
+                  <span className="text-xs sm:text-sm text-background/70">Email: rcaedtech@gmail.com</span>
                 </li>
               </ul>
             </div>

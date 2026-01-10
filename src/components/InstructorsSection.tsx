@@ -58,9 +58,9 @@ const InstructorsSection = () => {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-6">
           <div className="max-w-2xl">
-            <h2 className="text-2xl md:text-3xl font-bold mb-4">Learn from the best</h2>
+            <h2 className="text-2xl md:text-3xl font-bold mb-4">Learn from Teachers Who Make Concepts Easy</h2>
             <p className="text-lg text-muted-foreground">
-              Our instructors are industry experts, researchers, and practitioners who are passionate about teaching.
+              Our instructors are expert educators with strong subject knowledge and a passion for teaching.
             </p>
           </div>
         </div>

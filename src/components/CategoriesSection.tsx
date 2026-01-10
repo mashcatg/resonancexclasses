@@ -73,10 +73,10 @@ const CategoriesSection = () => {
           {/* Left Text Section */}
           <div className="lg:col-span-1 space-y-6">
             <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-foreground">
-              Learn essential career and life skills
+              Unlock your true potential with RCA 
             </h2>
             <p className="text-sm md:text-lg text-muted-foreground">
-              Master in-demand skills fast and advance your career in a changing job market with our expert-led courses.
+               Build confidence. Build skills. Build your future. Stay ahead in a changing world — learn high-demand skills fast with RCA.
             </p>
             <Button 
               variant="link" 

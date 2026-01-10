@@ -21,6 +21,8 @@ import StudentDetails from "./pages/admin/StudentDetails";
 import EnrollmentRequests from "./pages/admin/EnrollmentRequests";
 import DeviceApprovals from "./pages/admin/DeviceApprovals";
 import AdminProfile from "./pages/admin/AdminProfile";
+import TestimonialsManager from "./pages/admin/TestimonialsManager";
+import HeroSettings from "./pages/admin/HeroSettings";
 import StudentDashboard from "./pages/student/StudentDashboard";
 import StudentProfile from "./pages/student/StudentProfile";
 import MyCourses from "./pages/student/MyCourses";
@@ -170,6 +172,22 @@ const App = () => (
               element={
                 <ProtectedRoute requireAdmin>
                   <AdminProfile />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/admin/testimonials" 
+              element={
+                <ProtectedRoute requireSuperAdmin>
+                  <TestimonialsManager />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/admin/hero-settings" 
+              element={
+                <ProtectedRoute requireSuperAdmin>
+                  <HeroSettings />
                 </ProtectedRoute>
               } 
             />

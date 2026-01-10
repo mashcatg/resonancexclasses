@@ -165,7 +165,7 @@ const ResetPassword = () => {
 
         {/* Footer */}
         <div className="text-center mt-8 text-white/80 text-sm animate-fade-in">
-          © {new Date().getFullYear()} ResonanceX Classes. All rights reserved. Build by <a href="https://studio.ennovat.com" className="text-primary underline">Ennovat Studio</a>
+          © {new Date().getFullYear()} ResonanceX Classes. All rights reserved. Build by <a href="https://studio.ennovat.com" className="text-white underline">Ennovat Studio</a>
         </div>
       </div>
     </div>

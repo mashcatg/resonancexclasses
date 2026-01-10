@@ -25,10 +25,10 @@ const CTASection = () => {
           <div className="relative z-10 flex flex-col lg:flex-row items-center lg:items-end justify-between gap-8 lg:gap-12">
             <div className="max-w-2xl text-center lg:text-left pb-8 lg:pb-24">
               <h2 className="text-xl sm:text-2xl md:text-4xl font-bold mb-6 tracking-tight text-white">
-                Admissions Open for 2026 Batch
+                Start Your 2026 Journey with RCA
               </h2>
               <p className="text-xs sm:text-xl text-white/90 mb-8 sm:mb-10 leading-relaxed font-medium">
-                Join ResonanceX Classes today. Choose from our expert-led courses and join thousands of successful students.
+                Enroll now in our expert-led courses and join thousands of students achieving success
               </p>
               <div className="flex flex-col sm:flex-row justify-center lg:justify-start gap-4">
                 <Link to="/login">
@@ -51,13 +51,11 @@ const CTASection = () => {
               </div>
             </div>
 
-            <div className="relative w-full max-w-[320px] sm:max-w-[400px] aspect-square lg:w-[400px] lg:h-[400px]">
-               <div className="absolute inset-0 bg-white/10 rounded-full blur-3xl transform translate-x-4 translate-y-4" />
+            <div className="relative w-full max-w-[320px] sm:max-w-[400px] lg:w-[400px] lg:h-[400px]">
                <img 
                  src="/cta.png" 
                  alt="Students" 
-                 className="relative w-full h-full object-cover rounded-t-3xl border-b-0 border-white/20 shadow-none transition-all duration-500"
-                 style={{ transform: "translate(50px, 0px)" }}
+                 className="relative w-full h-full object-contain"
                />
             </div>
           </div>

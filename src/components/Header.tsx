@@ -2,20 +2,29 @@ import { Button } from "@/components/ui/button";
 import { GraduationCap, Menu, X } from "lucide-react";
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   const navigation = [
-    { name: "Courses", href: "#courses" },
+    { name: "Courses", href: "/courses" },
     { name: "About", href: "#about" },
     { name: "Contact", href: "#contact" },
   ];
 
   const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
     e.preventDefault();
+    // If link is a route, navigate directly
+    if (href.startsWith('/')) {
+      navigate(href);
+      setIsMenuOpen(false);
+      return;
+    }
+
     const sectionId = href.replace('#', '');
     
     // If not on home page, navigate to home first then scroll
@@ -55,11 +64,11 @@ const Header = () => {
             ))}
           </div>
 
-          {/* Sign In Button */}
+          {/* Sign In / Dashboard Button */}
           <div className="hidden md:flex items-center space-x-4">
-            <Link to="/login">
+            <Link to={user ? "/dashboard" : "/login"}>
               <Button variant="outline" className="border-primary bg-primary text-white hover:bg-primary/80 hover:text-white">
-                Sign In
+                {user ? "Dashboard" : "Sign In"}
               </Button>
             </Link>
           </div>
@@ -92,13 +101,13 @@ const Header = () => {
                 </a>
               ))}
               <div className="px-4 pt-4">
-                <Link to="/login">
+                <Link to={user ? "/dashboard" : "/login"}>
                   <Button 
                     variant="outline" 
                     className="w-full border-primary bg-primary text-white hover:bg-primary/90 hover:text-white"
                     onClick={() => setIsMenuOpen(false)}
                   >
-                    Sign In
+                    {user ? "Dashboard" : "Sign In"}
                   </Button>
                 </Link>
               </div>

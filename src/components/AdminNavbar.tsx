@@ -8,7 +8,7 @@ import { Link, useLocation } from "react-router-dom";
 import { useState } from "react";
 
 const AdminNavbar = () => {
-  const { profile, signOut } = useAuth();
+  const { profile, signOut, isSuperAdmin } = useAuth();
   const location = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -111,6 +111,24 @@ const AdminNavbar = () => {
                     <span>Profile</span>
                   </Link>
                 </DropdownMenuItem>
+                
+                {isSuperAdmin && (
+                  <>
+                    <DropdownMenuItem asChild>
+                      <Link to="/admin/hero-settings" className="cursor-pointer">
+                        <Settings className="mr-2 h-4 w-4" />
+                        <span>Hero Settings</span>
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link to="/admin/testimonials" className="cursor-pointer">
+                        <Settings className="mr-2 h-4 w-4" />
+                        <span>Testimonials</span>
+                      </Link>
+                    </DropdownMenuItem>
+                  </>
+                )}
+                
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={signOut} className="cursor-pointer">
                   <LogOut className="mr-2 h-4 w-4" />

@@ -5,20 +5,20 @@ const JourneySection = () => {
     {
       number: "01",
       icon: Search,
-      title: "Discover Your Path",
-      description: "Explore our curated library of industry-relevant courses designed to launch your career.",
+      title: "Choose Your Direction",
+      description: "Explore our Physics and Chemistry courses designed to strengthen concepts and boost exam performance.",
     },
     {
       number: "02",
       icon: UserPlus,
-      title: "Join the Community",
-      description: "Connect with mentors and peers as you enroll in a program tailored to your goals.",
+      title: "Learn with Guidance",
+      description: "Study with experienced teachers and motivated classmates in batches suited to your academic goals.",
     },
     {
       number: "03",
       icon: GraduationCap,
-      title: "Master & Certify",
-      description: "Gain practical skills through hands-on projects and earn a certificate of completion.",
+      title: "Practice, Improve & Succeed",
+      description: "Solve problems, attend regular tests, clear doubts, and build confidence for your exams.",
     },
   ];
 

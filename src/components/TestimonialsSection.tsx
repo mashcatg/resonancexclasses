@@ -14,38 +14,22 @@ const TestimonialsSection = () => {
   const [current, setCurrent] = useState(0);
   const [count, setCount] = useState(0);
 
-  const testimonials = [
-    {
-      name: "Sarah Johnson",
-      role: "Frontend Developer",
-      content: "The structured learning path helped me transition from a non-tech background to a full-time developer role in just 6 months.",
-      image: "https://i.pravatar.cc/150?img=1"
-    },
-    {
-      name: "Michael Chen",
-      role: "Product Designer",
-      content: "The quality of instruction is unmatched. Real-world projects and expert feedback made all the difference in my learning journey.",
-      image: "https://i.pravatar.cc/150?img=2"
-    },
-    {
-      name: "Emily Davis",
-      role: "Data Analyst",
-      content: "I love the flexibility. Being able to learn at my own pace while having access to a supportive community is a game changer.",
-      image: "https://i.pravatar.cc/150?img=3"
-    },
-    {
-      name: "James Wilson",
-      role: "Software Engineer",
-      content: "The depth of the courses is impressive. I've taken other online courses, but none compare to the level of detail found here.",
-      image: "https://i.pravatar.cc/150?img=4"
-    },
-    {
-      name: "Lisa Anderson",
-      role: "UX Researcher",
-      content: "A fantastic platform for upskilling. The community support is incredible, and the instructors are always available to help.",
-      image: "https://i.pravatar.cc/150?img=5"
-    }
-  ];
+  const [items, setItems] = useState<Array<{name:string; role:string|null; content:string; image_url:string|null}>>([]);
+  useEffect(() => {
+    const fetchTestimonials = async () => {
+      try {
+        const { data } = await (await import("@/integrations/supabase/client")).supabase
+          .from('testimonials' as any)
+          .select('name, role, content, image_url')
+          .eq('is_published', true)
+          .order('created_at', { ascending: false });
+        setItems((data as unknown as Array<{name:string; role:string|null; content:string; image_url:string|null}>) || []);
+      } catch (e) {
+        // silently ignore; fallback handled below
+      }
+    };
+    fetchTestimonials();
+  }, []);
 
   useEffect(() => {
     if (!api) {
@@ -63,8 +47,8 @@ const TestimonialsSection = () => {
   return (
     <section className="py-24 bg-secondary/30 overflow-hidden">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 mb-12 text-center">
-        <h2 className="text-2xl md:text-3xl font-bold mb-4">Loved by students worldwide</h2>
-        <p className="text-sm md:text-lg text-muted-foreground">Don't just take our word for it. Hear from our community.</p>
+        <h2 className="text-2xl md:text-3xl font-bold mb-4">RCA Students Speak Out</h2>
+        <p className="text-sm md:text-lg text-muted-foreground">Join the community and hear their stories</p>
       </div>
 
       <div className="container mx-auto px-4 max-w-5xl">
@@ -77,7 +61,11 @@ const TestimonialsSection = () => {
           className="w-full"
         >
           <CarouselContent className="-ml-4">
-            {testimonials.map((t, i) => (
+            {(items.length ? items : [
+              { name: 'Student A', role: 'Learner', content: 'Great experience and supportive community.', image_url: null },
+              { name: 'Student B', role: 'Learner', content: 'Expert-led courses helped me achieve my goals.', image_url: null },
+              { name: 'Student C', role: 'Learner', content: 'Flexible learning at my own pace.', image_url: null },
+            ]).map((t, i) => (
               <CarouselItem key={i} className="pl-4 md:basis-1/2 lg:basis-1/3">
                 <div className="h-full">
                   <Card className="h-full border-none shadow-sm bg-background hover:shadow-md transition-all duration-300">
@@ -89,7 +77,11 @@ const TestimonialsSection = () => {
                         <p className="text-foreground/80 mb-6 leading-relaxed text-base italic">"{t.content}"</p>
                       </div>
                       <div className="flex items-center gap-4 pt-6 border-t border-border/50">
-                        <img src={t.image} alt={t.name} className="w-12 h-12 rounded-full object-cover ring-2 ring-background shadow-sm" />
+                        {t.image_url ? (
+                          <img src={t.image_url} alt={t.name} className="w-12 h-12 rounded-full object-cover ring-2 ring-background shadow-sm" />
+                        ) : (
+                          <div className="w-12 h-12 rounded-full bg-muted ring-2 ring-background" />
+                        )}
                         <div>
                           <h4 className="font-bold text-sm text-foreground">{t.name}</h4>
                           <p className="text-xs text-muted-foreground font-medium">{t.role}</p>
