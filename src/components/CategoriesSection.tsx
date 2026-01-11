@@ -12,34 +12,19 @@ import {
 
 const categories = [
   {
-    title: "Generative AI",
-    students: "Top Rated",
-    image: "https://images.unsplash.com/photo-1677442136019-21780ecad995?w=800&auto=format&fit=crop&q=60",
-  },
-  {
-    title: "IT Certifications",
+    title: "SSC",
     students: "Popular",
-    image: "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=800&auto=format&fit=crop&q=60",
+    image: "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=800&auto=format&fit=crop&q=60",
   },
   {
-    title: "Data Science",
+    title: "HSC",
+    students: "Top Rated",
+    image: "https://images.pexels.com/photos/12903123/pexels-photo-12903123.jpeg",
+  },
+  {
+    title: "Admission",
     students: "Trending",
-    image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&auto=format&fit=crop&q=60",
-  },
-  {
-    title: "Web Development",
-    students: "Best Seller",
-    image: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=800&auto=format&fit=crop&q=60",
-  },
-  {
-    title: "Business Analytics",
-    students: "Hot",
-    image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&auto=format&fit=crop&q=60",
-  },
-  {
-    title: "Digital Marketing",
-    students: "New",
-    image: "https://images.unsplash.com/photo-1432888498266-38ffec3eaf0a?w=800&auto=format&fit=crop&q=60",
+    image: "https://images.pexels.com/photos/6150526/pexels-photo-6150526.jpeg",
   },
 ];
 
@@ -73,10 +58,10 @@ const CategoriesSection = () => {
           {/* Left Text Section */}
           <div className="lg:col-span-1 space-y-6">
             <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-foreground">
-              Unlock your true potential with RCA 
+              Choose Your Path
             </h2>
             <p className="text-sm md:text-lg text-muted-foreground">
-               Build confidence. Build skills. Build your future. Stay ahead in a changing world — learn high-demand skills fast with RCA.
+              Excel in SSC, HSC, or Admission tests with expert guidance in Physics, Chemistry & Math.
             </p>
             <Button 
               variant="link" 
@@ -109,7 +94,7 @@ const CategoriesSection = () => {
                       <img 
                         src={category.image} 
                         alt={category.title}
-                        className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        className="absolute inset-0 w-full h-full object-cover object-center transition-transform duration-500 group-hover:scale-105"
                       />
                       
                       {/* Overlay Gradient */}
@@ -117,12 +102,12 @@ const CategoriesSection = () => {
 
                       {/* Bottom White Box */}
                       <div className="absolute bottom-4 left-4 right-4 bg-background/95 backdrop-blur-sm p-4 rounded-xl shadow-lg transition-transform duration-300 group-hover:-translate-y-1">
-                        <div className="flex items-center gap-2 mb-2">
+                        {/* <div className="flex items-center gap-2 mb-2">
                           <Badge variant="secondary" className="h-6 px-2 text-xs font-medium bg-secondary text-secondary-foreground flex items-center gap-1">
                             <Users className="w-3 h-3" />
                             {category.students}
                           </Badge>
-                        </div>
+                        </div> */}
                         <div className="flex items-center justify-between">
                           <h3 className="font-bold text-foreground text-lg">{category.title}</h3>
                           <ArrowRight className="w-5 h-5 text-primary transition-transform group-hover:translate-x-1" />

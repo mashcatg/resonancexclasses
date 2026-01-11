@@ -28,6 +28,7 @@ interface Quiz {
   time_limit_minutes: number | null;
   attempts_allowed: number;
   course_id: string;
+  is_free: boolean;
 }
 
 const QuizAttempt = () => {
@@ -79,7 +80,23 @@ const QuizAttempt = () => {
         .single();
 
       if (quizError) throw quizError;
-      setQuiz(quizData);
+      setQuiz(quizData as any);
+
+      // Check enrollment for non-free quizzes
+      if (!(quizData as any).is_free) {
+        const { data: enrollmentData } = await supabase
+          .from('enrollments')
+          .select('id')
+          .eq('course_id', quizData.course_id)
+          .eq('student_id', user?.id)
+          .single();
+
+        if (!enrollmentData) {
+          toast.error('You must be enrolled in this course to take this quiz');
+          navigate(-1);
+          return;
+        }
+      }
 
       // Check previous attempts
       const { data: attempts, error: attemptsError } = await supabase
@@ -259,9 +276,10 @@ const QuizAttempt = () => {
                             <XCircle className="h-5 w-5 text-red-600 flex-shrink-0 mt-1" />
                           )}
                           <div className="flex-1">
-                            <p className="font-medium mb-2">
-                              {index + 1}. {question.question_text}
-                            </p>
+                            <div className="font-medium mb-2 prose prose-sm max-w-none">
+                              <span>{index + 1}. </span>
+                              <span dangerouslySetInnerHTML={{ __html: question.question_text }} />
+                            </div>
                             <div className="space-y-2 text-sm">
                               <p>
                                 <span className="font-medium">Your answer:</span>{' '}
@@ -354,7 +372,10 @@ const QuizAttempt = () => {
                   <CardTitle className="text-lg">
                     Question {index + 1} ({question.points} {question.points === 1 ? 'point' : 'points'})
                   </CardTitle>
-                  <p className="text-base font-normal">{question.question_text}</p>
+                  <div 
+                    className="text-base font-normal prose prose-sm max-w-none"
+                    dangerouslySetInnerHTML={{ __html: question.question_text }}
+                  />
                 </CardHeader>
                 <CardContent>
                   <RadioGroup
@@ -365,7 +386,7 @@ const QuizAttempt = () => {
                       <div key={optIndex} className="flex items-center space-x-2 mb-2">
                         <RadioGroupItem value={option} id={`${question.id}-${optIndex}`} />
                         <Label htmlFor={`${question.id}-${optIndex}`} className="cursor-pointer">
-                          {option}
+                          <div dangerouslySetInnerHTML={{ __html: option }} />
                         </Label>
                       </div>
                     ))}

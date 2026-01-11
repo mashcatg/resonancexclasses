@@ -19,7 +19,8 @@ const QuizModal: React.FC<QuizModalProps> = ({ open, onOpenChange, onSave, initi
     attempts_allowed: initialData?.attempts_allowed || 3,
     points_per_question: initialData?.points_per_question || 1,
     points_deducted_per_error: initialData?.points_deducted_per_error || 0,
-    total_questions: initialData?.total_questions || 0
+    total_questions: initialData?.total_questions || 0,
+    is_free: initialData?.is_free || false
   });
 
   useEffect(() => {
@@ -31,7 +32,8 @@ const QuizModal: React.FC<QuizModalProps> = ({ open, onOpenChange, onSave, initi
         attempts_allowed: initialData?.attempts_allowed || 3,
         points_per_question: initialData?.points_per_question || 1,
         points_deducted_per_error: initialData?.points_deducted_per_error || 0,
-        total_questions: initialData?.total_questions || 0
+        total_questions: initialData?.total_questions || 0,
+        is_free: initialData?.is_free || false
       });
     }
   }, [initialData, open]);
@@ -53,7 +55,8 @@ const QuizModal: React.FC<QuizModalProps> = ({ open, onOpenChange, onSave, initi
         attempts_allowed: 3,
         points_per_question: 1,
         points_deducted_per_error: 0,
-        total_questions: 0
+        total_questions: 0,
+        is_free: false
       });
     }
     
@@ -157,6 +160,19 @@ const QuizModal: React.FC<QuizModalProps> = ({ open, onOpenChange, onSave, initi
                 placeholder="Auto-calculated"
               />
             </div>
+          </div>
+
+          <div className="flex items-center space-x-2">
+            <input
+              type="checkbox"
+              id="is_free"
+              checked={formData.is_free}
+              onChange={(e) => setFormData(prev => ({ ...prev, is_free: e.target.checked }))}
+              className="h-4 w-4 rounded border-gray-300"
+            />
+            <label htmlFor="is_free" className="text-sm font-medium cursor-pointer">
+              Free Quiz (Available to all users)
+            </label>
           </div>
 
           <div className="flex justify-end space-x-2 pt-4">

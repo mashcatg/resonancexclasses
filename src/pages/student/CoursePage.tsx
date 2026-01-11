@@ -49,6 +49,7 @@ interface Quiz {
   time_limit_minutes: number | null;
   module_id: string | null;
   order_index: number;
+  is_free: boolean;
 }
 
 interface Enrollment {
@@ -193,7 +194,7 @@ const CoursePage = () => {
             .order('order_index', { ascending: true });
 
           if (quizzesData) {
-            quizzesMap[module.id] = quizzesData;
+            quizzesMap[module.id] = quizzesData as any;
           }
         }
 
@@ -516,11 +517,18 @@ const CoursePage = () => {
                             <Link
                               key={quiz.id}
                               to={`/student/quiz/${quiz.id}`}
-                              className="block w-full text-left p-2 rounded-md transition-colors hover:bg-accent"
+                              className={`block w-full text-left p-2 rounded-md transition-colors hover:bg-accent ${
+                                !quiz.is_free && !enrollment ? 'opacity-50 pointer-events-none' : ''
+                              }`}
                             >
                               <div className="flex items-center space-x-2">
                                 <HelpCircle className="h-4 w-4 flex-shrink-0 text-primary" />
                                 <span className="text-sm flex-1">{quiz.title}</span>
+                                {quiz.is_free && (
+                                  <Badge variant="secondary" className="text-xs px-1 py-0">
+                                    Free
+                                  </Badge>
+                                )}
                                 {quiz.time_limit_minutes && (
                                   <span className="text-xs opacity-70">
                                     {quiz.time_limit_minutes}min
