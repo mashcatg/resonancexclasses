@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Linkedin, Twitter, Globe, ChevronLeft, ChevronRight } from "lucide-react";
+import { Facebook, Instagram, Youtube, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Carousel,
@@ -18,19 +18,28 @@ const InstructorsSection = () => {
       name: "Kamruzzaman Sujon",
       role: "Founder | RESONANCE Chemistry Academy",
       bio: "As a Chemistry mentor, I focus on turning difficult equations into easy-to-understand lessons. I believe in learning through understanding, helping students overcome their fears and excel in the world of science.",
-      image: "/instructors/kamruzzaman.jpeg" 
+      image: "/instructors/kamruzzaman.jpeg",
+      facebook: "https://www.facebook.com/share/1C8wkLtW9e/?mibextid=wwXIfr",
+      instagram: "https://www.instagram.com/zaman_sujon?igsh=dnlmODdtazY5ZmVu&utm_source=qr",
+      youtube: "https://youtube.com/@kamruzzaman_sujon?si=DKrIhY1il-gjRzsF"
     },
     {
       name: "Imran Emu",
       role: "Founder | CLASS Physics | Physics, Dhaka University",
       bio: "Dedicated to making physics simple, logical, and achievable for HSC and admission students.",
-      image: "/instructors/imran.jpeg"
+      image: "/instructors/imran.jpeg",
+      facebook: "https://www.facebook.com/share/18DBvs9Uz4/?mibextid=wwXIfr",
+      instagram: "https://www.facebook.com/share/18DBvs9Uz4/?mibextid=wwXIfr",
+      youtube: "https://youtube.com/@classphysicsibe?si=7b6XJMsc1wdl-J6T"
     },
     {
       name: "MD Al Amin Ripon",
       role: "Founder | NumberNest | CSE, MIST",
-      bio: "Dedicated to making physics simple, logical, and achievable for HSC and admission students.",
-      image: "/instructors/ripon.jpeg"
+      bio: "From confusion to clarity - Mathematics mentoring for HSC & Admission students.",
+      image: "/instructors/ripon.jpeg",
+      facebook: "https://www.facebook.com/share/1Qjme2psHE/?mibextid=wwXIfr",
+      instagram: null,
+      youtube: null
     }
   ];
 
@@ -85,15 +94,21 @@ const InstructorsSection = () => {
                       {instructor.bio}
                     </p>
                     <div className="flex gap-3">
-                      <a href="#" className="text-muted-foreground hover:text-primary transition-colors">
-                        <Linkedin className="w-4 h-4" />
-                      </a>
-                      <a href="#" className="text-muted-foreground hover:text-primary transition-colors">
-                        <Twitter className="w-4 h-4" />
-                      </a>
-                      <a href="#" className="text-muted-foreground hover:text-primary transition-colors">
-                        <Globe className="w-4 h-4" />
-                      </a>
+                      {instructor.facebook && (
+                        <a href={instructor.facebook} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary transition-colors">
+                          <Facebook className="w-4 h-4" />
+                        </a>
+                      )}
+                      {instructor.instagram && (
+                        <a href={instructor.instagram} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary transition-colors">
+                          <Instagram className="w-4 h-4" />
+                        </a>
+                      )}
+                      {instructor.youtube && (
+                        <a href={instructor.youtube} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary transition-colors">
+                          <Youtube className="w-4 h-4" />
+                        </a>
+                      )}
                     </div>
                   </div>
                 </div>
