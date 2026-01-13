@@ -15,28 +15,22 @@ const InstructorsSection = () => {
 
   const instructors = [
     {
-      name: "Dr. Robert Fox",
-      role: "Lead Data Scientist",
-      bio: "Ex-Google AI researcher with 15+ years of experience in Machine Learning and Deep Learning.",
-      image: "https://i.pravatar.cc/300?img=11"
+      name: "Kamruzzaman Sujon",
+      role: "Founder | RESONANCE Chemistry Academy",
+      bio: "As a Chemistry mentor, I focus on turning difficult equations into easy-to-understand lessons. I believe in learning through understanding, helping students overcome their fears and excel in the world of science.",
+      image: "/instructors/kamruzzaman.jpg" 
     },
     {
-      name: "Kristin Watson",
-      role: "Senior UX Designer",
-      bio: "Award-winning designer who has led design teams at major tech startups and Fortune 500 companies.",
-      image: "https://i.pravatar.cc/300?img=5"
+      name: "Imran Emu",
+      role: "Founder | CLASS Physics | Physics, Dhaka University",
+      bio: "Dedicated to making physics simple, logical, and achievable for HSC and admission students.",
+      image: "/instructors/imran.jpg"
     },
     {
-      name: "Jacob Jones",
-      role: "Full Stack Developer",
-      bio: "Open source contributor and author of several popular web development frameworks.",
-      image: "https://i.pravatar.cc/300?img=3"
-    },
-    {
-      name: "Cody Fisher",
-      role: "Digital Marketing Expert",
-      bio: "Helped scale multiple SaaS companies to $10M+ ARR through strategic growth marketing.",
-      image: "https://i.pravatar.cc/300?img=8"
+      name: "MD Al Amin Ripon",
+      role: "Founder | NumberNest | CSE, MIST",
+      bio: "Dedicated to making physics simple, logical, and achievable for HSC and admission students.",
+      image: "/instructors/ripon.jpg"
     }
   ];
 
