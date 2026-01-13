@@ -18,19 +18,19 @@ const InstructorsSection = () => {
       name: "Kamruzzaman Sujon",
       role: "Founder | RESONANCE Chemistry Academy",
       bio: "As a Chemistry mentor, I focus on turning difficult equations into easy-to-understand lessons. I believe in learning through understanding, helping students overcome their fears and excel in the world of science.",
-      image: "/instructors/kamruzzaman.jpg" 
+      image: "/instructors/kamruzzaman.jpeg" 
     },
     {
       name: "Imran Emu",
       role: "Founder | CLASS Physics | Physics, Dhaka University",
       bio: "Dedicated to making physics simple, logical, and achievable for HSC and admission students.",
-      image: "/instructors/imran.jpg"
+      image: "/instructors/imran.jpeg"
     },
     {
       name: "MD Al Amin Ripon",
       role: "Founder | NumberNest | CSE, MIST",
       bio: "Dedicated to making physics simple, logical, and achievable for HSC and admission students.",
-      image: "/instructors/ripon.jpg"
+      image: "/instructors/ripon.jpeg"
     }
   ];
 
