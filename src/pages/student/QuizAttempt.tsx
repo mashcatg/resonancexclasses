@@ -10,6 +10,10 @@ import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import { Loader2, ArrowLeft, Clock, CheckCircle, XCircle } from "lucide-react";
 import { toast } from "sonner";
+import ReactMarkdown from "react-markdown";
+import remarkMath from "remark-math";
+import rehypeKatex from "rehype-katex";
+import "katex/dist/katex.min.css";
 
 interface Question {
   id: string;
@@ -278,7 +282,13 @@ const QuizAttempt = () => {
                           <div className="flex-1">
                             <div className="font-medium mb-2 prose prose-sm max-w-none">
                               <span>{index + 1}. </span>
-                              <span dangerouslySetInnerHTML={{ __html: question.question_text }} />
+                              <ReactMarkdown 
+                                remarkPlugins={[remarkMath]} 
+                                rehypePlugins={[rehypeKatex]}
+                                className="inline"
+                              >
+                                {question.question_text}
+                              </ReactMarkdown>
                             </div>
                             <div className="space-y-2 text-sm">
                               <p>
@@ -372,10 +382,14 @@ const QuizAttempt = () => {
                   <CardTitle className="text-lg">
                     Question {index + 1} ({question.points} {question.points === 1 ? 'point' : 'points'})
                   </CardTitle>
-                  <div 
-                    className="text-base font-normal prose prose-sm max-w-none"
-                    dangerouslySetInnerHTML={{ __html: question.question_text }}
-                  />
+                  <div className="text-base font-normal prose prose-sm max-w-none">
+                    <ReactMarkdown 
+                      remarkPlugins={[remarkMath]} 
+                      rehypePlugins={[rehypeKatex]}
+                    >
+                      {question.question_text}
+                    </ReactMarkdown>
+                  </div>
                 </CardHeader>
                 <CardContent>
                   <RadioGroup
@@ -383,10 +397,17 @@ const QuizAttempt = () => {
                     onValueChange={(value) => handleAnswerChange(question.id, value)}
                   >
                     {question.options?.map((option, optIndex) => (
-                      <div key={optIndex} className="flex items-center space-x-2 mb-2">
-                        <RadioGroupItem value={option} id={`${question.id}-${optIndex}`} />
-                        <Label htmlFor={`${question.id}-${optIndex}`} className="cursor-pointer">
-                          <div dangerouslySetInnerHTML={{ __html: option }} />
+                      <div key={optIndex} className="flex items-start space-x-2 mb-3">
+                        <RadioGroupItem value={option} id={`${question.id}-${optIndex}`} className="mt-1" />
+                        <Label htmlFor={`${question.id}-${optIndex}`} className="cursor-pointer flex-1">
+                          <div className="prose prose-sm max-w-none">
+                            <ReactMarkdown 
+                              remarkPlugins={[remarkMath]} 
+                              rehypePlugins={[rehypeKatex]}
+                            >
+                              {option}
+                            </ReactMarkdown>
+                          </div>
                         </Label>
                       </div>
                     ))}
