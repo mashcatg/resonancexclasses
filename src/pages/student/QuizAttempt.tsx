@@ -13,7 +13,14 @@ import { toast } from "sonner";
 import ReactMarkdown from "react-markdown";
 import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
+import rehypeRaw from "rehype-raw";
 import "katex/dist/katex.min.css";
+
+const normalizeMarkdown = (content: string) => {
+  return (content || "")
+    .replace(/!\[([^\]]+)\]\s+\(/g, '![$1](')
+    .replace(/\n\n+/g, "\n\n");
+};
 
 interface Question {
   id: string;
