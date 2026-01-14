@@ -1,7 +1,6 @@
 # ResonanceX Classes - Learning Management System
 
 This is a comprehensive online learning platform built with modern web technologies.
-
 ## Features
 
 - **Course Management**: Create, manage, and distribute courses
