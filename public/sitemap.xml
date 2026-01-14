@@ -20,7 +20,7 @@
   </url>
   
   <url>
-    <loc>https://zenith-learns.vercel.app/login</loc>
+    <loc>https://rcabd.com/login</loc>
     <lastmod>2026-01-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
@@ -28,7 +28,7 @@
   </url>
   
   <url>
-    <loc>https://zenith-learns.vercel.app/dashboard</loc>
+    <loc>https://rcabd.com/dashboard</loc>
     <lastmod>2026-01-14</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
@@ -37,7 +37,7 @@
 
   <!-- Student Pages -->
   <url>
-    <loc>https://zenith-learns.vercel.app/student/dashboard</loc>
+    <loc>https://rcabd.com/student/dashboard</loc>
     <lastmod>2026-01-14</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
@@ -45,7 +45,7 @@
   </url>
   
   <url>
-    <loc>https://zenith-learns.vercel.app/student/my-courses</loc>
+    <loc>https://rcabd.com/student/my-courses</loc>
     <lastmod>2026-01-14</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
@@ -53,7 +53,7 @@
   </url>
   
   <url>
-    <loc>https://zenith-learns.vercel.app/student/profile</loc>
+    <loc>https://rcabd.com/student/profile</loc>
     <lastmod>2026-01-14</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
@@ -62,7 +62,7 @@
 
   <!-- Admin Pages -->
   <url>
-    <loc>https://zenith-learns.vercel.app/admin/dashboard</loc>
+    <loc>https://rcabd.com/admin/dashboard</loc>
     <lastmod>2026-01-14</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
@@ -70,7 +70,7 @@
   </url>
   
   <url>
-    <loc>https://zenith-learns.vercel.app/admin/courses</loc>
+    <loc>https://rcabd.com/admin/courses</loc>
     <lastmod>2026-01-14</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
@@ -78,7 +78,7 @@
   </url>
   
   <url>
-    <loc>https://zenith-learns.vercel.app/admin/students</loc>
+    <loc>https://rcabd.com/admin/students</loc>
     <lastmod>2026-01-14</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
@@ -86,7 +86,7 @@
   </url>
   
   <url>
-    <loc>https://zenith-learns.vercel.app/admin/enrollments</loc>
+    <loc>https://rcabd.com/admin/enrollments</loc>
     <lastmod>2026-01-14</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.7</priority>
@@ -94,7 +94,7 @@
   </url>
   
   <url>
-    <loc>https://zenith-learns.vercel.app/admin/device-approvals</loc>
+    <loc>https://rcabd.com/admin/device-approvals</loc>
     <lastmod>2026-01-14</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.7</priority>
@@ -102,7 +102,7 @@
   </url>
   
   <url>
-    <loc>https://zenith-learns.vercel.app/admin/coupons</loc>
+    <loc>https://rcabd.com/admin/coupons</loc>
     <lastmod>2026-01-14</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
@@ -110,7 +110,7 @@
   </url>
   
   <url>
-    <loc>https://zenith-learns.vercel.app/admin/hero-settings</loc>
+    <loc>https://rcabd.com/admin/hero-settings</loc>
     <lastmod>2026-01-14</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
@@ -118,7 +118,7 @@
   </url>
   
   <url>
-    <loc>https://zenith-learns.vercel.app/admin/testimonials</loc>
+    <loc>https://rcabd.com/admin/testimonials</loc>
     <lastmod>2026-01-14</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
@@ -126,7 +126,7 @@
   </url>
   
   <url>
-    <loc>https://zenith-learns.vercel.app/admin/profile</loc>
+    <loc>https://rcabd.com/admin/profile</loc>
     <lastmod>2026-01-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
@@ -135,7 +135,7 @@
 
   <!-- Legal Pages -->
   <url>
-    <loc>https://zenith-learns.vercel.app/privacy-policy</loc>
+    <loc>https://rcabd.com/privacy-policy</loc>
     <lastmod>2026-01-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
@@ -143,7 +143,7 @@
   </url>
   
   <url>
-    <loc>https://zenith-learns.vercel.app/terms-of-service</loc>
+    <loc>https://rcabd.com/terms-of-service</loc>
     <lastmod>2026-01-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
