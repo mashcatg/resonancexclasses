@@ -3,6 +3,7 @@
 This is a comprehensive online learning platform built with modern web technologies.
 
 ## Features
+
 - **Course Management**: Create, manage, and distribute courses
 - **Student Dashboard**: Track progress, enrollments, and certificates
 - **Admin Panel**: Manage users, courses, enrollments, and platform settings
