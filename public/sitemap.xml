@@ -4,7 +4,7 @@
         xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
   <!-- Main Pages -->
   <url>
-    <loc>https://zenith-learns.vercel.app/</loc>
+    <loc>https://rcabd.com/</loc>
     <lastmod>2026-01-14</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
@@ -12,7 +12,7 @@
   </url>
   
   <url>
-    <loc>https://zenith-learns.vercel.app/courses</loc>
+    <loc>https://rcabd.com/courses</loc>
     <lastmod>2026-01-14</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>

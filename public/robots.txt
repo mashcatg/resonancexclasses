@@ -37,4 +37,4 @@ Allow: /
 Crawl-delay: 2
 
 # Sitemaps
-Sitemap: https://zenith-learns.vercel.app/sitemap.xml
+Sitemap: https://rcabd.com/sitemap.xml

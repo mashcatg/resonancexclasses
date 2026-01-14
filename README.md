@@ -29,7 +29,7 @@ This is a comprehensive online learning platform built with modern web technolog
 ## Project Structure
 
 ```
-zenith-learns/
+resonancex-classes/
 ├── src/
 │   ├── components/          # Reusable React components
 │   ├── pages/              # Page components and layouts
