@@ -137,7 +137,6 @@ supabase migration up
 3. Submit a pull request
 
 ## Support
-
 For support, contact: support@zenith-learns.com
 
 ## License
