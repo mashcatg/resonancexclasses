@@ -1,8 +1,21 @@
+# ResonanceX Classes SEO Configuration
+# Allow all web crawlers
+
 User-agent: Googlebot
 Allow: /
+Crawl-delay: 1
 
 User-agent: Bingbot
 Allow: /
+Crawl-delay: 1
+
+User-agent: Slurp
+Allow: /
+Crawl-delay: 1
+
+User-agent: DuckDuckBot
+Allow: /
+Crawl-delay: 1
 
 User-agent: Twitterbot
 Allow: /
@@ -10,5 +23,18 @@ Allow: /
 User-agent: facebookexternalhit
 Allow: /
 
+User-agent: LinkedInBot
+Allow: /
+
+# Block bad bots
+User-agent: AhrefsBot
+User-agent: SemrushBot
+Disallow: /
+
+# Default policy
 User-agent: *
 Allow: /
+Crawl-delay: 2
+
+# Sitemaps
+Sitemap: https://zenith-learns.vercel.app/sitemap.xml
