@@ -127,7 +127,7 @@ const Login = () => {
             {/* Logo */}
             <Link to="/" className="flex items-center space-x-2 mb-16">
              
-                <img src="resonancexclasses-login-logo.jpeg" alt="Logo" className="w-28 h-28" />
+                <img src="resonancexclasses-login-logo.png" alt="Logo" className="w-28 h-28 brightness-0 invert" />
 
             </Link>
             
