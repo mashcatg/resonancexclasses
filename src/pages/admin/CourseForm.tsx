@@ -33,7 +33,8 @@ const CourseForm = () => {
     banner_url: '',
     featured_video_url: '',
     target_audience: '',
-    is_published: false
+    is_published: false,
+    contact_number: '01950095883'
   });
 
   const [whatYouLearn, setWhatYouLearn] = useState<string[]>(['']);
@@ -68,7 +69,8 @@ const CourseForm = () => {
         what_you_learn: filteredWhatYouLearn,
         requirements: filteredRequirements,
         is_published: false, // Always save as draft
-        instructor_id: profile.user_id
+        instructor_id: profile.user_id,
+        contact_number: formData.contact_number
       };
 
       if (draftId) {
@@ -197,7 +199,8 @@ const CourseForm = () => {
             target_audience: formData.target_audience,
             what_you_learn: filteredWhatYouLearn,
             requirements: filteredRequirements,
-            is_published: formData.is_published
+            is_published: formData.is_published,
+            contact_number: formData.contact_number
           })
           .eq('id', draftId);
 
@@ -222,7 +225,8 @@ const CourseForm = () => {
               what_you_learn: filteredWhatYouLearn,
               requirements: filteredRequirements,
               is_published: formData.is_published,
-              instructor_id: profile.user_id
+              instructor_id: profile.user_id,
+              contact_number: formData.contact_number
             }
           ])
           .select()
@@ -572,7 +576,7 @@ const CourseForm = () => {
               <CardTitle>Pricing</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 <div>
                   <label className="text-sm font-medium">Original Price (৳)*</label>
                   <Input
@@ -614,6 +618,19 @@ const CourseForm = () => {
                       </Badge>
                     )}
                   </div>
+                </div>
+
+                <div>
+                  <label className="text-sm font-medium">Payment Number</label>
+                  <Input
+                    name="contact_number"
+                    value={formData.contact_number}
+                    onChange={handleInputChange}
+                    placeholder="01XXXXXXXXX"
+                  />
+                  <p className="text-xs text-muted-foreground mt-1">
+                    bKash number shown to students during enrollment
+                  </p>
                 </div>
               </div>
             </CardContent>

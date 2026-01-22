@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Facebook, Instagram, Youtube, ChevronLeft, ChevronRight } from "lucide-react";
+import { Facebook, Instagram, Youtube, ChevronLeft, ChevronRight, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Carousel,
@@ -12,16 +12,18 @@ const InstructorsSection = () => {
   const [api, setApi] = useState<CarouselApi>();
   const [current, setCurrent] = useState(0);
   const [count, setCount] = useState(0);
+  const [expandedBio, setExpandedBio] = useState<number | null>(null);
 
   const instructors = [
     {
       name: "Kamruzzaman Sujon",
-      role: "Founder | RESONANCE Chemistry Academy",
+      role: "Founder | Resonance CHemistry Care",
       bio: "As a Chemistry mentor, I focus on turning difficult equations into easy-to-understand lessons. I believe in learning through understanding, helping students overcome their fears and excel in the world of science.",
       image: "/instructors/kamruzzaman.jpeg",
       facebook: "https://www.facebook.com/share/1C8wkLtW9e/?mibextid=wwXIfr",
       instagram: "https://www.instagram.com/zaman_sujon?igsh=dnlmODdtazY5ZmVu&utm_source=qr",
-      youtube: "https://youtube.com/@kamruzzaman_sujon?si=DKrIhY1il-gjRzsF"
+      youtube: "https://youtube.com/@kamruzzaman_sujon?si=DKrIhY1il-gjRzsF",
+      whatsapp: "8801521576576"
     },
     {
       name: "Imran Emu",
@@ -30,7 +32,8 @@ const InstructorsSection = () => {
       image: "/instructors/imran.jpeg",
       facebook: "https://www.facebook.com/share/18DBvs9Uz4/?mibextid=wwXIfr",
       instagram: "https://www.facebook.com/share/18DBvs9Uz4/?mibextid=wwXIfr",
-      youtube: "https://youtube.com/@classphysicsibe?si=7b6XJMsc1wdl-J6T"
+      youtube: "https://youtube.com/@classphysicsibe?si=7b6XJMsc1wdl-J6T",
+      whatsapp: "8801590097294"
     },
     {
       name: "MD Al Amin Ripon",
@@ -39,7 +42,8 @@ const InstructorsSection = () => {
       image: "/instructors/ripon.jpeg",
       facebook: "https://www.facebook.com/share/1Qjme2psHE/?mibextid=wwXIfr",
       instagram: null,
-      youtube: null
+      youtube: null,
+      whatsapp: "8801521329880"
     }
   ];
 
@@ -89,11 +93,38 @@ const InstructorsSection = () => {
                   </div>
                   <div className="p-6">
                     <h3 className="text-xl font-bold mb-1">{instructor.name}</h3>
-                    <p className="text-primary font-medium text-sm mb-3">{instructor.role}</p>
-                    <p className="text-muted-foreground text-sm mb-4 line-clamp-3">
-                      {instructor.bio}
-                    </p>
-                    <div className="flex gap-3">
+                    <p className="text-primary font-medium text-sm mb-3 line-clamp-2">{instructor.role}</p>
+                    <div className="mb-4">
+                      <p className={`text-muted-foreground text-sm ${expandedBio === index ? '' : 'line-clamp-3'}`}>
+                        {instructor.bio}
+                      </p>
+                      {instructor.bio.length > 100 && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setExpandedBio(expandedBio === index ? null : index);
+                          }}
+                          className="text-primary text-xs font-medium mt-1 hover:underline"
+                        >
+                          {expandedBio === index ? 'Show Less' : 'Read More'}
+                        </button>
+                      )}
+                    </div>
+                    <div className="flex gap-3 items-center">
+                      <div className="flex justify-between items-center gap-4 w-full">
+                     
+                      {instructor.whatsapp && (
+                        <a 
+                          href={`https://wa.me/${instructor.whatsapp}`} 
+                          target="_blank" 
+                          rel="noopener noreferrer" 
+                          className="text-green-500 hover:text-green-600 flex gap-2 transition-colors"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <MessageCircle className="w-5 h-5" /> Whatsapp
+                        </a>
+                      )} 
+                      <div className="flex justify-end items-center gap-4">
                       {instructor.facebook && (
                         <a href={instructor.facebook} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary transition-colors">
                           <Facebook className="w-4 h-4" />
@@ -109,6 +140,8 @@ const InstructorsSection = () => {
                           <Youtube className="w-4 h-4" />
                         </a>
                       )}
+                      </div>
+                      </div>
                     </div>
                   </div>
                 </div>

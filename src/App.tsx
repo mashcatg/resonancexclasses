@@ -23,6 +23,7 @@ import DeviceApprovals from "./pages/admin/DeviceApprovals";
 import AdminProfile from "./pages/admin/AdminProfile";
 import TestimonialsManager from "./pages/admin/TestimonialsManager";
 import HeroSettings from "./pages/admin/HeroSettings";
+import CategorySettings from "./pages/admin/CategorySettings";
 import StudentDashboard from "./pages/student/StudentDashboard";
 import StudentProfile from "./pages/student/StudentProfile";
 import MyCourses from "./pages/student/MyCourses";
@@ -188,6 +189,14 @@ const App = () => (
               element={
                 <ProtectedRoute requireSuperAdmin>
                   <HeroSettings />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/admin/category-settings" 
+              element={
+                <ProtectedRoute requireSuperAdmin>
+                  <CategorySettings />
                 </ProtectedRoute>
               } 
             />

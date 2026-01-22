@@ -9,8 +9,18 @@ import {
   CarouselItem,
   type CarouselApi,
 } from "@/components/ui/carousel";
+import { supabase } from "@/integrations/supabase/client";
 
-const categories = [
+interface CategorySetting {
+  id: string;
+  category_name: string;
+  image_url: string;
+  badge_text: string | null;
+  display_order: number;
+  is_active: boolean;
+}
+
+const defaultCategories = [
   {
     title: "SSC",
     students: "Popular",
@@ -33,6 +43,33 @@ const CategoriesSection = () => {
   const [api, setApi] = useState<CarouselApi>();
   const [current, setCurrent] = useState(0);
   const [count, setCount] = useState(0);
+  const [categories, setCategories] = useState(defaultCategories);
+
+  useEffect(() => {
+    fetchCategorySettings();
+  }, []);
+
+  const fetchCategorySettings = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('category_settings' as any)
+        .select('*')
+        .eq('is_active', true)
+        .order('display_order', { ascending: true });
+
+      if (data && !error && data.length > 0) {
+        const mappedCategories = (data as unknown as CategorySetting[]).map(cat => ({
+          title: cat.category_name,
+          students: cat.badge_text || '',
+          image: cat.image_url,
+        }));
+        setCategories(mappedCategories);
+      }
+    } catch (error) {
+      console.error('Error fetching category settings:', error);
+      // Use default categories if fetch fails
+    }
+  };
 
   useEffect(() => {
     if (!api) {

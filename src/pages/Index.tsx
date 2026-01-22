@@ -207,22 +207,22 @@ const Index = () => {
                 Strengthening Physics & Chemistry skills with expert guidance and practical learning
               </p>
               <div className="flex space-x-3 sm:space-x-4">
-                {[
-                  { Icon: Facebook, href: "https://facebook.com/rcaedtech" },
-                  { Icon: Youtube, href: "https://youtube.com/@rcaedtech" },
-                  { Icon: Instagram, href: "https://instagram.com/rcaedtech" },
-                 
-                ].map(({ Icon, href }, i) => (
-                  <a 
-                    key={i} 
-                    href={href} 
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-8 sm:w-10 h-8 sm:h-10 rounded-full bg-background/10 flex items-center justify-center hover:bg-primary transition-colors"
-                  >
-                    <Icon className="h-4 sm:h-5 w-4 sm:w-5" />
-                  </a>
-                ))}
+                <a 
+                  href="https://www.facebook.com/profile.php?id=61586706273711" 
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-8 sm:w-10 h-8 sm:h-10 rounded-full bg-background/10 flex items-center justify-center hover:bg-primary transition-colors"
+                >
+                  <Facebook className="h-4 sm:h-5 w-4 sm:w-5" />
+                </a>
+                <a 
+                  href="https://www.youtube.com/@rcaedtech" 
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-8 sm:w-10 h-8 sm:h-10 rounded-full bg-background/10 flex items-center justify-center hover:bg-primary transition-colors"
+                >
+                  <Youtube className="h-4 sm:h-5 w-4 sm:w-5" />
+                </a>
               </div>
             </div>
 
@@ -270,7 +270,11 @@ const Index = () => {
                 </li>
                 <li className="flex items-center gap-2 sm:gap-3">
                   <Phone className="h-4 sm:h-5 w-4 sm:w-5 text-primary flex-shrink-0" />
-                  <span className="text-xs sm:text-sm text-background/70">+880 1950-095883</span>
+                  <span className="text-xs sm:text-sm text-background/70">+880 1521-576576 (Sujon Sir)</span>
+                </li>
+                <li className="flex items-center gap-2 sm:gap-3">
+                  <Phone className="h-4 sm:h-5 w-4 sm:w-5 text-primary flex-shrink-0" />
+                  <span className="text-xs sm:text-sm text-background/70">+880 1590-097294 (Emu Sir)</span>
                 </li>
                 <li className="flex items-center gap-2 sm:gap-3">
                   <Mail className="h-4 sm:h-5 w-4 sm:w-5 text-primary flex-shrink-0" />

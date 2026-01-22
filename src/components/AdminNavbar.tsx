@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
-import { GraduationCap, BookOpen, Users, CreditCard, Settings, LogOut, User, Shield, Menu, X } from "lucide-react";
+import { GraduationCap, BookOpen, Users, CreditCard, Settings, LogOut, User, Shield, Menu, X, LayoutDashboard } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { Link, useLocation } from "react-router-dom";
 import { useState } from "react";
@@ -13,6 +13,7 @@ const AdminNavbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const quickLinks = [
+    { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
     { name: "Courses", href: "/admin/courses", icon: BookOpen },
     { name: "Enrollments", href: "/admin/enrollments", icon: CreditCard },
     { name: "Students", href: "/admin/students", icon: Users },
@@ -39,7 +40,7 @@ const AdminNavbar = () => {
       <div className="mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
-          <Link to="/dashboard" className="flex items-center space-x-2">
+          <Link to="/" className="flex items-center space-x-2">
               <img src="/icon transparent.png" alt="Logo" className="w-12 h-12" />
             
           </Link>
@@ -118,6 +119,12 @@ const AdminNavbar = () => {
                       <Link to="/admin/hero-settings" className="cursor-pointer">
                         <Settings className="mr-2 h-4 w-4" />
                         <span>Hero Settings</span>
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link to="/admin/category-settings" className="cursor-pointer">
+                        <Settings className="mr-2 h-4 w-4" />
+                        <span>Category Settings</span>
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>

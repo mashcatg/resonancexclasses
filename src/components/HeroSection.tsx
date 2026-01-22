@@ -80,7 +80,7 @@ const HeroSection = () => {
   };
 
   return (
-    <section className="relative min-h-[90vh] flex items-center overflow-hidden bg-background pt-20 lg:pt-0">
+    <section className="relative min-h-[90vh] flex items-center overflow-hidden bg-background pt-24 lg:pt-28">
       {/* Background Elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-0 right-0 w-[50%] h-[50%] bg-primary/5 rounded-bl-full -z-10" />

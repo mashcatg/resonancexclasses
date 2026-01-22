@@ -103,7 +103,7 @@ const ResetPassword = () => {
                     <Input
                       id="password"
                       type={showPassword ? "text" : "password"}
-                      placeholder="Enter new password"
+                      placeholder="Enter Your New Password"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       className="w-full pr-10"
@@ -127,7 +127,7 @@ const ResetPassword = () => {
                     <Input
                       id="confirmPassword"
                       type={showConfirmPassword ? "text" : "password"}
-                      placeholder="Confirm new password"
+                      placeholder="Enter Your Password Again"
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
                       className="w-full pr-10"

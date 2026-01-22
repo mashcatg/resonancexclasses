@@ -35,7 +35,8 @@ const CourseEdit = () => {
     thumbnailUrl: '',
     bannerUrl: '',
     featuredVideoUrl: '',
-    isPublished: false
+    isPublished: false,
+    contactNumber: '01950095883'
   });
 
   const [whatYouLearn, setWhatYouLearn] = useState<string[]>(['']);
@@ -71,7 +72,8 @@ const CourseEdit = () => {
           thumbnailUrl: data.thumbnail_url || '',
           bannerUrl: data.banner_url || '',
           featuredVideoUrl: data.featured_video_url || '',
-          isPublished: data.is_published || false
+          isPublished: data.is_published || false,
+          contactNumber: (data as any).contact_number || '01950095883'
         });
 
         setWhatYouLearn((Array.isArray(data.what_you_learn) && data.what_you_learn.length > 0) 
@@ -234,7 +236,8 @@ const CourseEdit = () => {
           featured_video_url: formData.featuredVideoUrl,
           what_you_learn: filteredWhatYouLearn,
           requirements: filteredRequirements,
-          is_published: formData.isPublished
+          is_published: formData.isPublished,
+          contact_number: formData.contactNumber
         })
         .eq('id', courseId);
 
@@ -533,7 +536,7 @@ const CourseEdit = () => {
               <CardTitle>Pricing</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                   <Label htmlFor="originalPrice">Original Price (৳)*</Label>
                   <Input
@@ -559,6 +562,20 @@ const CourseEdit = () => {
                     min="0"
                     max="100"
                   />
+                </div>
+
+                <div>
+                  <Label htmlFor="contactNumber">Payment Number</Label>
+                  <Input
+                    id="contactNumber"
+                    name="contactNumber"
+                    value={formData.contactNumber}
+                    onChange={handleInputChange}
+                    placeholder="01XXXXXXXXX"
+                  />
+                  <p className="text-xs text-muted-foreground mt-1">
+                    bKash number shown to students
+                  </p>
                 </div>
               </div>
               {formData.originalPrice && (

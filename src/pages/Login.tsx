@@ -127,7 +127,7 @@ const Login = () => {
             {/* Logo */}
             <Link to="/" className="flex items-center space-x-2 mb-16">
              
-                <img src="logo transparent.png" alt="Logo" className="w-24 h-24 brightness-0 invert" />
+                <img src="resonancexclasses-login-logo.jpeg" alt="Logo" className="w-28 h-28" />
 
             </Link>
             
@@ -201,7 +201,7 @@ const Login = () => {
                         <Input
                           id="forgotEmail"
                           type="email"
-                          placeholder="name@example.com"
+                          placeholder="Enter Your Email"
                           className="pl-10 text-sm"
                           value={forgotEmail}
                           onChange={(e) => setForgotEmail(e.target.value)}
@@ -243,7 +243,7 @@ const Login = () => {
                             <Input
                               id="email"
                               type="email"
-                              placeholder="name@example.com"
+                              placeholder="Enter Your Email"
                               className="pl-10 text-sm"
                               value={email}
                               onChange={(e) => setEmail(e.target.value)}
@@ -267,7 +267,7 @@ const Login = () => {
                             <Input
                               id="password"
                               type={showPassword ? "text" : "password"}
-                              placeholder="••••••••"
+                              placeholder="Enter Your Password"
                               className="pl-10 pr-10 text-sm"
                               value={password}
                               onChange={(e) => setPassword(e.target.value)}
@@ -320,7 +320,7 @@ const Login = () => {
                               <Input
                                 id="firstName"
                                 type="text"
-                                placeholder="John"
+                                placeholder="Enter Your First Name"
                                 className="pl-10 text-sm"
                                 value={firstName}
                                 onChange={(e) => setFirstName(e.target.value)}
@@ -335,7 +335,7 @@ const Login = () => {
                               <Input
                                 id="lastName"
                                 type="text"
-                                placeholder="Doe"
+                                placeholder="Enter Your Last Name"
                                 className="pl-10 text-sm"
                                 value={lastName}
                                 onChange={(e) => setLastName(e.target.value)}
@@ -351,7 +351,7 @@ const Login = () => {
                             <Input
                               id="signUpEmail"
                               type="email"
-                              placeholder="name@example.com"
+                              placeholder="Enter Your Email"
                               className="pl-10 text-sm"
                               value={signUpEmail}
                               onChange={(e) => setSignUpEmail(e.target.value)}
@@ -366,7 +366,7 @@ const Login = () => {
                             <Input
                               id="signUpPassword"
                               type={showSignUpPassword ? "text" : "password"}
-                              placeholder="••••••••"
+                              placeholder="Enter Your Password"
                               className="pl-10 pr-10 text-sm"
                               value={signUpPassword}
                               onChange={(e) => setSignUpPassword(e.target.value)}

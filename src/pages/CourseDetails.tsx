@@ -39,6 +39,7 @@ interface Course {
   requirements: string[] | null;
   target_audience: string | null;
   featured_video_url: string | null;
+  contact_number: string | null;
 }
 
 interface Module {
@@ -86,6 +87,7 @@ const CourseDetails = () => {
       // Parse JSON fields
       const parsedCourse: Course = {
         ...courseData,
+        contact_number: (courseData as any).contact_number || null,
         what_you_learn: Array.isArray(courseData.what_you_learn)
           ? (courseData.what_you_learn as string[])
           : [],
@@ -504,6 +506,7 @@ const CourseDetails = () => {
             id: course.id,
             title: course.title,
             price: course.price,
+            contact_number: course.contact_number,
           }}
           onSuccess={() => {
             setIsPending(true);

@@ -40,14 +40,17 @@ const CTASection = () => {
                     <ArrowRight className="ml-2 h-5 w-5" />
                   </Button>
                 </Link>
-                <Button 
-                  variant="outline" 
-                  size="lg"
-                  className="w-full sm:w-auto border-2 border-white/30 bg-white/10 text-white hover:bg-white/20 text-base sm:text-lg px-8 py-6 rounded-full font-bold backdrop-blur-sm transition-all"
-                >
-                  <Phone className="mr-2 h-5 w-5" />
-                  +880 1950-095883
-                </Button>
+              </div>
+              <div className="flex flex-col sm:flex-row flex-wrap justify-center lg:justify-start gap-2 mt-4">
+                <a href="tel:+8801521576576" className="text-white/90 text-sm hover:text-white transition-colors flex items-center gap-1">
+                  <Phone className="h-4 w-4" />
+                  +880 1521-576576 (Sujon Sir)
+                </a>
+                <span className="hidden sm:inline text-white/50">|</span>
+                <a href="tel:+8801590097294" className="text-white/90 text-sm hover:text-white transition-colors flex items-center gap-1">
+                  <Phone className="h-4 w-4" />
+                  +880 1590-097294 (Emu Sir)
+                </a>
               </div>
             </div>
 

@@ -19,6 +19,7 @@ interface Course {
   id: string;
   title: string;
   price: number;
+  contact_number?: string;
 }
 
 interface EnrollmentModalProps {
@@ -28,7 +29,7 @@ interface EnrollmentModalProps {
   onSuccess: () => void;
 }
 
-const BKASH_NUMBER = "01950095883";
+const DEFAULT_BKASH_NUMBER = "01950095883";
 
 const EnrollmentModal = ({ course, open, onOpenChange, onSuccess }: EnrollmentModalProps) => {
   const { user } = useAuth();
@@ -36,6 +37,8 @@ const EnrollmentModal = ({ course, open, onOpenChange, onSuccess }: EnrollmentMo
   const [transactionId, setTransactionId] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+
+  const bkashNumber = course?.contact_number || DEFAULT_BKASH_NUMBER;
 
   const generateInvoiceNumber = () => {
     const timestamp = Date.now();
@@ -142,7 +145,7 @@ const EnrollmentModal = ({ course, open, onOpenChange, onSuccess }: EnrollmentMo
                   <span className="font-medium text-foreground">Make Bkash Payment</span>
                 </div>
                 <p className="text-2xl font-bold text-primary tracking-wider">
-                  {BKASH_NUMBER}
+                  {bkashNumber}
                 </p>
                 <p className="text-sm text-muted-foreground mt-2">
                   Send exactly ৳{course.price.toLocaleString("en-BD")} via bKash
