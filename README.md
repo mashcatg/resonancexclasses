@@ -95,6 +95,7 @@ See `.env.example` for all available configuration options:
 - `VITE_APP_NAME` - Application name
 - `VITE_APP_URL` - Application URL
 
+
 ## Database
 
 Database migrations are located in `supabase/migrations/`. Run migrations:
