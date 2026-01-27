@@ -22,6 +22,14 @@ import {
 } from "lucide-react";
 import EnrollmentModal from "@/components/EnrollmentModal";
 import { stripHtml, truncateText } from "@/lib/htmlUtils";
+import { CustomVideoPlayer } from "@/components/CustomVideoPlayer";
+
+// Helper to validate YouTube URLs
+const isValidYouTubeUrl = (url: string | null): boolean => {
+  if (!url || !url.trim()) return false;
+  const youtubeRegex = /^(https?:\/\/)?(www\.)?(youtube\.com\/(watch\?v=|embed\/|shorts\/)|youtu\.be\/)[a-zA-Z0-9_-]{11}/;
+  return youtubeRegex.test(url.trim());
+};
 
 interface Course {
   id: string;
@@ -367,11 +375,11 @@ const CourseDetails = () => {
         </div>
       </div>
 
-      {/* Content */}
-      <div className="container mx-auto px-4 py-12">
-        <div className="grid lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2 space-y-8">
-            {/* What You'll Learn */}
+      {/* What You'll Learn + Featured Video Section */}
+      {(course.what_you_learn && course.what_you_learn.length > 0) || isValidYouTubeUrl(course.featured_video_url) ? (
+        <div className="container mx-auto px-4 py-8">
+          <div className="grid lg:grid-cols-2 gap-8">
+            {/* What You'll Learn - Left Side */}
             {course.what_you_learn && course.what_you_learn.length > 0 && (
               <Card>
                 <CardHeader>
@@ -390,6 +398,25 @@ const CourseDetails = () => {
               </Card>
             )}
 
+            {/* Featured Video - Right Side */}
+            {isValidYouTubeUrl(course.featured_video_url) && (
+              <Card>
+                <CardContent className="p-0">
+                  <CustomVideoPlayer 
+                    url={course.featured_video_url!} 
+                    title={`${course.title} - Preview`}
+                  />
+                </CardContent>
+              </Card>
+            )}
+          </div>
+        </div>
+      ) : null}
+
+      {/* Content */}
+      <div className="container mx-auto px-4 py-12">
+        <div className="grid lg:grid-cols-3 gap-8">
+          <div className="lg:col-span-2 space-y-8">
             {/* Course Content */}
             <Card>
               <CardHeader>

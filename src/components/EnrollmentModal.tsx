@@ -73,6 +73,8 @@ const EnrollmentModal = ({ course, open, onOpenChange, onSuccess }: EnrollmentMo
 
       if (error) throw error;
 
+      // Admin notification is handled by database trigger (notify_admins_on_enrollment_request)
+
       setSubmitted(true);
       toast({
         title: "Request Submitted!",
@@ -141,14 +143,14 @@ const EnrollmentModal = ({ course, open, onOpenChange, onSuccess }: EnrollmentMo
               {/* bKash Number */}
               <div className="bg-primary/10 border border-primary/20 rounded-lg p-4">
                 <div className="flex items-center gap-2 mb-2">
-                  <Phone className="h-5 w-5 text-primary" />
-                  <span className="font-medium text-foreground">Make Bkash Payment</span>
+                  <Phone className="h-4 w-4 text-primary" />
+                  <span className="text-sm text-muted-foreground">MAKE PAYMENT TO</span>
                 </div>
                 <p className="text-2xl font-bold text-primary tracking-wider">
                   {bkashNumber}
                 </p>
                 <p className="text-sm text-muted-foreground mt-2">
-                  Send exactly ৳{course.price.toLocaleString("en-BD")} via bKash
+                  Make Payment ৳{course.price.toLocaleString("en-BD")} via bKash
                 </p>
               </div>
 

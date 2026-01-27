@@ -35,6 +35,7 @@ const StudentNavbar = () => {
   };
 
   const navLinks = [
+    { to: "/student/dashboard", label: "Dashboard", icon: GraduationCap },
     { to: "/student/my-courses", label: "My Courses", icon: BookOpen },
     { to: "/courses", label: "Browse Courses", icon: Search },
   ];
@@ -45,7 +46,7 @@ const StudentNavbar = () => {
         <div className="flex justify-between h-16">
           {/* Logo */}
           <div className="flex items-center">
-            <Link to="/dashboard" className="flex items-center space-x-2">
+            <Link to="/" className="flex items-center space-x-2">
               <img src="/icon transparent.png" alt="Logo" className="w-12 h-12" />
             </Link>
           </div>

@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Bell, Check, X, CheckCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -26,6 +27,7 @@ interface Notification {
 
 export const NotificationsDropdown = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
 
@@ -147,7 +149,12 @@ export const NotificationsDropdown = () => {
                 className={`flex items-start gap-3 p-3 cursor-pointer ${
                   !notification.read ? "bg-accent/50" : ""
                 }`}
-                onClick={() => markAsRead(notification.id)}
+                onClick={() => {
+                  markAsRead(notification.id);
+                  if (notification.link) {
+                    navigate(notification.link);
+                  }
+                }}
               >
                 <div className="mt-0.5">{getTypeIcon(notification.type)}</div>
                 <div className="flex-1 space-y-1">

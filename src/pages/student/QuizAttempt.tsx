@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -56,12 +56,85 @@ const QuizAttempt = () => {
   const [showResults, setShowResults] = useState(false);
   const [score, setScore] = useState(0);
   const [maxScore, setMaxScore] = useState(0);
+  const hasCheckedAttempts = useRef(false);
+  const quizInProgress = useRef(false);
+  const userLeftTab = useRef(false);
+  const [autoSubmitTriggered, setAutoSubmitTriggered] = useState(false);
 
   useEffect(() => {
-    if (quizId && user) {
+    if (quizId && user && !hasCheckedAttempts.current) {
       fetchQuizData();
     }
   }, [quizId, user]);
+
+  // Tab switch detection - only during active quiz
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (quizInProgress.current && !showResults) {
+        if (document.visibilityState === 'hidden') {
+          // User left the tab during quiz
+          userLeftTab.current = true;
+        } else if (document.visibilityState === 'visible' && userLeftTab.current) {
+          // User came back after leaving - trigger auto-submit
+          userLeftTab.current = false;
+          setAutoSubmitTriggered(true);
+        }
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [showResults]);
+
+  // Handle auto-submit when triggered by tab switch
+  useEffect(() => {
+    const doAutoSubmit = async () => {
+      if (!autoSubmitTriggered || !attemptId || showResults || submitting) return;
+      
+      try {
+        setSubmitting(true);
+        quizInProgress.current = false;
+
+        // Calculate score
+        let earnedScore = 0;
+        questions.forEach(question => {
+          if (answers[question.id] === question.correct_answer) {
+            earnedScore += question.points;
+          }
+        });
+
+        const percentage = maxScore > 0 ? (earnedScore / maxScore) * 100 : 0;
+
+        // Update attempt
+        const { error } = await supabase
+          .from('quiz_attempts')
+          .update({
+            answers,
+            score: earnedScore,
+            max_score: maxScore,
+            percentage,
+            completed_at: new Date().toISOString(),
+          })
+          .eq('id', attemptId);
+
+        if (error) throw error;
+
+        setScore(earnedScore);
+        setShowResults(true);
+        toast.warning('Quiz auto-submitted due to tab switch');
+      } catch (error) {
+        console.error('Error auto-submitting quiz:', error);
+        toast.error('Failed to auto-submit quiz');
+      } finally {
+        setSubmitting(false);
+        setAutoSubmitTriggered(false);
+      }
+    };
+
+    doAutoSubmit();
+  }, [autoSubmitTriggered, attemptId, showResults, submitting, questions, answers, maxScore]);
 
   useEffect(() => {
     if (timeRemaining !== null && timeRemaining > 0 && !showResults) {
@@ -118,6 +191,8 @@ const QuizAttempt = () => {
 
       if (attemptsError) throw attemptsError;
 
+      hasCheckedAttempts.current = true;
+
       if (attempts && attempts.length >= quizData.attempts_allowed) {
         toast.error('You have used all your attempts for this quiz');
         navigate(-1);
@@ -156,6 +231,7 @@ const QuizAttempt = () => {
 
       if (attemptError) throw attemptError;
       setAttemptId(attemptData.id);
+      quizInProgress.current = true;
 
       // Start timer if time limit exists
       if (quizData.time_limit_minutes) {
@@ -205,6 +281,7 @@ const QuizAttempt = () => {
 
       setScore(earnedScore);
       setShowResults(true);
+      quizInProgress.current = false;
       toast.success('Quiz submitted successfully!');
     } catch (error) {
       console.error('Error submitting quiz:', error);
@@ -289,13 +366,14 @@ const QuizAttempt = () => {
                           <div className="flex-1">
                             <div className="font-medium mb-2 prose prose-sm max-w-none">
                               <span>{index + 1}. </span>
-                              <ReactMarkdown 
-                                remarkPlugins={[remarkMath]} 
-                                rehypePlugins={[rehypeKatex]}
-                                className="inline"
-                              >
-                                {question.question_text}
-                              </ReactMarkdown>
+                              <span className="inline">
+                                <ReactMarkdown 
+                                  remarkPlugins={[remarkMath]} 
+                                  rehypePlugins={[rehypeKatex, rehypeRaw]}
+                                >
+                                  {question.question_text}
+                                </ReactMarkdown>
+                              </span>
                             </div>
                             <div className="space-y-2 text-sm">
                               <p>
@@ -358,7 +436,10 @@ const QuizAttempt = () => {
             <CardHeader>
               <CardTitle>{quiz.title}</CardTitle>
               {quiz.description && (
-                <p className="text-muted-foreground text-sm md:text-md">{quiz.description}</p>
+                <div 
+                  className="text-muted-foreground text-sm md:text-md prose prose-sm max-w-none"
+                  dangerouslySetInnerHTML={{ __html: quiz.description }}
+                />
               )}
             </CardHeader>
             <CardContent>
@@ -392,7 +473,7 @@ const QuizAttempt = () => {
                   <div className="text-base font-normal prose prose-sm max-w-none">
                     <ReactMarkdown 
                       remarkPlugins={[remarkMath]} 
-                      rehypePlugins={[rehypeKatex]}
+                      rehypePlugins={[rehypeKatex, rehypeRaw]}
                     >
                       {question.question_text}
                     </ReactMarkdown>
@@ -410,7 +491,7 @@ const QuizAttempt = () => {
                           <div className="prose prose-sm max-w-none">
                             <ReactMarkdown 
                               remarkPlugins={[remarkMath]} 
-                              rehypePlugins={[rehypeKatex]}
+                              rehypePlugins={[rehypeKatex, rehypeRaw]}
                             >
                               {option}
                             </ReactMarkdown>

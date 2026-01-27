@@ -58,13 +58,23 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     let isMounted = true;
+    let isInitialized = false;
 
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
-        console.log('Auth state changed:', event, session);
+        // Only log in development
+        if (import.meta.env.DEV) {
+          console.log('Auth state changed:', event, session);
+        }
         
         if (!isMounted) return;
+        
+        // Don't trigger loading state after initial load (prevents reload on tab switch)
+        // Only handle SIGNED_OUT event to clear state
+        if (isInitialized && event !== 'SIGNED_OUT' && event !== 'SIGNED_IN') {
+          return;
+        }
         
         setSession(session);
         setUser(session?.user ?? null);
@@ -76,13 +86,19 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
               const profile = await fetchProfile(session.user.id);
               if (isMounted) {
                 setProfile(profile);
-                setLoading(false);
+                if (!isInitialized) {
+                  setLoading(false);
+                  isInitialized = true;
+                }
               }
             }
           }, 0);
         } else {
           setProfile(null);
-          setLoading(false);
+          if (!isInitialized) {
+            setLoading(false);
+            isInitialized = true;
+          }
         }
       }
     );

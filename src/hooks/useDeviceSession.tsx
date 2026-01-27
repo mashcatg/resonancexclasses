@@ -210,16 +210,8 @@ export const useDeviceSession = (
     };
   }, [user, isStudent, deviceSession?.id]);
 
-  // Periodic check every 30 seconds
-  useEffect(() => {
-    if (!user || !isStudent) return;
-
-    const interval = setInterval(() => {
-      checkDeviceSession();
-    }, 30000);
-
-    return () => clearInterval(interval);
-  }, [user, isStudent, checkDeviceSession]);
+  // Realtime subscription handles updates, no need for periodic polling
+  // The subscription above already handles device session changes in real-time
 
   return {
     deviceSession,

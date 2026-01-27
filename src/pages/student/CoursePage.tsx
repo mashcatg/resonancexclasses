@@ -12,6 +12,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { PlayCircle, FileText, CheckCircle, Loader2, ArrowLeft, HelpCircle, Lock } from "lucide-react";
 import { CustomVideoPlayer } from "@/components/CustomVideoPlayer";
 import { useToast } from "@/hooks/use-toast";
+import { linkifyUrls } from "@/lib/htmlUtils";
 
 interface Course {
   id: string;
@@ -399,8 +400,8 @@ const CoursePage = () => {
                   <div className="flex-1">
                     <CardTitle>{currentLesson?.title || course.title}</CardTitle>
                     <div 
-                      className="text-muted-foreground mt-2 prose dark:prose-invert max-w-none"
-                      dangerouslySetInnerHTML={{ __html: currentLesson?.description || course.description || '' }}
+                      className="text-muted-foreground mt-2 prose dark:prose-invert max-w-none [&_a]:text-primary [&_a]:underline [&_a]:hover:text-primary/80 [&_a]:cursor-pointer"
+                      dangerouslySetInnerHTML={{ __html: linkifyUrls(currentLesson?.description || course.description || '') }}
                     />
                   </div>
                   {course.difficulty_level && (

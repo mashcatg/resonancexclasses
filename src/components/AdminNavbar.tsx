@@ -6,6 +6,7 @@ import { GraduationCap, BookOpen, Users, CreditCard, Settings, LogOut, User, Shi
 import { useAuth } from "@/hooks/useAuth";
 import { Link, useLocation } from "react-router-dom";
 import { useState } from "react";
+import { NotificationsDropdown } from "@/components/NotificationsDropdown";
 
 const AdminNavbar = () => {
   const { profile, signOut, isSuperAdmin } = useAuth();
@@ -69,6 +70,9 @@ const AdminNavbar = () => {
 
           {/* User Menu and Mobile Menu Button */}
           <div className="flex items-center space-x-2 md:space-x-4">
+            {/* Notifications */}
+            <NotificationsDropdown />
+
             {/* Mobile Menu Button */}
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}

@@ -225,9 +225,9 @@ export const CustomVideoPlayer = ({ url, title, className = '' }: CustomVideoPla
         setHoverTime(null);
       }}
     >
-      {/* Video Player - Scaled up and clipped to hide YT UI */}
+      {/* Video Player */}
       {cleanUrl && (
-        <div className="absolute inset-[-80px] pointer-events-none scale-[1.15]">
+        <div className="absolute inset-0">
           <ReactPlayer
             key={cleanUrl}
             ref={playerRef}
