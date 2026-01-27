@@ -15,6 +15,7 @@ This is a comprehensive online learning platform built with modern web technolog
 - **Responsive Design**: Mobile-first approach using Tailwind CSS
 - **Real-time Updates**: Supabase integration for live data
 
+
 ## Tech Stack
 
 - **Frontend**: React 18 + TypeScript
