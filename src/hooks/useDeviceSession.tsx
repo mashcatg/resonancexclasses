@@ -86,6 +86,7 @@ export const useDeviceSession = (
   const [isRevoked, setIsRevoked] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const sessionIdRef = useRef<string | null>(null);
+  const hasInitialized = useRef(false);
 
   const checkDeviceSession = useCallback(async () => {
     if (!user || !isStudent) {
@@ -95,7 +96,10 @@ export const useDeviceSession = (
     }
 
     try {
-      setIsLoading(true);
+      // Only show loading on first initialization
+      if (!hasInitialized.current) {
+        setIsLoading(true);
+      }
       const fingerprint = generateFingerprint();
       const { browser, os } = getBrowserInfo();
       const deviceName = `${browser} on ${os}`;
@@ -168,6 +172,7 @@ export const useDeviceSession = (
       console.error("Error checking device session:", error);
     } finally {
       setIsLoading(false);
+      hasInitialized.current = true;
     }
   }, [user, isStudent]);
 
