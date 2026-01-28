@@ -364,34 +364,56 @@ const QuizAttempt = () => {
                             <XCircle className="h-5 w-5 text-red-600 flex-shrink-0 mt-1" />
                           )}
                           <div className="flex-1">
-                            <div className="font-medium mb-2 prose prose-sm max-w-none">
+                            <div className="font-medium mb-2 prose prose-sm max-w-none [&_img]:max-w-full [&_img]:h-auto [&_img]:rounded-md [&_img]:my-2">
                               <span>{index + 1}. </span>
                               <span className="inline">
                                 <ReactMarkdown 
                                   remarkPlugins={[remarkMath]} 
                                   rehypePlugins={[rehypeKatex, rehypeRaw]}
                                 >
-                                  {question.question_text}
+                                  {normalizeMarkdown(question.question_text)}
                                 </ReactMarkdown>
                               </span>
                             </div>
                             <div className="space-y-2 text-sm">
-                              <p>
+                              <div>
                                 <span className="font-medium">Your answer:</span>{' '}
-                                <span className={answers[question.id] ? '' : 'text-muted-foreground'}>
-                                  {answers[question.id] || 'Not answered'}
-                                </span>
-                              </p>
+                                {answers[question.id] ? (
+                                  <span className="inline prose prose-sm max-w-none">
+                                    <ReactMarkdown 
+                                      remarkPlugins={[remarkMath]} 
+                                      rehypePlugins={[rehypeKatex, rehypeRaw]}
+                                    >
+                                      {answers[question.id]}
+                                    </ReactMarkdown>
+                                  </span>
+                                ) : (
+                                  <span className="text-muted-foreground">Not answered</span>
+                                )}
+                              </div>
                               {!isCorrect && (
                                 <p>
                                   <span className="font-medium text-green-600">Correct answer:</span>{' '}
-                                  {question.correct_answer}
+                                  <span className="inline prose prose-sm max-w-none">
+                                    <ReactMarkdown 
+                                      remarkPlugins={[remarkMath]} 
+                                      rehypePlugins={[rehypeKatex, rehypeRaw]}
+                                    >
+                                      {question.correct_answer}
+                                    </ReactMarkdown>
+                                  </span>
                                 </p>
                               )}
                               {question.explanation && (
-                                <p className="text-muted-foreground italic mt-2">
-                                  {question.explanation}
-                                </p>
+                                <div className="text-muted-foreground mt-2 prose prose-sm max-w-none [&_img]:max-w-full [&_img]:h-auto [&_img]:rounded-md">
+                                  <span className="font-medium">Explanation: </span>
+                                  <ReactMarkdown 
+                                    remarkPlugins={[remarkMath]} 
+                                    rehypePlugins={[rehypeKatex, rehypeRaw]}
+                                  >
+                                    {question.explanation}
+                                  </ReactMarkdown>
+                                </div>
                               )}
                             </div>
                           </div>
@@ -436,10 +458,14 @@ const QuizAttempt = () => {
             <CardHeader>
               <CardTitle>{quiz.title}</CardTitle>
               {quiz.description && (
-                <div 
-                  className="text-muted-foreground text-sm md:text-md prose prose-sm max-w-none"
-                  dangerouslySetInnerHTML={{ __html: quiz.description }}
-                />
+                <div className="text-muted-foreground text-sm md:text-md prose prose-sm max-w-none [&_img]:max-w-full [&_img]:h-auto [&_img]:rounded-md">
+                  <ReactMarkdown 
+                    remarkPlugins={[remarkMath]} 
+                    rehypePlugins={[rehypeKatex, rehypeRaw]}
+                  >
+                    {quiz.description}
+                  </ReactMarkdown>
+                </div>
               )}
             </CardHeader>
             <CardContent>
@@ -470,12 +496,12 @@ const QuizAttempt = () => {
                   <CardTitle className="text-lg">
                     Question {index + 1} ({question.points} {question.points === 1 ? 'point' : 'points'})
                   </CardTitle>
-                  <div className="text-base font-normal prose prose-sm max-w-none">
+                  <div className="text-base font-normal prose prose-sm max-w-none [&_img]:max-w-full [&_img]:h-auto [&_img]:rounded-md [&_img]:my-2">
                     <ReactMarkdown 
                       remarkPlugins={[remarkMath]} 
                       rehypePlugins={[rehypeKatex, rehypeRaw]}
                     >
-                      {question.question_text}
+                      {normalizeMarkdown(question.question_text)}
                     </ReactMarkdown>
                   </div>
                 </CardHeader>
@@ -488,12 +514,12 @@ const QuizAttempt = () => {
                       <div key={optIndex} className="flex items-start space-x-2 mb-3">
                         <RadioGroupItem value={option} id={`${question.id}-${optIndex}`} className="mt-1" />
                         <Label htmlFor={`${question.id}-${optIndex}`} className="cursor-pointer flex-1">
-                          <div className="prose prose-sm max-w-none">
+                          <div className="prose prose-sm max-w-none [&_img]:max-w-full [&_img]:h-auto [&_img]:rounded-md">
                             <ReactMarkdown 
                               remarkPlugins={[remarkMath]} 
                               rehypePlugins={[rehypeKatex, rehypeRaw]}
                             >
-                              {option}
+                              {normalizeMarkdown(option)}
                             </ReactMarkdown>
                           </div>
                         </Label>
