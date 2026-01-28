@@ -59,72 +59,31 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     let isMounted = true;
 
-    // Get initial session
-    const initAuth = async () => {
-      try {
-        console.log('Getting initial session...');
-        const { data: { session }, error } = await supabase.auth.getSession();
-        console.log('Got session:', session ? 'yes' : 'no', error ? 'error: ' + error.message : '');
-        
-        if (!isMounted) return;
-        
-        if (error) {
-          console.error('Error getting session:', error);
-        }
-
-        setSession(session);
-        setUser(session?.user ?? null);
-        
-        if (session?.user) {
-          try {
-            const profile = await fetchProfile(session.user.id);
-            if (isMounted) {
-              setProfile(profile);
-            }
-          } catch (e) {
-            console.error('Profile fetch error:', e);
-          }
-        }
-        
-        if (isMounted) {
-          setLoading(false);
-        }
-      } catch (error) {
-        console.error('Error in initAuth:', error);
-        if (isMounted) {
-          setLoading(false);
-        }
-      }
-    };
-
-    initAuth();
-
-    // Set up auth state listener for subsequent changes
+    // Set up auth state listener - this handles ALL auth state changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
+      (event, session) => {
         console.log('Auth event:', event);
         if (!isMounted) return;
         
-        // Handle sign in/out events after initial load
-        if (event === 'SIGNED_IN') {
-          setSession(session);
-          setUser(session?.user ?? null);
-          if (session?.user) {
-            try {
-              const profile = await fetchProfile(session.user.id);
-              if (isMounted) {
-                setProfile(profile);
-              }
-            } catch (e) {
-              console.error('Profile fetch error:', e);
+        // Immediately update session and user
+        setSession(session);
+        setUser(session?.user ?? null);
+        
+        // Immediately set loading to false - don't wait for profile
+        setLoading(false);
+        
+        // Fetch profile in the background (non-blocking)
+        if (session?.user) {
+          fetchProfile(session.user.id).then(profile => {
+            if (isMounted) {
+              setProfile(profile);
             }
-          }
-        } else if (event === 'SIGNED_OUT') {
-          setSession(null);
-          setUser(null);
+          }).catch(e => {
+            console.error('Profile fetch error:', e);
+          });
+        } else {
           setProfile(null);
         }
-        // Ignore: INITIAL_SESSION, TOKEN_REFRESHED, USER_UPDATED, PASSWORD_RECOVERY
       }
     );
 
