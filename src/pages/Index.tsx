@@ -33,29 +33,66 @@ interface Course {
 
 const Index = () => {
   const [featuredCourses, setFeaturedCourses] = useState<Course[]>([]);
+  const [isProcessingAuth, setIsProcessingAuth] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const { user, profile, loading } = useAuth();
 
-  // Handle OAuth callback - redirect to dashboard if user is authenticated via OAuth
+  // Handle OAuth/Recovery callback - redirect appropriately
   useEffect(() => {
-    // Check if there's an access_token in the URL hash (OAuth callback)
     const hashParams = new URLSearchParams(window.location.hash.substring(1));
     const accessToken = hashParams.get('access_token');
+    const type = hashParams.get('type');
     
-    // Only redirect if coming from OAuth (has token in URL) and user is authenticated
-    if (accessToken && !loading && user) {
-      // Clear the hash from URL for cleaner appearance
+    // If there's a recovery token, redirect to reset-password page immediately
+    if (accessToken && type === 'recovery') {
+      console.log('Recovery token detected, redirecting to reset-password...');
+      // Keep the hash params for the reset-password page to use
+      navigate('/reset-password' + window.location.hash, { replace: true });
+      return;
+    }
+    
+    // For OAuth (non-recovery), wait for auth to complete then redirect
+    if (accessToken && !type) {
+      setIsProcessingAuth(true);
+    }
+  }, [navigate]);
+
+  // Handle OAuth redirect after session is established
+  useEffect(() => {
+    if (!isProcessingAuth) return;
+    
+    // Wait for loading to complete and user to be authenticated
+    if (!loading && user) {
+      // Clear the hash from URL
       window.history.replaceState(null, '', window.location.pathname);
       
-      // Redirect based on user role
-      if (profile?.role === 'admin' || profile?.role === 'superadmin') {
-        navigate('/dashboard', { replace: true });
-      } else {
-        navigate('/student/dashboard', { replace: true });
-      }
+      // Small delay to ensure profile is fetched
+      const redirectTimeout = setTimeout(() => {
+        // Redirect based on user role (default to student if profile not loaded yet)
+        if (profile?.role === 'admin' || profile?.role === 'superadmin') {
+          navigate('/dashboard', { replace: true });
+        } else {
+          navigate('/student/dashboard', { replace: true });
+        }
+        setIsProcessingAuth(false);
+      }, 500);
+      
+      return () => clearTimeout(redirectTimeout);
     }
-  }, [loading, user, profile, navigate]);
+  }, [loading, user, profile, navigate, isProcessingAuth]);
+
+  // Show loading while processing OAuth
+  if (isProcessingAuth) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Signing you in...</p>
+        </div>
+      </div>
+    );
+  }
 
   // Handle scroll to section when navigating from other pages
   useEffect(() => {

@@ -60,10 +60,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     let isMounted = true;
 
     // Check for OAuth callback tokens in URL hash and handle them
+    // NOTE: We do NOT handle recovery tokens here - those are handled by ResetPassword page
     const handleOAuthCallback = async () => {
       const hashParams = new URLSearchParams(window.location.hash.substring(1));
       const accessToken = hashParams.get('access_token');
       const refreshToken = hashParams.get('refresh_token');
+      const type = hashParams.get('type');
+      
+      // Skip recovery tokens - they should be handled by ResetPassword page
+      if (type === 'recovery') {
+        console.log('Recovery token detected in useAuth, skipping (handled by ResetPassword)');
+        return;
+      }
       
       if (accessToken && refreshToken) {
         console.log('OAuth callback detected, setting session...');
@@ -77,8 +85,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             console.error('Error setting session from OAuth callback:', error);
           } else if (data.session) {
             console.log('Session set successfully from OAuth callback');
-            // Clear the hash from URL
-            window.history.replaceState(null, '', window.location.pathname + window.location.search);
+            // Don't clear hash here - let Index.tsx handle the redirect and clear it
           }
         } catch (error) {
           console.error('Error handling OAuth callback:', error);
