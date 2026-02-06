@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
 import Header from "@/components/Header";
 import HeroSection from "@/components/HeroSection";
 import FeaturesSection from "@/components/FeaturesSection";
@@ -34,6 +35,27 @@ const Index = () => {
   const [featuredCourses, setFeaturedCourses] = useState<Course[]>([]);
   const navigate = useNavigate();
   const location = useLocation();
+  const { user, profile, loading } = useAuth();
+
+  // Handle OAuth callback - redirect to dashboard if user is authenticated via OAuth
+  useEffect(() => {
+    // Check if there's an access_token in the URL hash (OAuth callback)
+    const hashParams = new URLSearchParams(window.location.hash.substring(1));
+    const accessToken = hashParams.get('access_token');
+    
+    // Only redirect if coming from OAuth (has token in URL) and user is authenticated
+    if (accessToken && !loading && user) {
+      // Clear the hash from URL for cleaner appearance
+      window.history.replaceState(null, '', window.location.pathname);
+      
+      // Redirect based on user role
+      if (profile?.role === 'admin' || profile?.role === 'superadmin') {
+        navigate('/dashboard', { replace: true });
+      } else {
+        navigate('/student/dashboard', { replace: true });
+      }
+    }
+  }, [loading, user, profile, navigate]);
 
   // Handle scroll to section when navigating from other pages
   useEffect(() => {

@@ -59,6 +59,36 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     let isMounted = true;
 
+    // Check for OAuth callback tokens in URL hash and handle them
+    const handleOAuthCallback = async () => {
+      const hashParams = new URLSearchParams(window.location.hash.substring(1));
+      const accessToken = hashParams.get('access_token');
+      const refreshToken = hashParams.get('refresh_token');
+      
+      if (accessToken && refreshToken) {
+        console.log('OAuth callback detected, setting session...');
+        try {
+          const { data, error } = await supabase.auth.setSession({
+            access_token: accessToken,
+            refresh_token: refreshToken,
+          });
+          
+          if (error) {
+            console.error('Error setting session from OAuth callback:', error);
+          } else if (data.session) {
+            console.log('Session set successfully from OAuth callback');
+            // Clear the hash from URL
+            window.history.replaceState(null, '', window.location.pathname + window.location.search);
+          }
+        } catch (error) {
+          console.error('Error handling OAuth callback:', error);
+        }
+      }
+    };
+
+    // Handle OAuth callback first
+    handleOAuthCallback();
+
     // Set up auth state listener - this handles ALL auth state changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
