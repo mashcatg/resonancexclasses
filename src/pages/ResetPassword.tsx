@@ -15,18 +15,64 @@ const ResetPassword = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [isValidSession, setIsValidSession] = useState(false);
+  const [checkingSession, setCheckingSession] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Check if we have a valid recovery session
-    const checkSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        toast.error("Invalid or expired reset link. Please request a new one.");
+    // Handle the recovery token from the URL hash
+    const handleRecoveryToken = async () => {
+      try {
+        // Check if there's a recovery token in the URL hash
+        const hashParams = new URLSearchParams(window.location.hash.substring(1));
+        const accessToken = hashParams.get('access_token');
+        const refreshToken = hashParams.get('refresh_token');
+        const type = hashParams.get('type');
+
+        if (accessToken && refreshToken && type === 'recovery') {
+          console.log('Recovery token detected, setting session...');
+          
+          // Set the session using the recovery tokens
+          const { data, error } = await supabase.auth.setSession({
+            access_token: accessToken,
+            refresh_token: refreshToken,
+          });
+
+          if (error) {
+            console.error('Error setting recovery session:', error);
+            toast.error("Invalid or expired reset link. Please request a new one.");
+            navigate("/login");
+            return;
+          }
+
+          if (data.session) {
+            console.log('Recovery session set successfully');
+            // Clear the hash from URL for cleaner appearance
+            window.history.replaceState(null, '', window.location.pathname);
+            setIsValidSession(true);
+            setCheckingSession(false);
+            return;
+          }
+        }
+
+        // If no recovery token in URL, check for existing session
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session) {
+          setIsValidSession(true);
+        } else {
+          toast.error("Invalid or expired reset link. Please request a new one.");
+          navigate("/login");
+        }
+      } catch (error) {
+        console.error('Error handling recovery:', error);
+        toast.error("Something went wrong. Please try again.");
         navigate("/login");
+      } finally {
+        setCheckingSession(false);
       }
     };
-    checkSession();
+
+    handleRecoveryToken();
   }, [navigate]);
 
   const handleResetPassword = async (e: React.FormEvent) => {
@@ -84,7 +130,12 @@ const ResetPassword = () => {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
-            {success ? (
+            {checkingSession ? (
+              <div className="text-center py-8">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+                <p className="text-muted-foreground">Verifying reset link...</p>
+              </div>
+            ) : success ? (
               <div className="text-center py-8">
                 <CheckCircle className="h-16 w-16 text-green-500 mx-auto mb-4" />
                 <p className="text-muted-foreground mb-4">
