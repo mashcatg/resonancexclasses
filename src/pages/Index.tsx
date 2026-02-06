@@ -82,18 +82,6 @@ const Index = () => {
     }
   }, [loading, user, profile, navigate, isProcessingAuth]);
 
-  // Show loading while processing OAuth
-  if (isProcessingAuth) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Signing you in...</p>
-        </div>
-      </div>
-    );
-  }
-
   // Handle scroll to section when navigating from other pages
   useEffect(() => {
     const state = location.state as { scrollTo?: string } | null;
@@ -126,6 +114,18 @@ const Index = () => {
 
     fetchFeaturedCourses();
   }, []);
+
+  // Show loading while processing OAuth - AFTER all hooks
+  if (isProcessingAuth) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Signing you in...</p>
+        </div>
+      </div>
+    );
+  }
 
   const getDifficultyColor = (level: string | null) => {
     switch (level?.toLowerCase()) {

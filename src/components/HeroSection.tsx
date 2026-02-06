@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -58,6 +59,8 @@ const defaultSettings: HeroSettings = {
 
 const HeroSection = () => {
   const [settings, setSettings] = useState<HeroSettings>(defaultSettings);
+  const [isLoading, setIsLoading] = useState(true);
+  const [imageLoaded, setImageLoaded] = useState(false);
 
   useEffect(() => {
     fetchHeroSettings();
@@ -65,6 +68,7 @@ const HeroSection = () => {
 
   const fetchHeroSettings = async () => {
     try {
+      setIsLoading(true);
       const { data, error } = await supabase
         .from('hero_settings' as any)
         .select('*')
@@ -76,6 +80,8 @@ const HeroSection = () => {
     } catch (error) {
       console.error('Error fetching hero settings:', error);
       // Use default settings if fetch fails
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -161,10 +167,16 @@ const HeroSection = () => {
               {/* Primary Square Background */}
               <div className="absolute inset-0 rounded-2xl bg-primary transform translate-x-4 translate-y-4 opacity-20" />
               <div className="absolute inset-0 rounded-2xl bg-gradient-to-b from-primary/80 to-primary overflow-hidden border-8 border-background">
+                {/* Skeleton placeholder while loading */}
+                {(!imageLoaded || isLoading) && (
+                  <Skeleton className="w-full h-full absolute inset-0 rounded-none" />
+                )}
                 <img 
                   src={settings.hero_image_url} 
                   alt="resonancexclasses" 
-                  className="w-full h-full object-cover"
+                  className={`w-full h-full object-cover transition-opacity duration-300 ${imageLoaded && !isLoading ? 'opacity-100' : 'opacity-0'}`}
+                  onLoad={() => setImageLoaded(true)}
+                  onError={() => setImageLoaded(true)} // Show default even on error
                 />
               </div>
 

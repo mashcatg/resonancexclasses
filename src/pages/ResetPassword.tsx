@@ -1,8 +1,8 @@
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { GraduationCap, Eye, EyeOff, CheckCircle } from "lucide-react";
+import { GraduationCap, Eye, EyeOff, CheckCircle, CheckCircle2, Lock, ArrowLeft } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -110,113 +110,183 @@ const ResetPassword = () => {
     }
   };
 
+  const benefits = [
+    "Access 15+ expert-led courses",
+    "Learn at your own pace, anytime, anywhere",
+    "Earn certificates upon completion",
+    "Dedicated support from instructors",
+  ];
+
+  // Loading state
+  if (checkingSession) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Verifying reset link...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-gradient-hero flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
-        {/* Logo and Title */}
-        <div className="text-center mb-8 animate-fade-in">
-          <Link to="/" className="inline-flex items-center justify-center space-x-2 mb-4">
-           <img src="logo transparent.png" alt="Logo" className="w-24 h-24" />
-          </Link>
+    <div className="min-h-screen bg-background">
+      <div className="grid lg:grid-cols-2 min-h-screen">
+        {/* Left Side - Branding */}
+        <div className="hidden lg:flex flex-col bg-primary p-8 lg:p-12 text-white relative overflow-hidden">
+          {/* Background pattern */}
+          <div className="absolute inset-0 opacity-10">
+            <div className="absolute top-20 left-10 w-72 h-72 bg-white rounded-full blur-3xl" />
+            <div className="absolute bottom-20 right-10 w-96 h-96 bg-blue-300 rounded-full blur-3xl" />
+          </div>
           
-          <p className="text-white/80">Set your new password</p>
+          <div className="relative z-10 flex-1 flex flex-col">
+            {/* Logo */}
+            <Link to="/" className="flex items-center space-x-2 mb-16">
+              <img src="resonancexclasses-login-logo.png" alt="Logo" className="w-28 h-28 brightness-0 invert" />
+            </Link>
+            
+            {/* Main content */}
+            <div className="flex-1 flex flex-col justify-center">
+              <div className="mb-8">
+                <GraduationCap className="h-16 w-16 text-white/80 mb-6" />
+                <h1 className="text-3xl sm:text-4xl font-bold mb-4">
+                  Think Learn Rise.<br />With RCA
+                </h1>
+                <p className="text-base sm:text-lg text-white/80 mb-4">
+                  Learn smart, grow fast. Access quality online education with expert support anytime, anywhere.
+                </p>
+                <p className="text-base sm:text-lg text-white/90 font-medium italic">
+                  Let hard work be a habit, dreams be your goal, and studying be your daily inspiration.
+                </p>
+              </div>
+              
+              {/* Benefits */}
+              <div className="space-y-3 sm:space-y-4">
+                {benefits.map((benefit, index) => (
+                  <div 
+                    key={index} 
+                    className="flex items-center gap-2 sm:gap-3 animate-fade-in"
+                    style={{ animationDelay: `${index * 0.1}s` }}
+                  >
+                    <CheckCircle2 className="h-4 sm:h-5 w-4 sm:w-5 text-blue-200 flex-shrink-0" />
+                    <span className="text-sm sm:text-base text-white/90">{benefit}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+            
+            {/* Footer */}
+            <div className="text-xs sm:text-sm text-white/60">
+              © {new Date().getFullYear()} ResonanceX Classes. All rights reserved. Build by <a href="https://studio.ennovat.com" className="text-white underline">Ennovat Studio</a>
+            </div>
+          </div>
         </div>
 
-        {/* Reset Password Card */}
-        <Card className="bg-white/95 backdrop-blur-sm border-white/20 animate-scale-in">
-          <CardHeader className="text-center pb-4">
-            <CardTitle className="text-2xl font-semibold text-foreground">
-              {success ? "Password Updated" : "Reset Password"}
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            {checkingSession ? (
-              <div className="text-center py-8">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-                <p className="text-muted-foreground">Verifying reset link...</p>
-              </div>
-            ) : success ? (
-              <div className="text-center py-8">
-                <CheckCircle className="h-16 w-16 text-green-500 mx-auto mb-4" />
-                <p className="text-muted-foreground mb-4">
-                  Your password has been updated successfully.
-                </p>
-                <p className="text-sm text-muted-foreground">
-                  Redirecting to login...
-                </p>
-              </div>
-            ) : (
-              <form onSubmit={handleResetPassword} className="space-y-6">
-                {/* New Password */}
-                <div className="space-y-2">
-                  <Label htmlFor="password" className="text-sm font-medium">New Password</Label>
-                  <div className="relative">
-                    <Input
-                      id="password"
-                      type={showPassword ? "text" : "password"}
-                      placeholder="Enter Your New Password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      className="w-full pr-10"
-                      required
-                      minLength={6}
-                    />
-                    <button
-                      type="button"
-                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                      onClick={() => setShowPassword(!showPassword)}
-                    >
-                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                    </button>
-                  </div>
-                </div>
+        {/* Right Side - Form */}
+        <div className="flex flex-col justify-center p-4 sm:p-8 lg:p-16 bg-background">
+          {/* Mobile logo */}
+          <Link to="/" className="flex lg:hidden items-center space-x-2 mb-2 sm:mb-8">
+            <img src="logo transparent.png" alt="Logo" className="w-24 h-24 brightness-0 invert" />
+          </Link>
 
-                {/* Confirm Password */}
-                <div className="space-y-2">
-                  <Label htmlFor="confirmPassword" className="text-sm font-medium">Confirm Password</Label>
-                  <div className="relative">
-                    <Input
-                      id="confirmPassword"
-                      type={showConfirmPassword ? "text" : "password"}
-                      placeholder="Enter Your Password Again"
-                      value={confirmPassword}
-                      onChange={(e) => setConfirmPassword(e.target.value)}
-                      className="w-full pr-10"
-                      required
-                      minLength={6}
-                    />
-                    <button
-                      type="button"
-                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    >
-                      {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                    </button>
-                  </div>
-                </div>
-
-                {/* Submit Button */}
-                <Button 
-                  type="submit" 
-                  className="w-full btn-hero text-white font-medium py-3"
-                  disabled={loading}
+          <div className="w-full max-w-md mx-auto">
+            <Card className="border-none shadow-none">
+              <CardHeader className="px-0 py-4 space-y-1">
+                <Link
+                  to="/login"
+                  className="flex items-center text-xs sm:text-sm text-muted-foreground hover:text-foreground mb-4 transition-colors"
                 >
-                  {loading ? "Updating..." : "Update Password"}
-                </Button>
+                  <ArrowLeft className="h-4 w-4 mr-1" />
+                  Back to login
+                </Link>
+                <CardTitle className="text-xl sm:text-2xl font-bold">
+                  {success ? "Password Updated!" : "Set New Password"}
+                </CardTitle>
+                <CardDescription className="text-xs sm:text-sm">
+                  {success 
+                    ? "Your password has been updated successfully"
+                    : "Enter your new password below"
+                  }
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="py-4 px-0">
+                {success ? (
+                  <div className="text-center py-8">
+                    <CheckCircle className="h-16 w-16 text-green-500 mx-auto mb-4" />
+                    <p className="text-muted-foreground mb-4">
+                      Your password has been updated successfully.
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      Redirecting to login...
+                    </p>
+                  </div>
+                ) : (
+                  <form onSubmit={handleResetPassword} className="space-y-4">
+                    {/* New Password */}
+                    <div className="space-y-2">
+                      <Label htmlFor="password" className="text-xs sm:text-sm">New Password</Label>
+                      <div className="relative">
+                        <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Input
+                          id="password"
+                          type={showPassword ? "text" : "password"}
+                          placeholder="Enter Your New Password"
+                          className="pl-10 pr-10 text-sm"
+                          value={password}
+                          onChange={(e) => setPassword(e.target.value)}
+                          required
+                          minLength={6}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowPassword(!showPassword)}
+                          className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                        >
+                          {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                        </button>
+                      </div>
+                    </div>
 
-                <div className="text-center">
-                  <Link to="/login" className="text-sm text-primary hover:underline">
-                    Back to Sign In
-                  </Link>
-                </div>
-              </form>
-            )}
-          </CardContent>
-        </Card>
+                    {/* Confirm Password */}
+                    <div className="space-y-2">
+                      <Label htmlFor="confirmPassword" className="text-xs sm:text-sm">Confirm Password</Label>
+                      <div className="relative">
+                        <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Input
+                          id="confirmPassword"
+                          type={showConfirmPassword ? "text" : "password"}
+                          placeholder="Confirm Your New Password"
+                          className="pl-10 pr-10 text-sm"
+                          value={confirmPassword}
+                          onChange={(e) => setConfirmPassword(e.target.value)}
+                          required
+                          minLength={6}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                          className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                        >
+                          {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                        </button>
+                      </div>
+                    </div>
 
-        {/* Footer */}
-        <div className="text-center mt-8 text-white/80 text-sm animate-fade-in">
-          © {new Date().getFullYear()} ResonanceX Classes. All rights reserved. Build by <a href="https://studio.ennovat.com" className="text-white underline">Ennovat Studio</a>
+                    {/* Submit Button */}
+                    <Button type="submit" className="w-full text-sm" disabled={loading}>
+                      {loading ? "Updating Password..." : "Update Password"}
+                    </Button>
+                  </form>
+                )}
+              </CardContent>
+            </Card>
+            
+            {/* Mobile footer */}
+            <p className="mt-6 sm:mt-8 text-center text-xs sm:text-sm text-muted-foreground lg:hidden">
+              © {new Date().getFullYear()} ResonanceX Classes
+            </p>
+          </div>
         </div>
       </div>
     </div>
